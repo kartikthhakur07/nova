@@ -1,12 +1,104 @@
-# Nova Architecture
-
-This repository is organized into separate domains:
-
-- `frontend/`: UI and client-side logic.
-- `backend/`: API definitions, agents, memory, models, and service orchestration.
-- `qdrant/`: Vector search collections, seed data, and ingestion pipelines.
-- `rime/`: Streaming and speech/latency infrastructure.
-- `data_simulator/`: Synthetic data generators, scenario definitions, and schema definitions.
-- `evaluation/`: Test cases and result storage for evaluation and benchmarking.
-- `demo/`: Example demos and walkthroughs.
-- `assets/`: Architecture diagrams, screenshots, and branding assets.
+┌──────────────────────────────────────────────────────────────────┐
+│                    INDUSTRIAL EVENT SOURCES                     │
+│                                                                  │
+│ Gas / Temperature / Pressure                                    │
+│ SCADA Events · Permits · Maintenance · Shifts · CCTV Events    │
+└───────────────────────────────┬──────────────────────────────────┘
+                                │
+                                │ Async Event Stream
+                                ▼
+┌──────────────────────────────────────────────────────────────────┐
+│                  SENSOR / EVENT INTELLIGENCE                     │
+│                                                                  │
+│ Event normalization                                              │
+│ Typed event generation                                            │
+│ Deterministic threshold pre-filter                               │
+│ Rolling event window                                              │
+└───────────────────────────────┬──────────────────────────────────┘
+                                │
+                                │ Normalized Events
+                                ▼
+┌──────────────────────────────────────────────────────────────────┐
+│                   OPERATIONAL CONTEXT AGENT                      │
+│                                                                  │
+│ Combines live operational state with:                            │
+│ - Equipment context                                               │
+│ - Maintenance history                                             │
+│ - Active permits                                                  │
+│ - Shift state                                                     │
+│ - Zone information                                                │
+└───────────────────────┬───────────────────────────┬──────────────┘
+                        │                           │
+                        │                           │ Qdrant
+                        │                           ▼
+                        │              ┌───────────────────────────┐
+                        │              │ Equipment Context         │
+                        │              │ Maintenance History       │
+                        │              └───────────────────────────┘
+                        │
+                        ▼
+┌──────────────────────────────────────────────────────────────────┐
+│                       RISK REASONER                               │
+│                                                                  │
+│ Compound-risk correlation                                        │
+│ Historical similarity retrieval                                  │
+│ Deterministic + LLM reasoning                                    │
+│ Evidence construction                                             │
+│ Risk tier classification                                          │
+└───────────────────────────────┬──────────────────────────────────┘
+                                │
+                                │ Risk Assessment + Evidence
+                                ▼
+┌──────────────────────────────────────────────────────────────────┐
+│                  DETERMINISTIC POLICY ENGINE                     │
+│                                                                  │
+│ Low      → Log                                                    │
+│ Medium   → Notify                                                 │
+│ High     → Voice + Human Authorization                            │
+│ Critical → Voice + Timeout Escalation + Safety Fallback          │
+└───────────────────────────────┬──────────────────────────────────┘
+                                │
+                    ┌───────────┴────────────┐
+                    │                        │
+                    ▼                        ▼
+        ┌───────────────────────┐   ┌──────────────────────┐
+        │ VOICE INTERACTION     │   │ AUDIT / CASE LOG     │
+        │ AGENT                 │   │                      │
+        │                       │   │ Immutable decision   │
+        │ Rime streaming        │   │ trail                 │
+        │ ASR                   │   │                      │
+        │ Barge-in              │   └──────────────────────┘
+        │ State stack            │
+        └───────────┬───────────┘
+                    │
+                    │ Voice
+                    ▼
+             ┌──────────────┐
+             │   OPERATOR   │
+             │              │
+             │ Human voice  │
+             │ authorization│
+             └──────┬───────┘
+                    │
+                    │ Authorized Action
+                    ▼
+        ┌──────────────────────────────┐
+        │ RESPONSE / WORKFLOW          │
+        │ ORCHESTRATOR                 │
+        │                              │
+        │ Permit suspension            │
+        │ Evacuation broadcast         │
+        │ Incident logging             │
+        │ Callback scheduling          │
+        └──────────────┬───────────────┘
+                       │
+                       │ Resolution + Debrief
+                       ▼
+        ┌──────────────────────────────────────────┐
+        │              MEMORY WRITE-BACK           │
+        │                                          │
+        │ Qdrant: lessons_learned                  │
+        │ Qdrant: risk_patterns                    │
+        └─────────────────────┬────────────────────┘
+                              │
+                              └──────────────► Future Risk Reasoning
