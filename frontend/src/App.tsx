@@ -29,12 +29,15 @@ import { useCaseStore } from './store/useCaseStore'
 import { useSessionSocket } from './ws/useSessionSocket'
 
 
+import { SystemStatusBar } from './components/SystemStatusBar'
+
 // ── CaseLayout ────────────────────────────────────────────────────────── //
 
 function CaseLayout() {
   const { id: caseId = '' } = useParams<{ id: string }>()
   const currentStage = useCaseStore((s) => s.currentStage)
-  const reachedStages = useCaseStore((s) => s.reachedStages)
+  const reachedStagesSet = useCaseStore((s) => s.reachedStages)
+  const reachedStages = Array.from(reachedStagesSet) as import('./store/useCaseStore').PipelineStage[]
 
   // Fetch case on mount
   useCaseState(caseId)
@@ -54,11 +57,12 @@ function CaseLayout() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900">
+    <div className="flex flex-col min-h-screen bg-nova-bg pb-8">
       <CaseStepperNav caseId={caseId} currentStage={currentStage} reachedStages={reachedStages} />
       <main className="flex-1">
         <Outlet />
       </main>
+      <SystemStatusBar />
     </div>
   )
 }
