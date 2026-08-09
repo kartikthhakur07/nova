@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "VIGIL Raw Event Scenario",
+  "description": "Schema for validating simulator scenario JSON files",
+  "type": "object",
+  "required": ["scenario_id", "description", "events"],
+  "additionalProperties": false,
+  "properties": {
+    "scenario_id": {
+      "type": "string",
+      "description": "Unique identifier for this scenario"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of what this scenario demonstrates"
+    },
+    "speed_multiplier_default": {
+      "type": "number",
+      "default": 2.0,
+      "description": "Default playback speed (1.0 = real-time, 2.0 = 2x faster)"
+    },
+    "events": {
+      "type": "array",
+      "description": "Ordered list of events to replay",
+      "items": {
+        "type": "object",
+        "required": ["offset_seconds", "source", "zone_id"],
+        "additionalProperties": false,
+        "properties": {
+          "offset_seconds": {
+            "type": "number",
+            "description": "Seconds from scenario start when this event fires"
+          },
+          "source": {
+            "type": "string",
+            "enum": ["gas_sensor", "scada", "permit", "maintenance", "shift", "cctv"],
+            "description": "Originating sensor or system type"
+          },
+          "zone_id": {
+            "type": "string",
+            "description": "Physical zone identifier, e.g. Bay3"
+          },
+          "equipment_id": {
+            "type": ["string", "null"],
+            "description": "Equipment identifier if relevant, else null"
+          },
+          "value": {
+            "type": ["number", "null"],
+            "description": "Numeric reading (null for event-only sources like permits)"
+          },
+          "unit": {
+            "type": ["string", "null"],
+            "description": "Engineering unit, e.g. ppm, bar, rpm (null if not applicable)"
+          },
+          "severity_hint": {
+            "type": "string",
+            "enum": ["normal", "elevated", "critical"],
+            "description": "Pre-labelled severity for the event"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Source-specific additional fields"
+          }
+        }
+      }
+    }
+  }
+}
