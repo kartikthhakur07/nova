@@ -1,0 +1,182 @@
+{
+  "scenario_id": "hero_scenario",
+  "description": "Bay 3 compound-risk arc: shift changeover + compressor drift + hot-work permit + gas elevation + worker zone entry. Canonical demo for VIGIL StarForge 2026. All values are load-bearing — Aarushi's risk engine calibrates thresholds against these exact readings.",
+  "speed_multiplier_default": 2.0,
+  "events": [
+    {
+      "offset_seconds": 0,
+      "source": "shift",
+      "zone_id": "Bay3",
+      "equipment_id": null,
+      "value": null,
+      "unit": null,
+      "severity_hint": "elevated",
+      "metadata": {
+        "shift_id": "SHF-2026-0809-B3-AM",
+        "zone_id": "Bay3",
+        "event": "changeover_warning",
+        "changeover_in_minutes": 20,
+        "supervisor": "Sgt-Ramos",
+        "headcount": 14
+      }
+    },
+    {
+      "offset_seconds": 5,
+      "source": "gas_sensor",
+      "zone_id": "Bay3",
+      "equipment_id": "gas-detector-B3-01",
+      "value": 200,
+      "unit": "ppm",
+      "severity_hint": "normal",
+      "metadata": {
+        "baseline_ppm": 200,
+        "note": "Baseline established — this reading is the calibration reference"
+      }
+    },
+    {
+      "offset_seconds": 10,
+      "source": "maintenance",
+      "zone_id": "Bay3",
+      "equipment_id": "compressor-C14",
+      "value": null,
+      "unit": null,
+      "severity_hint": "elevated",
+      "metadata": {
+        "record_id": "MNT-C14-0809-001",
+        "equipment_id": "compressor-C14",
+        "fault_code": "DRIFT-001",
+        "summary": "Compressor C-14 flagged for pressure drift"
+      }
+    },
+    {
+      "offset_seconds": 15,
+      "source": "permit",
+      "zone_id": "Bay3",
+      "equipment_id": null,
+      "value": null,
+      "unit": null,
+      "severity_hint": "elevated",
+      "metadata": {
+        "permit_id": "P-2291",
+        "permit_type": "hot_work",
+        "holder": "Officer-Singh",
+        "action": "activated"
+      }
+    },
+    {
+      "offset_seconds": 20,
+      "source": "gas_sensor",
+      "zone_id": "Bay3",
+      "equipment_id": "gas-detector-B3-01",
+      "value": 210,
+      "unit": "ppm",
+      "severity_hint": "elevated",
+      "metadata": {
+        "baseline_ppm": 200,
+        "note": "5% above baseline — first elevation signal"
+      }
+    },
+    {
+      "offset_seconds": 25,
+      "source": "scada",
+      "zone_id": "Bay3",
+      "equipment_id": "compressor-C14",
+      "value": 8.2,
+      "unit": "bar",
+      "severity_hint": "normal",
+      "metadata": {
+        "tag": "PRESS-C14",
+        "alarm_state": false,
+        "note": "Slightly elevated pressure — below alarm threshold but trending"
+      }
+    },
+    {
+      "offset_seconds": 30,
+      "source": "gas_sensor",
+      "zone_id": "Bay3",
+      "equipment_id": "gas-detector-B3-01",
+      "value": 216,
+      "unit": "ppm",
+      "severity_hint": "elevated",
+      "metadata": {
+        "baseline_ppm": 200,
+        "note": "8% above baseline — compound trigger point. Combined with hot-work permit + maintenance flag, this crosses the risk threshold."
+      }
+    },
+    {
+      "offset_seconds": 35,
+      "source": "shift",
+      "zone_id": "Bay3",
+      "equipment_id": null,
+      "value": null,
+      "unit": null,
+      "severity_hint": "elevated",
+      "metadata": {
+        "shift_id": "SHF-2026-0809-B3-AM",
+        "zone_id": "Bay3",
+        "event": "changeover_warning",
+        "changeover_in_minutes": 15,
+        "supervisor": "Sgt-Ramos",
+        "headcount": 14,
+        "note": "Tightening window — attention further divided"
+      }
+    },
+    {
+      "offset_seconds": 40,
+      "source": "cctv",
+      "zone_id": "Bay3",
+      "equipment_id": null,
+      "value": null,
+      "unit": null,
+      "severity_hint": "elevated",
+      "metadata": {
+        "event_type": "zone_entry",
+        "confidence": 0.91,
+        "zone_id": "Bay3",
+        "note": "Worker enters active hot-work zone — personnel exposure confirmed"
+      }
+    },
+    {
+      "offset_seconds": 45,
+      "source": "gas_sensor",
+      "zone_id": "Bay3",
+      "equipment_id": "gas-detector-B3-01",
+      "value": 218,
+      "unit": "ppm",
+      "severity_hint": "elevated",
+      "metadata": {
+        "baseline_ppm": 200,
+        "note": "9% above baseline — compound score should now exceed voice-call threshold"
+      }
+    },
+    {
+      "offset_seconds": 120,
+      "source": "permit",
+      "zone_id": "Bay3",
+      "equipment_id": null,
+      "value": null,
+      "unit": null,
+      "severity_hint": "normal",
+      "metadata": {
+        "permit_id": "P-2291",
+        "permit_type": "hot_work",
+        "holder": "Officer-Singh",
+        "action": "suspended",
+        "note": "Resolution: permit suspended after officer authorization"
+      }
+    },
+    {
+      "offset_seconds": 125,
+      "source": "gas_sensor",
+      "zone_id": "Bay3",
+      "equipment_id": "gas-detector-B3-01",
+      "value": 205,
+      "unit": "ppm",
+      "severity_hint": "normal",
+      "metadata": {
+        "baseline_ppm": 200,
+        "note": "Normalizing after compressor serviced and permit suspended"
+      }
+    }
+  ]
+}

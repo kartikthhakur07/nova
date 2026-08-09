@@ -1,0 +1,86 @@
+{
+  "scenario_id": "false_positive_scenario",
+  "description": "Bay 5: gas elevation with NO active permit and NO maintenance flag. Should produce low risk tier only — no voice call triggered. Proves false-positive suppression is real: a single-signal spike that would trigger a naive threshold system is correctly classified as low-risk because compound signals are absent.",
+  "speed_multiplier_default": 2.0,
+  "events": [
+    {
+      "offset_seconds": 0,
+      "source": "gas_sensor",
+      "zone_id": "Bay5",
+      "equipment_id": "gas-detector-B5-01",
+      "value": 200,
+      "unit": "ppm",
+      "severity_hint": "normal",
+      "metadata": {
+        "baseline_ppm": 200,
+        "note": "Normal baseline — no other signals active"
+      }
+    },
+    {
+      "offset_seconds": 10,
+      "source": "gas_sensor",
+      "zone_id": "Bay5",
+      "equipment_id": "gas-detector-B5-01",
+      "value": 212,
+      "unit": "ppm",
+      "severity_hint": "elevated",
+      "metadata": {
+        "baseline_ppm": 200,
+        "note": "6% above baseline — would trigger naive single-sensor alarm"
+      }
+    },
+    {
+      "offset_seconds": 20,
+      "source": "gas_sensor",
+      "zone_id": "Bay5",
+      "equipment_id": "gas-detector-B5-01",
+      "value": 218,
+      "unit": "ppm",
+      "severity_hint": "elevated",
+      "metadata": {
+        "baseline_ppm": 200,
+        "note": "9% above baseline — still no permit, no maintenance. Compound score stays LOW."
+      }
+    },
+    {
+      "offset_seconds": 25,
+      "source": "scada",
+      "zone_id": "Bay5",
+      "equipment_id": "compressor-C09",
+      "value": 7.9,
+      "unit": "bar",
+      "severity_hint": "normal",
+      "metadata": {
+        "tag": "PRESS-C09",
+        "alarm_state": false,
+        "note": "Compressor nominal — no fault flag"
+      }
+    },
+    {
+      "offset_seconds": 35,
+      "source": "gas_sensor",
+      "zone_id": "Bay5",
+      "equipment_id": "gas-detector-B5-01",
+      "value": 215,
+      "unit": "ppm",
+      "severity_hint": "elevated",
+      "metadata": {
+        "baseline_ppm": 200,
+        "note": "7.5% — trending up but still isolated signal"
+      }
+    },
+    {
+      "offset_seconds": 50,
+      "source": "gas_sensor",
+      "zone_id": "Bay5",
+      "equipment_id": "gas-detector-B5-01",
+      "value": 206,
+      "unit": "ppm",
+      "severity_hint": "normal",
+      "metadata": {
+        "baseline_ppm": 200,
+        "note": "Returning to baseline — natural variance, no incident"
+      }
+    }
+  ]
+}

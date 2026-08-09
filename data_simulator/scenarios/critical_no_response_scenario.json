@@ -1,0 +1,176 @@
+{
+  "scenario_id": "critical_no_response_scenario",
+  "description": "Bay 1: Full hero-pattern compound risk. Officer is called but gives NO authorization within 30 seconds (simulated non-response). Should trigger escalation to shift manager and ultimately deterministic safety fallback. Used by the E2E benchmark to validate escalation logic.",
+  "speed_multiplier_default": 2.0,
+  "events": [
+    {
+      "offset_seconds": 0,
+      "source": "shift",
+      "zone_id": "Bay1",
+      "equipment_id": null,
+      "value": null,
+      "unit": null,
+      "severity_hint": "elevated",
+      "metadata": {
+        "shift_id": "SHF-2026-0809-B1-NIGHT",
+        "zone_id": "Bay1",
+        "event": "changeover_warning",
+        "changeover_in_minutes": 20,
+        "supervisor": "Capt-Okonkwo",
+        "headcount": 8
+      }
+    },
+    {
+      "offset_seconds": 5,
+      "source": "gas_sensor",
+      "zone_id": "Bay1",
+      "equipment_id": "gas-detector-B1-01",
+      "value": 200,
+      "unit": "ppm",
+      "severity_hint": "normal",
+      "metadata": {
+        "baseline_ppm": 200
+      }
+    },
+    {
+      "offset_seconds": 10,
+      "source": "maintenance",
+      "zone_id": "Bay1",
+      "equipment_id": "compressor-C03",
+      "value": null,
+      "unit": null,
+      "severity_hint": "elevated",
+      "metadata": {
+        "record_id": "MNT-C03-0809-001",
+        "equipment_id": "compressor-C03",
+        "fault_code": "DRIFT-001",
+        "summary": "Compressor C-03 flagged for pressure drift"
+      }
+    },
+    {
+      "offset_seconds": 15,
+      "source": "permit",
+      "zone_id": "Bay1",
+      "equipment_id": null,
+      "value": null,
+      "unit": null,
+      "severity_hint": "elevated",
+      "metadata": {
+        "permit_id": "P-1887",
+        "permit_type": "hot_work",
+        "holder": "Officer-Williams",
+        "action": "activated"
+      }
+    },
+    {
+      "offset_seconds": 20,
+      "source": "gas_sensor",
+      "zone_id": "Bay1",
+      "equipment_id": "gas-detector-B1-01",
+      "value": 210,
+      "unit": "ppm",
+      "severity_hint": "elevated",
+      "metadata": {
+        "baseline_ppm": 200
+      }
+    },
+    {
+      "offset_seconds": 25,
+      "source": "scada",
+      "zone_id": "Bay1",
+      "equipment_id": "compressor-C03",
+      "value": 8.4,
+      "unit": "bar",
+      "severity_hint": "normal",
+      "metadata": {
+        "tag": "PRESS-C03",
+        "alarm_state": false
+      }
+    },
+    {
+      "offset_seconds": 30,
+      "source": "gas_sensor",
+      "zone_id": "Bay1",
+      "equipment_id": "gas-detector-B1-01",
+      "value": 216,
+      "unit": "ppm",
+      "severity_hint": "elevated",
+      "metadata": {
+        "baseline_ppm": 200,
+        "note": "8% above baseline — compound trigger. VIGIL initiates voice call to Officer-Williams."
+      }
+    },
+    {
+      "offset_seconds": 35,
+      "source": "cctv",
+      "zone_id": "Bay1",
+      "equipment_id": null,
+      "value": null,
+      "unit": null,
+      "severity_hint": "elevated",
+      "metadata": {
+        "event_type": "zone_entry",
+        "confidence": 0.93,
+        "zone_id": "Bay1"
+      }
+    },
+    {
+      "offset_seconds": 40,
+      "source": "gas_sensor",
+      "zone_id": "Bay1",
+      "equipment_id": "gas-detector-B1-01",
+      "value": 219,
+      "unit": "ppm",
+      "severity_hint": "elevated",
+      "metadata": {
+        "baseline_ppm": 200,
+        "note": "9.5% above baseline — compound score critical. 30s timeout window starts now."
+      }
+    },
+    {
+      "offset_seconds": 45,
+      "source": "scada",
+      "zone_id": "Bay1",
+      "equipment_id": "compressor-C03",
+      "value": 8.9,
+      "unit": "bar",
+      "severity_hint": "elevated",
+      "metadata": {
+        "tag": "PRESS-C03",
+        "alarm_state": false,
+        "note": "Pressure climbing — compressor degradation accelerating"
+      }
+    },
+    {
+      "offset_seconds": 55,
+      "source": "gas_sensor",
+      "zone_id": "Bay1",
+      "equipment_id": "gas-detector-B1-01",
+      "value": 223,
+      "unit": "ppm",
+      "severity_hint": "critical",
+      "metadata": {
+        "baseline_ppm": 200,
+        "note": "11.5% above — critical threshold. Officer has not responded in 25s. Escalation to shift manager imminent."
+      }
+    },
+    {
+      "offset_seconds": 70,
+      "source": "shift",
+      "zone_id": "Bay1",
+      "equipment_id": null,
+      "value": null,
+      "unit": null,
+      "severity_hint": "critical",
+      "metadata": {
+        "shift_id": "SHF-2026-0809-B1-NIGHT",
+        "zone_id": "Bay1",
+        "event": "changeover_warning",
+        "changeover_in_minutes": 10,
+        "supervisor": "Capt-Okonkwo",
+        "headcount": 8,
+        "note": "10-minute changeover warning fires during unresolved critical risk — worst-case scenario"
+      }
+    }
+  ]
+}
