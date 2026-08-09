@@ -1,0 +1,2 @@
+{"pattern_type": "compound_gas_permit_shift", "zone_id": "BAY-3", "equipment_class": "pressure_vessel", "text_summary": "Compound pattern: Gas sensor +8% above baseline + active hot work permit + recent compressor drift + shift changeover within 30 min."}
+{"pattern_type": "thermal_runaway_cascade", "zone_id": "UNIT-7", "equipment_class": "heat_exchanger", "text_summary": "Compound pattern: Heat exchanger delta-T drop + high pressure alarm + delayed valve response."}

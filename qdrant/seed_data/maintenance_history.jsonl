@@ -1,0 +1,3 @@
+{"equipment_id": "C-14", "date": "2026-08-09T10:30:00Z", "fault_type": "DRIFT-03", "text_summary": "Compressor C-14 flagged for discharge-pressure drift 2h ago; sensor recalibrated."}
+{"equipment_id": "V-204B", "date": "2026-08-01T14:00:00Z", "fault_type": "VALVE-STICK", "text_summary": "Pressure vessel V-204B relief valve inspection completed; minor sticking resolved."}
+{"equipment_id": "HX-101A", "date": "2026-07-25T09:00:00Z", "fault_type": "FOULING-01", "text_summary": "Heat exchanger HX-101A tube bundle descaling and hydrostatic testing."}

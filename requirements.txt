@@ -1,0 +1,34 @@
+# ==========================================
+# NOVA — Backend Dependencies
+# ==========================================
+
+# Backend API / WebSocket
+fastapi
+uvicorn[standard]
+
+# Data Models / Validation
+pydantic
+
+# Configuration
+python-dotenv
+PyYAML
+
+# Qdrant Vector Memory
+qdrant-client
+
+# Embeddings
+sentence-transformers
+
+# Reranking
+transformers
+torch
+
+# Local Speech-to-Text
+faster-whisper
+
+# HTTP / External Services
+httpx
+
+# Testing
+pytest
+pytest-asyncio
