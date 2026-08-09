@@ -1,0 +1,25 @@
+{
+  "hero_scenario": {
+    "expected_tier": "high",
+    "expected_tool": "permit_suspend",
+    "expected_retrieval_collection": "incidents_historical",
+    "compound_trigger_window_seconds": [30, 50],
+    "voice_call_expected": true
+  },
+  "false_positive_scenario": {
+    "expected_tier": "low",
+    "voice_call_expected": false,
+    "retrieval_expected": false
+  },
+  "critical_no_response_scenario": {
+    "expected_tier": "critical",
+    "escalation_expected": true,
+    "escalation_timeout_seconds": 30
+  },
+  "second_incident": {
+    "expected_tier": "high",
+    "detection_faster_than_hero": true,
+    "lesson_retrieved_from": "lessons_learned",
+    "expected_retrieval_collection": "lessons_learned"
+  }
+}
