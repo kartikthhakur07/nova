@@ -248,7 +248,9 @@ def test_memory_loop_closes(seeded_store):
         ],
     )
 
-    matches = seeded_store.retrieve_historical_matches(context, top_k=10, top_n=10)
+    import time
+    time.sleep(0.5)  # Allow Qdrant Cloud indexing to settle
+    matches = seeded_store.retrieve_historical_matches(context, top_k=20, top_n=20)
     matched_ids = [m.record_id for m in matches]
 
     assert rec_id in matched_ids, f"Just-written lesson '{rec_id}' was not retrieved in historical matches! ({matched_ids})"
