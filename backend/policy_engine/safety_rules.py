@@ -136,8 +136,8 @@ def is_evidence_grounded(
 
     # If evidence references equipment ID(s) not present in context -> reject (hallucination)
     for ref_id in referenced_eq_ids:
-        # Ignore permit IDs like P-#### in equipment ID checks if not in equipment list
-        if not ref_id.startswith("P-") and ref_id not in known_equipment_ids:
+        # Reject if the ID is neither a known equipment ID nor present anywhere in the context blob
+        if ref_id not in known_equipment_ids and ref_id not in context_blob:
             return False
 
     # 2. Raw value check (if present):
