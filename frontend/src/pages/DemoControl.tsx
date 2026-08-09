@@ -1,21 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSessionSocket } from '../ws/useSessionSocket'
-import { apiGet, apiPost } from '../services/api'
-
-interface DemoStatus {
-  runner_active: boolean
-  current_case_id: string | null
-  current_step: number
-  total_steps: number
-}
+import { playScenario, resetScenario, getDemoStatus } from '../services/api'
+import type { DemoStatus } from '../types/api'
 
 export default function DemoControl() {
   const [status, setStatus] = useState<DemoStatus | null>(null)
   const [apiHealth, setApiHealth] = useState<'checking' | 'ok' | 'error'>('checking')
-  const [wsEvents, setWsEvents] = useState<any[]>([])
+  const [wsEvents, setWsEvents] = useState<Array<Record<string, unknown>>>([])
 
   // Use a fixed session ID for the demo page as specified
-  const { status: wsStatus } = useSessionSocket('demo-session', useCallback((msg) => {
+  const { status: wsStatus } = useSessionSocket('demo-session', useCallback((msg: Record<string, unknown>) => {
     setWsEvents((prev) => {
       const updated = [msg, ...prev]
       return updated.slice(0, 20) // Keep last 20
@@ -24,8 +18,8 @@ export default function DemoControl() {
 
   const fetchStatus = useCallback(async () => {
     try {
-      const data = await apiGet('/demo/status')
-      setStatus(data as DemoStatus)
+      const data = await getDemoStatus()
+      setStatus(data)
       setApiHealth('ok')
     } catch (err) {
       console.error('Failed to fetch demo status', err)
@@ -42,7 +36,7 @@ export default function DemoControl() {
 
   const handlePlay = async () => {
     try {
-      await apiPost('/demo/play')
+      await playScenario('hero_scenario')
       fetchStatus()
     } catch (err) {
       console.error('Failed to play demo', err)
@@ -51,7 +45,7 @@ export default function DemoControl() {
 
   const handleReset = async () => {
     try {
-      await apiPost('/demo/reset')
+      await resetScenario('hero_scenario')
       fetchStatus()
     } catch (err) {
       console.error('Failed to reset demo', err)
@@ -76,7 +70,7 @@ export default function DemoControl() {
         <div className="flex gap-4">
           <button
             onClick={handlePlay}
-            disabled={status?.runner_active}
+            disabled={status?.playing}
             className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded disabled:opacity-50"
           >
             Play Scenario
@@ -94,9 +88,8 @@ export default function DemoControl() {
         <div className="bg-gray-800 p-4 rounded shadow">
           <h2 className="text-gray-300 font-medium mb-2">Runner Status</h2>
           <div className="grid grid-cols-2 gap-4 text-sm font-mono">
-            <div>Active: <span className={status.runner_active ? 'text-green-400' : 'text-gray-400'}>{status.runner_active ? 'YES' : 'NO'}</span></div>
-            <div>Case ID: <span className="text-blue-300">{status.current_case_id || 'none'}</span></div>
-            <div>Step: <span className="text-yellow-300">{status.current_step} / {status.total_steps}</span></div>
+            <div>Playing: <span className={status.playing ? 'text-green-400' : 'text-gray-400'}>{status.playing ? 'YES' : 'NO'}</span></div>
+            <div>Active Scenario: <span className="text-blue-300">{status.active_scenario || 'none'}</span></div>
           </div>
         </div>
       )}
@@ -112,7 +105,7 @@ export default function DemoControl() {
           ) : (
             wsEvents.map((ev, i) => (
               <div key={i} className="bg-gray-900 p-2 rounded border border-gray-800 overflow-x-auto text-gray-300">
-                <span className="text-blue-400 font-bold">[{ev.type}]</span>{' '}
+                <span className="text-blue-400 font-bold">[{String(ev.type ?? 'event')}]</span>{' '}
                 <span className="text-gray-500">{JSON.stringify(ev.payload)}</span>
               </div>
             ))
