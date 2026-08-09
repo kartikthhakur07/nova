@@ -247,6 +247,38 @@ async def _complete_google(
         raise LLMClientError(f"Unexpected Gemini response shape: {data}") from exc
 
 
+async def _complete_groq(
+    system_prompt: str,
+    user_prompt: str,
+    response_format: Literal["json", "text"],
+    timeout_seconds: float,
+) -> str:
+    base_url = settings.LLM_API_BASE_URL or "https://api.groq.com/openai/v1"
+    url = f"{base_url}/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {settings.LLM_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    body: dict[str, Any] = {
+        "model": settings.LLM_MODEL or "llama-3.1-70b-versatile",
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+    }
+    if response_format == "json":
+        body["response_format"] = {"type": "json_object"}
+
+    resp = await _request_with_retry(
+        "POST", url, headers=headers, json_body=body, timeout=timeout_seconds
+    )
+    data = resp.json()
+    try:
+        return data["choices"][0]["message"]["content"]
+    except (KeyError, TypeError, IndexError) as exc:
+        raise LLMClientError(f"Unexpected Groq response shape: {data}") from exc
+
+
 # ------------------------------------------------------------------
 # Public API
 # ------------------------------------------------------------------
@@ -256,6 +288,7 @@ _PROVIDERS = {
     "openai": _complete_openai,
     "anthropic": _complete_anthropic,
     "google": _complete_google,
+    "groq": _complete_groq,
 }
 
 

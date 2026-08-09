@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import model_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     SESSION_SECRET: str = ""
 
     # ── LLM ────────────────────────────────────────────────────────────────
-    LLM_PROVIDER: Literal["ollama", "openai", "anthropic", "google"] = "ollama"
+    LLM_PROVIDER: Literal["ollama", "openai", "anthropic", "google", "groq"] = "ollama"
     LLM_MODEL: str = "llama3.1:8b"
     LLM_API_KEY: str = ""
     LLM_API_BASE_URL: str = ""
@@ -67,6 +67,23 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "info"
 
     # ── Validators ─────────────────────────────────────────────────────────
+
+    @field_validator("*", mode="before")
+    @classmethod
+    def _strip_inline_comments(cls, v: Any) -> Any:
+        if isinstance(v, str) and "#" in v:
+            return v.split("#")[0].strip()
+        return v
+
+    @field_validator("LLM_MODEL", mode="before")
+    @classmethod
+    def _default_llm_model_if_empty(cls, v: Any) -> Any:
+        if isinstance(v, str):
+            cleaned = v.split("#")[0].strip()
+            if not cleaned:
+                return "llama3.1:8b"
+            return cleaned
+        return v
 
     @model_validator(mode="after")
     def _require_api_key_for_hosted_providers(self) -> "Settings":
