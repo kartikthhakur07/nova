@@ -1,12 +1,16 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { useThemeStore } from '../store/useThemeStore'
-import { Menu, X } from 'lucide-react'
-import LOGO from "../assets/LOGO.png"
+import { Menu, X, ChevronDown } from 'lucide-react'
+import LOGONEW2 from "../assets/LOGONEW2.png"
 
 export default function Navbar() {
   const { theme, toggle } = useThemeStore()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [productOpen, setProductOpen] = useState(false)
+  const [mobileProductOpen, setMobileProductOpen] = useState(false)
+  const closeTimeout = useRef(null)
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -14,12 +18,28 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const links = [
-    { label: 'Product', href: '#product' },
-    { label: 'Approach', href: '#approach' },
-    { label: 'Capabilities', href: '#capabilities' },
-    { label: 'Contact', href: '#contact' },
+  const productLinks = [
+    { label: 'Risk Overview', href: '/' },
+    { label: 'Converging Signals', href: '/signals' },
+    { label: 'Retrieval Trace', href: '/retrieval-trace' },
+    { label: 'Audit', href: '/audit-trail' },
+    { label: 'Authorisation', href: '/auth' },
   ]
+
+  const links = [
+    { label: 'Signals', href: '/signals' },
+    { label: 'Retreival', href: '/retrieval-trace' },
+    { label: 'Audit', href: '/audit-trail' },
+  ]
+
+  const openProductMenu = () => {
+    if (closeTimeout.current) clearTimeout(closeTimeout.current)
+    setProductOpen(true)
+  }
+
+  const closeProductMenu = () => {
+    closeTimeout.current = setTimeout(() => setProductOpen(false), 150)
+  }
 
   return (
     <nav
@@ -29,19 +49,67 @@ export default function Navbar() {
         }`}
     >
       <div className="container flex items-center h-16 gap-8" style={{ marginBottom: '8px' }}>
-        <a href="/" className="flex items-center gap-2 no-underline shrink-0">
-          <img src={LOGO} alt="Logo" className='w-50 h-20 mt-10 ml-10' />
-        </a>
+        <Link to="/" className="flex items-center gap-2 no-underline shrink-0">
+          <img src={LOGONEW2} alt="Logo" className='w-50 h-20 mt-10 ml-10' />
+        </Link>
 
         <div className="hidden md:flex items-center gap-8 ml-auto">
+          {/* Product dropdown */}
+          <div
+            className="relative"
+            onMouseEnter={openProductMenu}
+            onMouseLeave={closeProductMenu}
+          >
+            <button
+              className="nav-link flex items-center gap-1 bg-transparent border-0 cursor-pointer"
+              style={{ color: '#656765ff' }}
+              onClick={() => setProductOpen((o) => !o)}
+              aria-expanded={productOpen}
+            >
+              Product
+              <ChevronDown
+                size={14}
+                style={{
+                  transition: 'transform 0.2s ease',
+                  transform: productOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                }}
+              />
+            </button>
+
+            {productOpen && (
+              <div
+                className="absolute top-full left-0 mt-2 py-2 rounded-md min-w-[220px]"
+                style={{
+                  background: 'var(--nav-bg, rgba(10,10,10,0.95))',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  backdropFilter: 'blur(20px)',
+                  color: '#000000'
+                }}
+              >
+                {productLinks.map((l) => (
+                  <Link
+                    key={l.label}
+                    to={l.href}
+                    className="block px-4 py-2 text-sm no-underline hover:bg-gray-500"
+                    style={{ color: '#0b0a0aff' }}
+                    onClick={() => setProductOpen(false)}
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
           {links.map((l) => (
-            <a key={l.label} href={l.href} className="nav-link" style={{ color: '#FFFFFF' }}>
+            <Link key={l.label} to={l.href} className="nav-link" style={{ color: '#706e6eff' }}>
               {l.label}
-            </a>
+            </Link>
           ))}
 
-          <div
-            className="flex items-center gap-1.5 px-3 py-1 rounded-sm"
+          <Link
+            to="/voice-interaction"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-sm no-underline"
             style={{ border: '1px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.08)' }}
           >
             <span
@@ -49,9 +117,9 @@ export default function Navbar() {
               style={{ background: '#FFFFFF' }}
             />
             <span className="font-mono text-[0.65rem] font-bold tracking-[0.12em]" style={{ color: '#FFFFFF' }}>
-              LIVE
+              LIVE CALL
             </span>
-          </div>
+          </Link>
 
           <ThemeToggle theme={theme} toggle={toggle} />
         </div>
@@ -70,17 +138,62 @@ export default function Navbar() {
 
       {mobileOpen && (
         <div className="bg-[var(--nav-bg)] backdrop-blur-xl border-t border-[var(--border)] px-8 py-4 flex flex-col gap-4">
+          <div>
+            <button
+              className="nav-link text-sm py-2 flex items-center gap-1 bg-transparent border-0 cursor-pointer w-full"
+              style={{ color: '#595d60ff' }}
+              onClick={() => setMobileProductOpen((o) => !o)}
+              aria-expanded={mobileProductOpen}
+            >
+              Product
+              <ChevronDown
+                size={14}
+                style={{
+                  transition: 'transform 0.2s ease',
+                  transform: mobileProductOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                }}
+              />
+            </button>
+            {mobileProductOpen && (
+              <div className="flex flex-col gap-2 pl-4 pt-1">
+                {productLinks.map((l) => (
+                  <Link
+                    key={l.label}
+                    to={l.href}
+                    className="text-sm py-1 no-underline"
+                    style={{ color: '#FFFFFF' }}
+                    onClick={() => {
+                      setMobileProductOpen(false)
+                      setMobileOpen(false)
+                    }}
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
           {links.map((l) => (
-            <a
+            <Link
               key={l.label}
-              href={l.href}
+              to={l.href}
               className="nav-link text-sm py-2"
               style={{ color: '#FFFFFF' }}
               onClick={() => setMobileOpen(false)}
             >
               {l.label}
-            </a>
+            </Link>
           ))}
+
+          <Link
+            to="/live-call"
+            className="nav-link text-sm py-2"
+            style={{ color: '#FFFFFF' }}
+            onClick={() => setMobileOpen(false)}
+          >
+            LIVE CALL
+          </Link>
         </div>
       )}
     </nav>
