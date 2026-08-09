@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useThemeStore } from '../store/useThemeStore'
 import { Menu, X, ChevronDown } from 'lucide-react'
-import LOGO from "../assets/LOGO.png"
+import LOGONEW2 from "../assets/LOGONEW2.png"
 
 export default function Navbar() {
   const { theme, toggle } = useThemeStore()
@@ -44,13 +44,13 @@ export default function Navbar() {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-[100] mb-20px transition-all duration-350 ${scrolled
-        ? 'bg-[var(--nav-bg)] color:#000000 backdrop-blur-xl border-b border-[var(--border)]'
+        ? 'bg-[var(--nav-bg)] backdrop-blur-xl border-b border-[var(--border)]'
         : 'bg-transparent border-b border-transparent'
         }`}
     >
       <div className="container flex items-center h-16 gap-8" style={{ marginBottom: '8px' }}>
         <Link to="/" className="flex items-center gap-2 no-underline shrink-0">
-          <img src={LOGO} alt="Logo" className='w-50 h-20 mt-10 ml-10' />
+          <img src={LOGONEW2} alt="Logo" className='w-50 h-20 mt-10 ml-10' />
         </Link>
 
         <div className="hidden md:flex items-center gap-8 ml-auto">
@@ -62,7 +62,7 @@ export default function Navbar() {
           >
             <button
               className="nav-link flex items-center gap-1 bg-transparent border-0 cursor-pointer"
-              style={{ color: '#dae0daff' }}
+              style={{ color: '#656765ff' }}
               onClick={() => setProductOpen((o) => !o)}
               aria-expanded={productOpen}
             >
@@ -102,7 +102,7 @@ export default function Navbar() {
           </div>
 
           {links.map((l) => (
-            <Link key={l.label} to={l.href} className="nav-link" style={{ color: '#FFFFFF' }}>
+            <Link key={l.label} to={l.href} className="nav-link" style={{ color: '#706e6eff' }}>
               {l.label}
             </Link>
           ))}
@@ -141,7 +141,7 @@ export default function Navbar() {
           <div>
             <button
               className="nav-link text-sm py-2 flex items-center gap-1 bg-transparent border-0 cursor-pointer w-full"
-              style={{ color: '#FFFFFF' }}
+              style={{ color: '#595d60ff' }}
               onClick={() => setMobileProductOpen((o) => !o)}
               aria-expanded={mobileProductOpen}
             >
