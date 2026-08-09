@@ -1,0 +1,93 @@
+[
+  {
+    "event_id": "evt_001",
+    "source": "gas_sensor",
+    "zone_id": "BAY-3",
+    "equipment_id": "V-204B",
+    "ts": "2026-08-09T12:00:00Z",
+    "value": 200.0,
+    "unit": "ppm",
+    "metadata": {}
+  },
+  {
+    "event_id": "evt_002",
+    "source": "gas_sensor",
+    "zone_id": "BAY-3",
+    "equipment_id": "V-204B",
+    "ts": "2026-08-09T12:00:05Z",
+    "value": 216.0,
+    "unit": "ppm",
+    "metadata": {}
+  },
+  {
+    "event_id": "evt_003",
+    "source": "permit",
+    "zone_id": "BAY-3",
+    "equipment_id": null,
+    "ts": "2026-08-09T12:00:10Z",
+    "value": null,
+    "unit": null,
+    "metadata": {
+      "action": "activated",
+      "permit_id": "P-2291"
+    }
+  },
+  {
+    "event_id": "evt_004",
+    "source": "maintenance",
+    "zone_id": "BAY-3",
+    "equipment_id": "V-204B",
+    "ts": "2026-08-09T12:00:15Z",
+    "value": null,
+    "unit": null,
+    "metadata": {
+      "type": "gasket_replacement"
+    }
+  },
+  {
+    "event_id": "evt_005",
+    "source": "gas_sensor",
+    "zone_id": "BAY-3",
+    "equipment_id": "V-204B",
+    "ts": "2026-08-09T12:00:20Z",
+    "value": 232.0,
+    "unit": "ppm",
+    "metadata": {}
+  },
+  {
+    "event_id": "evt_007",
+    "source": "cctv",
+    "zone_id": "BAY-3",
+    "equipment_id": null,
+    "ts": "2026-08-09T12:00:30Z",
+    "value": null,
+    "unit": null,
+    "metadata": {
+      "confidence": 0.91,
+      "description": "Thermal anomaly detected"
+    }
+  },
+  {
+    "event_id": "evt_008",
+    "source": "gas_sensor",
+    "zone_id": "BAY-5",
+    "equipment_id": "R-501",
+    "ts": "2026-08-09T12:00:35Z",
+    "value": 220.0,
+    "unit": "ppm",
+    "metadata": {}
+  },
+  {
+    "event_id": "evt_009_cctv_low",
+    "source": "cctv",
+    "zone_id": "BAY-3",
+    "equipment_id": null,
+    "ts": "2026-08-09T12:00:40Z",
+    "value": null,
+    "unit": null,
+    "metadata": {
+      "confidence": 0.5,
+      "description": "Low confidence movement"
+    }
+  }
+]
