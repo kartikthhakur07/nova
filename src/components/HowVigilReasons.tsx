@@ -51,14 +51,18 @@ export default function HowVigilReasons() {
         </div>
 
         {/* Steps grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-[var(--border)]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {STEPS.map((step) => (
             <StepCard key={step.num} {...step} />
           ))}
         </div>
 
         {/* Pipeline flow diagram */}
-        <PipelineDiagram />
+        <div className="mt-10">
+
+          <PipelineDiagram />
+        </div>
+
       </div>
     </section>
   )
@@ -66,7 +70,7 @@ export default function HowVigilReasons() {
 
 function StepCard({ num, title, desc }: { num: string; title: string; desc: string }) {
   return (
-    <div className="bg-bg-secondary p-7 transition-all duration-250 relative overflow-hidden group hover:bg-card-bg hover:border-l-2 hover:border-accent">
+    <div className="bg-bg-secondary p-10 transition-all duration-250 relative overflow-hidden group hover:bg-card-bg hover:border-l-2 hover:border-accent">
       {/* Number watermark */}
       <div className="absolute -top-2 right-3 font-heading text-6xl text-accent opacity-5 leading-none select-none">
         {num}
@@ -78,7 +82,7 @@ function StepCard({ num, title, desc }: { num: string; title: string; desc: stri
       </div>
 
       {/* Title */}
-      <h3 className="font-heading text-2xl text-text-primary mb-2">
+      <h3 className="font-heading text-2xl text-text-primary mb-3 ml-2">
         {title}
       </h3>
 
@@ -95,12 +99,12 @@ function PipelineDiagram() {
   const nodes = ['Sensor/Event Intelligence', 'Operational Context', 'Risk Reasoner', 'Policy Engine', 'Voice Agent', 'Orchestrator', 'Qdrant Memory']
 
   return (
-    <div className="mt-12 p-8 border border-[var(--border)] bg-card-bg backdrop-blur-md">
-      <div className="font-mono text-[0.6rem] tracking-widest text-text-muted mb-5 uppercase">
+    <div className="pt-4 backdrop-blur-md">
+      <div className="font-mono text-[0.8rem] tracking-widest text-text-muted mb-5 p-8 Suppercase">
         AGENT PIPELINE — 5 agents, not agent soup
       </div>
 
-      <div className="flex items-center flex-wrap gap-0 overflow-x-auto pb-2">
+      <div className="flex items-center flex-wrap gap-4 overflow-x-auto pb-2 pt-2">
         {nodes.map((n, i) => (
           <div key={n} className="flex items-center shrink-0">
             <div className="px-3.5 py-1.5 border border-accent bg-accent/5 font-mono text-[0.65rem] font-semibold text-accent whitespace-nowrap tracking-wide transition-colors duration-200 hover:bg-accent/15">

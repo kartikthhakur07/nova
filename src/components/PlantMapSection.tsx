@@ -1,15 +1,15 @@
 import { useThemeStore } from '../store/useThemeStore'
 
 const ZONES_LARGE = [
-  { id: 'A1', label: 'Distillation Unit',  risk: 'low',    x: 0,  y: 0,  w: 3, h: 2, case: null },
-  { id: 'A2', label: 'Heat Exchanger Row', risk: 'low',    x: 3,  y: 0,  w: 3, h: 1, case: null },
-  { id: 'A3', label: 'Storage Array',      risk: 'medium', x: 6,  y: 0,  w: 2, h: 2, case: null },
-  { id: 'B1', label: 'Pump Station',        risk: 'low',    x: 3,  y: 1,  w: 3, h: 1, case: null },
-  { id: 'B3', label: 'Bay 3 — Compressor', risk: 'high',   x: 0,  y: 2,  w: 3, h: 3, case: 'c_8f21' },
-  { id: 'B4', label: 'Control Room',        risk: 'low',    x: 3,  y: 2,  w: 3, h: 1, case: null },
-  { id: 'C1', label: 'Maintenance Yard',    risk: 'low',    x: 3,  y: 3,  w: 2, h: 2, case: null },
-  { id: 'C2', label: 'Loading Bay',         risk: 'medium', x: 5,  y: 3,  w: 3, h: 2, case: null },
-  { id: 'D1', label: 'Utility Corridor',    risk: 'low',    x: 0,  y: 5,  w: 8, h: 1, case: null },
+  { id: 'A1', label: 'Distillation Unit', risk: 'low', x: 0, y: 0, w: 3, h: 2, case: null },
+  { id: 'A2', label: 'Heat Exchanger Row', risk: 'low', x: 3, y: 0, w: 3, h: 1, case: null },
+  { id: 'A3', label: 'Storage Array', risk: 'medium', x: 6, y: 0, w: 2, h: 2, case: null },
+  { id: 'B1', label: 'Pump Station', risk: 'low', x: 3, y: 1, w: 3, h: 1, case: null },
+  { id: 'B3', label: 'Bay 3 — Compressor', risk: 'high', x: 0, y: 2, w: 3, h: 3, case: 'c_8f21' },
+  { id: 'B4', label: 'Control Room', risk: 'low', x: 3, y: 2, w: 3, h: 1, case: null },
+  { id: 'C1', label: 'Maintenance Yard', risk: 'low', x: 3, y: 3, w: 2, h: 2, case: null },
+  { id: 'C2', label: 'Loading Bay', risk: 'medium', x: 5, y: 3, w: 3, h: 2, case: null },
+  { id: 'D1', label: 'Utility Corridor', risk: 'low', x: 0, y: 5, w: 8, h: 1, case: null },
 ]
 
 const AUDIT_ENTRIES = [
@@ -27,19 +27,19 @@ export default function PlantMapSection() {
 
   const CELL = 56
   const RISK_FILL: Record<string, string> = {
-    low:    isDark ? 'rgba(132,255,0,0.05)'  : 'rgba(74,103,65,0.08)',
+    low: isDark ? 'rgba(132,255,0,0.05)' : 'rgba(74,103,65,0.08)',
     medium: isDark ? 'rgba(251,191,36,0.12)' : 'rgba(217,119,6,0.1)',
-    high:   isDark ? 'rgba(249,115,22,0.2)'  : 'rgba(234,88,12,0.15)',
+    high: isDark ? 'rgba(249,115,22,0.2)' : 'rgba(234,88,12,0.15)',
   }
   const RISK_STROKE: Record<string, string> = {
-    low:    isDark ? 'rgba(132,255,0,0.25)'  : 'rgba(74,103,65,0.35)',
+    low: isDark ? 'rgba(132,255,0,0.25)' : 'rgba(74,103,65,0.35)',
     medium: 'rgba(251,191,36,0.5)',
-    high:   'rgba(249,115,22,0.85)',
+    high: 'rgba(249,115,22,0.85)',
   }
   const TEXT_COLOR = isDark ? 'rgba(232,245,226,0.55)' : 'rgba(26,36,22,0.45)'
 
   return (
-    <section className="bg-bg-primary pt-24 pb-0">
+    <section className="bg-bg-primary pt-24 pb-0" style={{ paddingTop: '10px' }}>
       <div className="container">
         {/* Header */}
         <div className="mb-12">
@@ -56,7 +56,7 @@ export default function PlantMapSection() {
         </div>
 
         {/* Two-column: plant map + audit log */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start" style={{ paddingBottom: '10px' }}>
           {/* Plant map */}
           <div>
             <div className="flex justify-between items-center mb-3">
@@ -124,8 +124,8 @@ export default function PlantMapSection() {
                           fill="var(--risk-high)"
                           opacity="0.9"
                         >
-                          <animate attributeName="r" values="4;7;4" dur="1.2s" repeatCount="indefinite"/>
-                          <animate attributeName="opacity" values="0.9;0.3;0.9" dur="1.2s" repeatCount="indefinite"/>
+                          <animate attributeName="r" values="4;7;4" dur="1.2s" repeatCount="indefinite" />
+                          <animate attributeName="opacity" values="0.9;0.3;0.9" dur="1.2s" repeatCount="indefinite" />
                         </circle>
                         <text
                           x={z.x * CELL + z.w * CELL / 2}
@@ -156,9 +156,8 @@ export default function PlantMapSection() {
               {AUDIT_ENTRIES.map((e, i) => (
                 <div
                   key={i}
-                  className={`flex gap-4 items-start p-3 border-b last:border-b-0 border-[var(--border)] transition-colors duration-200 hover:bg-card-bg ${
-                    e.risk === 'high' ? 'bg-risk-high/5' : 'bg-transparent'
-                  }`}
+                  className={`flex gap-4 items-start p-3 border-b last:border-b-0 border-[var(--border)] transition-colors duration-200 hover:bg-card-bg ${e.risk === 'high' ? 'bg-risk-high/5' : 'bg-transparent'
+                    }`}
                 >
                   {/* Timestamp */}
                   <span className="font-mono text-[0.6rem] text-text-muted whitespace-nowrap shrink-0 pt-0.5">
