@@ -13,6 +13,7 @@ pydantic
 
 # Configuration
 python-dotenv
+pydantic-settings
 PyYAML
 
 # Qdrant Vector Memory
@@ -34,3 +35,4 @@ httpx
 # Testing
 pytest
 pytest-asyncio
+respx
