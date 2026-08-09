@@ -46,8 +46,7 @@ export function CaseStepperNav({
       aria-label="Case pipeline steps"
     >
       {STAGES.map(({ key, label }) => {
-        // active based on URL, not just currentStage
-        const isActive = (key === 'overview' && activePath === caseId) || activePath === key
+        const isActive = (key === 'overview' && activePath === caseId) || activePath === key || (activePath === '' && key === currentStage)
         const isReached = reachedStages.has(key)
         const isDisabled = !isReached && !isActive
 

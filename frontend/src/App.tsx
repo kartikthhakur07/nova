@@ -27,19 +27,9 @@ import {
 import { CaseStepperNav } from './components/CaseStepperNav'
 import { useCaseStore } from './store/useCaseStore'
 import { useSessionSocket } from './ws/useSessionSocket'
-import type { PipelineStage } from './types/api'
 
 
 // ── CaseLayout ────────────────────────────────────────────────────────── //
-
-const ORDERED_STAGES: Array<PipelineStage> = [
-  'signals',
-  'retrieval',
-  'voice',
-  'confirm',
-  'audit',
-  'memory',
-]
 
 function CaseLayout() {
   const { id: caseId = '' } = useParams<{ id: string }>()

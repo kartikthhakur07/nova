@@ -5,6 +5,8 @@
 # Backend API / WebSocket
 fastapi
 uvicorn[standard]
+websockets
+aiosqlite
 
 # Data Models / Validation
 pydantic
