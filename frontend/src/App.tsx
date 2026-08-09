@@ -29,38 +29,10 @@ import { useCaseStore } from './store/useCaseStore'
 import { useSessionSocket } from './ws/useSessionSocket'
 import type { PipelineStage } from './types/api'
 
-// ── Placeholders (Saishree / Kartik own the real implementations) ─────── //
-
-function RiskOverview() {
-  return (
-    <div className="p-8 text-gray-300">
-      Risk Overview — coming from Saishree
-    </div>
-  )
-}
-
-function DemoControl() {
-  return (
-    <div className="p-8 text-gray-300">
-      Demo Control — coming from Kartik
-    </div>
-  )
-}
-
-// ── Stage placeholder factory ─────────────────────────────────────────── //
-
-function StagePlaceholder({ stage }: { stage: PipelineStage }) {
-  return (
-    <div className="p-8 text-gray-400 text-sm">
-      <span className="font-mono text-blue-400">{stage}</span> panel — coming soon
-    </div>
-  )
-}
 
 // ── CaseLayout ────────────────────────────────────────────────────────── //
 
-const ORDERED_STAGES: Array<PipelineStage | 'overview'> = [
-  'overview',
+const ORDERED_STAGES: Array<PipelineStage> = [
   'signals',
   'retrieval',
   'voice',
@@ -72,24 +44,28 @@ const ORDERED_STAGES: Array<PipelineStage | 'overview'> = [
 function CaseLayout() {
   const { id: caseId = '' } = useParams<{ id: string }>()
   const currentStage = useCaseStore((s) => s.currentStage)
+  const reachedStages = useCaseStore((s) => s.reachedStages)
+
+  // Fetch case on mount
+  useCaseState(caseId)
 
   // Connect WebSocket for this case session
   useSessionSocket(caseId)
 
-  // Build reachedStages: everything up to and including currentStage
-  const reachedStages = React.useMemo<Set<PipelineStage | 'overview'>>(() => {
-    const reached = new Set<PipelineStage | 'overview'>(['overview'])
-    if (currentStage === null) return reached
-    for (const stage of ORDERED_STAGES) {
-      reached.add(stage)
-      if (stage === currentStage) break
-    }
-    return reached
-  }, [currentStage])
+  // The instructions said to use CaseStepperNav + Outlet
+  // If case not found: show a simple "Case not found" message
+  const activeCase = useCaseStore(s => s.activeCase)
+
+  // To prevent flash of "Case not found", we should probably handle loading, but keeping it simple as requested.
+  // Actually, useCaseState handles it.
+
+  if (!activeCase) {
+    return <div className="p-8 text-gray-300">Case not found or loading...</div>
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-900">
-      <CaseStepperNav currentStage={currentStage} reachedStages={reachedStages} />
+      <CaseStepperNav caseId={caseId} currentStage={currentStage} reachedStages={reachedStages} />
       <main className="flex-1">
         <Outlet />
       </main>
@@ -98,6 +74,16 @@ function CaseLayout() {
 }
 
 // ── Router ────────────────────────────────────────────────────────────── //
+import RiskOverview from './pages/RiskOverview'
+import DemoControl from './pages/DemoControl'
+import Benchmark from './pages/Benchmark'
+import ConvergingSignals from './pages/ConvergingSignals'
+import RetrievalTrace from './pages/RetrievalTrace'
+import VoiceInteraction from './pages/VoiceInteraction'
+import Confirmation from './pages/Confirmation'
+import AuditTrail from './pages/AuditTrail'
+import LessonsLearned from './pages/LessonsLearned'
+import { useCaseState } from './hooks/useCaseState'
 
 const router = createBrowserRouter([
   {
@@ -109,15 +95,20 @@ const router = createBrowserRouter([
     element: <DemoControl />,
   },
   {
+    path: '/benchmark',
+    element: <Benchmark />,
+  },
+  {
     path: '/case/:id',
     element: <CaseLayout />,
     children: [
-      { path: 'signals',   element: <StagePlaceholder stage="signals"   /> },
-      { path: 'retrieval', element: <StagePlaceholder stage="retrieval" /> },
-      { path: 'voice',     element: <StagePlaceholder stage="voice"     /> },
-      { path: 'confirm',   element: <StagePlaceholder stage="confirm"   /> },
-      { path: 'audit',     element: <StagePlaceholder stage="audit"     /> },
-      { path: 'memory',    element: <StagePlaceholder stage="memory"    /> },
+      { index: true,       element: <RiskOverview /> },
+      { path: 'signals',   element: <ConvergingSignals /> },
+      { path: 'retrieval', element: <RetrievalTrace /> },
+      { path: 'voice',     element: <VoiceInteraction /> },
+      { path: 'confirm',   element: <Confirmation /> },
+      { path: 'audit',     element: <AuditTrail /> },
+      { path: 'memory',    element: <LessonsLearned /> },
     ],
   },
 ])
@@ -159,10 +150,26 @@ class ErrorBoundary extends React.Component<
 }
 
 // ── App root ──────────────────────────────────────────────────────────── //
+import { useEffect } from 'react'
+
+function GlobalShortcuts() {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        window.location.href = '/demo'
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
+  return null
+}
 
 export default function App() {
   return (
     <ErrorBoundary>
+      <GlobalShortcuts />
       <RouterProvider router={router} />
     </ErrorBoundary>
   )

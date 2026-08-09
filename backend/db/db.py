@@ -33,6 +33,37 @@ async def init_db(db_path: str) -> None:
     logger.info("VIGIL: database schema initialised at %s", db_path)
 
 
+async def seed_demo_cases(db_path: str) -> None:
+    """
+    Insert demo cases if the database is empty, so UI has something to show.
+    """
+    async with get_db(db_path) as db:
+        # Check if cases exist
+        cursor = await db.execute("SELECT COUNT(*) as count FROM cases")
+        row = await cursor.fetchone()
+        if row and row["count"] > 0:
+            return
+
+        now = "2026-08-09T06:00:00Z"
+        await db.execute(
+            """
+            INSERT INTO cases (case_id, zone_id, state, risk_tier, compound_score, authorized, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            ("case-zone-a-001", "zone-a", "INVESTIGATING", "high", 0.72, 0, now, "2026-08-09T06:15:00Z"),
+        )
+        
+        await db.execute(
+            """
+            INSERT INTO cases (case_id, zone_id, state, risk_tier, compound_score, authorized, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            ("case-zone-b-002", "zone-b", "DETECTED", "medium", 0.45, 0, "2026-08-09T06:30:00Z", "2026-08-09T06:30:00Z"),
+        )
+        
+        logger.info("VIGIL: seeded demo cases into %s", db_path)
+
+
 @asynccontextmanager
 async def get_db(db_path: str) -> AsyncGenerator[aiosqlite.Connection, None]:
     """
