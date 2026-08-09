@@ -25,7 +25,7 @@ load_dotenv()  # noqa: E402 — must run before any os.environ reads
 from backend.api import routes_cases, routes_demo, routes_memory, routes_retrieval, routes_risk, routes_voice
 from backend.api.ws_session import router as ws_router, start_ws_bridge
 from backend.bus.event_bus import bus
-from backend.db.db import init_db
+from backend.db.db import init_db, seed_demo_cases
 
 logging.basicConfig(
     level=logging.INFO,
@@ -43,6 +43,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # ── Startup ──────────────────────────────────────────────────────────── #
     db_path = os.environ.get("SQLITE_PATH", "./vigil.db")
     await init_db(db_path)
+    await seed_demo_cases(db_path)
 
     await bus.start()
     await start_ws_bridge(bus)

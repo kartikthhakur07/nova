@@ -104,17 +104,24 @@ def _now_iso() -> str:
 
 @router.get("", response_model=list[CaseRow])
 async def list_cases() -> list[CaseRow]:
-    """Return all active cases (stub: two hardcoded rows)."""
-    return _STUB_CASES
+    """Return all active cases from the database."""
+    rows: list[CaseRow] = []
+    async with get_db(_db_path()) as db:
+        cursor = await db.execute("SELECT * FROM cases ORDER BY created_at DESC")
+        async for row in cursor:
+            rows.append(CaseRow(**dict(row)))
+    return rows
 
 
 @router.get("/{case_id}", response_model=CaseRow)
 async def get_case(case_id: str) -> CaseRow:
-    """Return a single case or 404."""
-    case = _STUB_CASE_MAP.get(case_id)
-    if case is None:
-        raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
-    return case
+    """Return a single case from the database or 404."""
+    async with get_db(_db_path()) as db:
+        cursor = await db.execute("SELECT * FROM cases WHERE case_id = ?", (case_id,))
+        row = await cursor.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
+        return CaseRow(**dict(row))
 
 
 @router.get("/{case_id}/audit", response_model=list[AuditEntry])

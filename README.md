@@ -143,3 +143,31 @@ Detected
 → Escalated
 → Confirmed / Dismissed
 → Resolved
+```
+
+## Quick start
+
+### Prerequisites
+- Python 3.11+
+- Node 18+
+- Copy `.env.example` to `.env` and fill in `RIME_API_KEY`
+
+### Run locally
+```bash
+make install   # install all deps
+make demo      # starts backend + opens browser
+```
+
+Then open DemoControl (⌘K) and press ▶ Play on "Hero Scenario".
+
+### Run E2E smoke test
+```bash
+make e2e
+```
+All 8 steps should pass before the live demo.
+
+### Reset demo state
+```bash
+make reset-demo
+```
+Run this between demo rehearsals to clear SQLite and restart clean.

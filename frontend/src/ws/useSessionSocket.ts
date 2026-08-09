@@ -16,13 +16,14 @@
  */
 import { useEffect, useRef } from 'react'
 import { CaseWebSocket } from '../services/websocket'
-import { useCaseStore } from '../store/useCaseStore'
+import { useCaseStore, deriveStage } from '../store/useCaseStore'
 import type { WsStatus } from '../types/api'
 
-export function useSessionSocket(sessionId: string): { status: WsStatus } {
+export function useSessionSocket(sessionId: string, onRawMessage?: (msg: any) => void): { status: WsStatus } {
   const appendEvidence = useCaseStore((s) => s.appendEvidence)
   const setLatencyMark = useCaseStore((s) => s.setLatencyMark)
   const updateCaseStage = useCaseStore((s) => s.updateCaseStage)
+  const markStageReached = useCaseStore((s) => s.markStageReached)
   const setWsStatus = useCaseStore((s) => s.setWsStatus)
   const connectionStatus = useCaseStore((s) => s.connectionStatus)
 
@@ -45,13 +46,25 @@ export function useSessionSocket(sessionId: string): { status: WsStatus } {
           appendEvidence(msg.payload.evidence)
           setLatencyMark('risk_updated', Date.now())
           break
-        case 'case.state_changed':
+        case 'case.state_changed': {
           updateCaseStage(msg.payload.case_id, msg.payload.new_state)
+          
+          // The store already re-derives currentStage, but we need to derive it here
+          // to know which stage to mark as reached.
+          const newStage = deriveStage(msg.payload.new_state)
+          if (newStage) {
+            markStageReached(newStage)
+          }
           break
+        }
         // Other message types (transcript.delta, audit.entry, etc.) will be
         // handled in future PRs by dedicated hooks
         default:
           break
+      }
+      
+      if (onRawMessage) {
+        onRawMessage(msg)
       }
     })
 
@@ -61,7 +74,7 @@ export function useSessionSocket(sessionId: string): { status: WsStatus } {
       socket.disconnect()
       socketRef.current = null
     }
-  }, [sessionId, appendEvidence, setLatencyMark, updateCaseStage, setWsStatus])
+  }, [sessionId, appendEvidence, setLatencyMark, updateCaseStage, markStageReached, setWsStatus, onRawMessage])
 
   return { status: connectionStatus }
 }

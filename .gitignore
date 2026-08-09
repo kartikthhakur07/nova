@@ -113,3 +113,11 @@ htmlcov/
 recordings/
 audio/
 screenshots/
+
+# ==============================
+# Evaluation Results
+# ==============================
+
+evaluation/results/*.json
+!evaluation/results/.gitkeep
+

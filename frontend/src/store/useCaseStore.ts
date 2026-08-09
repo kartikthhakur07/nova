@@ -60,6 +60,7 @@ interface CaseState {
   cases: Case[]
   activeCase: Case | null
   currentStage: PipelineStage | null
+  reachedStages: Set<PipelineStage | 'overview'>
   evidenceList: EvidenceItem[]
   retrievalMatches: HistoricalMatch[]
   latencyMarks: Record<string, number>
@@ -70,6 +71,7 @@ interface CaseState {
   setActiveCase: (c: Case | null) => void
   /** Update case state string; re-derives currentStage automatically. */
   updateCaseStage: (caseId: string, state: string) => void
+  markStageReached: (stage: PipelineStage | 'overview') => void
   setWsStatus: (s: WsStatus) => void
   appendEvidence: (items: EvidenceItem[]) => void
   setLatencyMark: (key: string, ts: number) => void
@@ -81,6 +83,7 @@ export const useCaseStore = create<CaseState>((set) => ({
   cases: [],
   activeCase: null,
   currentStage: null,
+  reachedStages: new Set(['overview']),
   evidenceList: [],
   retrievalMatches: [],
   latencyMarks: {},
@@ -109,6 +112,13 @@ export const useCaseStore = create<CaseState>((set) => ({
         activeCase: updatedActive,
         currentStage: updatedActive ? deriveStage(updatedActive.state) : prev.currentStage,
       }
+    }),
+
+  markStageReached: (stage) =>
+    set((prev) => {
+      const next = new Set(prev.reachedStages)
+      next.add(stage)
+      return { reachedStages: next }
     }),
 
   setWsStatus: (connectionStatus) => set({ connectionStatus }),

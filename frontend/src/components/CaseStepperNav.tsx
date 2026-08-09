@@ -13,6 +13,7 @@
  *   - No store reads inside this component (prop-driven only)
  */
 import type { PipelineStage } from '../types/api'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 const STAGES: { key: PipelineStage | 'overview'; label: string }[] = [
   { key: 'overview',   label: 'Overview'  },
@@ -25,21 +26,27 @@ const STAGES: { key: PipelineStage | 'overview'; label: string }[] = [
 ]
 
 interface CaseStepperNavProps {
+  caseId: string
   currentStage: PipelineStage | null
   reachedStages: Set<PipelineStage | 'overview'>
 }
 
 export function CaseStepperNav({
+  caseId,
   currentStage,
   reachedStages,
 }: CaseStepperNavProps) {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const activePath = location.pathname.split('/').pop()
+  
   return (
     <nav
       className="flex gap-1 border-b border-gray-700 px-4"
       aria-label="Case pipeline steps"
     >
       {STAGES.map(({ key, label }) => {
-        const isActive = key === currentStage
+        const isActive = (key === 'overview' && activePath === caseId) || activePath === key || (activePath === '' && key === currentStage)
         const isReached = reachedStages.has(key)
         const isDisabled = !isReached && !isActive
 
@@ -48,6 +55,9 @@ export function CaseStepperNav({
             key={key}
             type="button"
             disabled={isDisabled}
+            onClick={() => {
+              navigate(key === 'overview' ? `/case/${caseId}` : `/case/${caseId}/${key}`)
+            }}
             aria-current={isActive ? 'step' : undefined}
             className={[
               'px-3 py-2 text-sm rounded-t-md transition-all',
