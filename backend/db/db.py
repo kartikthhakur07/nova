@@ -1,10 +1,9 @@
-"""
-backend/db/db.py — aiosqlite connection factory and schema initialiser.
-"""
+"""backend/db/db.py — SQLite connection factory and schema initialiser."""
+
 from __future__ import annotations
 
-import asyncio
 import logging
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import AsyncGenerator
@@ -13,79 +12,168 @@ import aiosqlite
 
 logger = logging.getLogger(__name__)
 
-# --------------------------------------------------------------------------- #
-# Schema file is co-located with this module                                  #
-# --------------------------------------------------------------------------- #
-_SCHEMA_PATH = Path(__file__).parent / "schema.sql"
+DB_DIR = Path(__file__).parent.parent
+DEFAULT_DB_PATH = DB_DIR / "vigil.db"
+
+# Single source of truth for the schema — kept inline rather than a separate
+# schema.sql file so there's exactly one place to look. All statements are
+# idempotent (CREATE TABLE IF NOT EXISTS), safe to run on every startup.
+#
+# NOTE: `cases` matches the canonical schema agreed across the team
+# (models/case.py, services/case_state_machine.py, services/audit_service.py):
+# case_id, zone_id, state, tier, compound_score, created_at, resolved_at.
+# Do not add columns here (e.g. risk_tier, authorized, updated_at) without
+# updating models/case.py and every service that reads/writes Case first —
+# a mismatch here is a runtime bug, not just a style choice.
+SCHEMA_SQL = """
+CREATE TABLE IF NOT EXISTS cases (
+    case_id TEXT PRIMARY KEY,
+    zone_id TEXT NOT NULL,
+    state TEXT NOT NULL,
+    tier TEXT,
+    compound_score REAL,
+    created_at TEXT,
+    resolved_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS audit_log (
+    entry_id TEXT PRIMARY KEY,
+    case_id TEXT REFERENCES cases(case_id),
+    step TEXT NOT NULL,
+    payload_json TEXT NOT NULL,
+    ts TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS permits (
+    permit_id TEXT PRIMARY KEY,
+    permit_type TEXT,
+    zone_id TEXT,
+    holder TEXT,
+    status TEXT,
+    window_start TEXT,
+    window_end TEXT
+);
+
+CREATE TABLE IF NOT EXISTS maintenance_records (
+    record_id TEXT PRIMARY KEY,
+    equipment_id TEXT,
+    fault_code TEXT,
+    logged_at TEXT,
+    summary TEXT
+);
+
+CREATE TABLE IF NOT EXISTS shifts (
+    shift_id TEXT PRIMARY KEY,
+    zone_id TEXT,
+    starts_at TEXT,
+    ends_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS equipment (
+    equipment_id TEXT PRIMARY KEY,
+    equipment_class TEXT,
+    criticality TEXT,
+    zone_id TEXT
+);
+"""
 
 
 def _default_db_path(db_path: str | None) -> str:
-    import os
-    return db_path or os.environ.get("SQLITE_PATH", "./vigil.db")
+    """Resolve the DB path: explicit arg > SQLITE_DB_PATH env var > DEFAULT_DB_PATH."""
+    return db_path or os.environ.get("SQLITE_DB_PATH", str(DEFAULT_DB_PATH))
+
+
+def get_connection(db_path: str | Path | None = None):
+    """Open/create a *synchronous* SQLite connection and run schema init.
+
+    Intended for sync contexts (e.g. pytest fixtures, one-off scripts). The
+    async FastAPI app should use ``get_db``/``init_db`` below instead.
+
+    Args:
+        db_path: Path to the SQLite file, or ':memory:'. Defaults to
+            SQLITE_DB_PATH env var, then DEFAULT_DB_PATH.
+
+    Returns:
+        An open ``sqlite3.Connection`` with ``row_factory = sqlite3.Row``.
+    """
+    import sqlite3
+
+    resolved_path = _default_db_path(str(db_path) if db_path is not None else None)
+    conn = sqlite3.connect(resolved_path)
+    conn.row_factory = sqlite3.Row
+    with conn:
+        conn.executescript(SCHEMA_SQL)
+    return conn
 
 
 async def init_db(db_path: str | None = None) -> None:
-    """
-    Read schema.sql and execute every DDL statement against *db_path*.
-    Uses CREATE TABLE IF NOT EXISTS so it is safe to call on every startup.
+    """Execute the schema against *db_path* asynchronously.
+
+    Safe to call on every startup — every statement is
+    ``CREATE TABLE IF NOT EXISTS``.
     """
     resolved_path = _default_db_path(db_path)
-    schema_sql = _SCHEMA_PATH.read_text(encoding="utf-8")
     async with aiosqlite.connect(resolved_path) as db:
-        # executescript doesn't play well with parameterised queries but is
-        # fine for DDL-only files.
-        await db.executescript(schema_sql)
+        await db.executescript(SCHEMA_SQL)
         await db.commit()
     logger.info("VIGIL: database schema initialised at %s", resolved_path)
 
 
 async def seed_demo_cases(db_path: str | None = None) -> None:
-    """
-    Insert demo cases if not present, so UI has active cases to show.
+    """Insert demo cases if not present, so the UI has active cases to show.
+
+    Columns match the canonical `cases` schema exactly — see the note above
+    SCHEMA_SQL before changing either.
     """
     resolved_path = _default_db_path(db_path)
     async with get_db(resolved_path) as db:
         now = "2026-08-09T06:00:00Z"
+
         await db.execute(
             """
-            INSERT OR IGNORE INTO cases (case_id, zone_id, state, risk_tier, compound_score, authorized, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT OR IGNORE INTO cases
+                (case_id, zone_id, state, tier, compound_score, created_at, resolved_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-            ("case-zone-a-001", "zone-a", "INVESTIGATING", "high", 0.72, 0, now, "2026-08-09T06:15:00Z"),
+            ("case-zone-a-001", "zone-a", "INVESTIGATING", "high", 0.72, now, None),
         )
-        
+
         await db.execute(
             """
-            INSERT OR IGNORE INTO cases (case_id, zone_id, state, risk_tier, compound_score, authorized, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT OR IGNORE INTO cases
+                (case_id, zone_id, state, tier, compound_score, created_at, resolved_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-            ("case-zone-b-002", "zone-b", "DETECTED", "medium", 0.45, 0, "2026-08-09T06:30:00Z", "2026-08-09T06:30:00Z"),
+            ("case-zone-b-002", "zone-b", "DETECTED", "medium", 0.45,
+             "2026-08-09T06:30:00Z", None),
         )
-        
+
         await db.execute(
             """
-            INSERT OR IGNORE INTO cases (case_id, zone_id, state, risk_tier, compound_score, authorized, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT OR IGNORE INTO cases
+                (case_id, zone_id, state, tier, compound_score, created_at, resolved_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-            ("c_8f21", "Bay3", "DETECTED", "high", 0.78, 0, now, now),
+            ("c_8f21", "Bay3", "DETECTED", "high", 0.78, now, None),
         )
-        
-        logger.info("VIGIL: seeded demo cases into %s", resolved_path)
+
+    logger.info("VIGIL: seeded demo cases into %s", resolved_path)
 
 
 @asynccontextmanager
 async def get_db(db_path: str | None = None) -> AsyncGenerator[aiosqlite.Connection, None]:
-    """
-    Async context manager that yields an open aiosqlite connection.
+    """Async context manager yielding an open aiosqlite connection.
+
+    Commits on clean exit, rolls back on exception.
 
     Usage::
 
-        async with get_db(settings.SQLITE_PATH) as db:
+        async with get_db() as db:
             cursor = await db.execute("SELECT * FROM cases")
     """
     resolved_path = _default_db_path(db_path)
     async with aiosqlite.connect(resolved_path) as db:
-        db.row_factory = aiosqlite.Row   # dict-like row access
+        db.row_factory = aiosqlite.Row  # dict-like row access
         try:
             yield db
         except Exception:
