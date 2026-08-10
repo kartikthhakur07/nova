@@ -168,4 +168,39 @@ export type WsEnvelope =
       payload: Record<string, unknown>
       ts: string
     }
+  | {
+      type: 'ui.focus_zone'
+      payload: { zone_id: string }
+      ts: string
+    }
+  | {
+      type: 'ui.reset_view'
+      payload: Record<string, never>
+      ts: string
+    }
+  | {
+      type: 'ui.open_panel'
+      payload: { panel: 'evidence' | 'history' | 'audit' | 'authorization'; context?: any }
+      ts: string
+    }
+  | {
+      type: 'ui.close_panel'
+      payload: { panel: string }
+      ts: string
+    }
+  | {
+      type: 'ui.highlight_field'
+      payload: { target_id: string; reason: string }
+      ts: string
+    }
+  | {
+      type: 'ui.propose_edit'
+      payload: { target_id: string; field: string; from_value: string; to_value: string; reason: string }
+      ts: string
+    }
+  | {
+      type: 'ui.announce'
+      payload: { text: string }
+      ts: string
+    }
 

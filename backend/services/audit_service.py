@@ -39,14 +39,23 @@ def write_audit_entry(
         entry: The ``AuditEntry`` instance to record.
         conn: Optional SQLite connection. If None, default connection is used.
     """
-    payload_json = json.dumps(entry.payload)
+    payload_str = json.dumps(entry.payload) if entry.payload is not None else None
     ts_str = entry.ts.isoformat()
 
     sql = """
-    INSERT INTO audit_log (entry_id, case_id, step, payload_json, ts)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO audit_log (entry_id, case_id, step, action, actor, decision, payload, ts)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """
-    params = (entry.entry_id, entry.case_id, entry.step, payload_json, ts_str)
+    params = (
+        entry.entry_id, 
+        entry.case_id, 
+        entry.step, 
+        entry.action,
+        entry.actor,
+        entry.decision,
+        payload_str, 
+        ts_str
+    )
 
     if conn is not None:
         conn.execute(sql, params)
@@ -71,7 +80,7 @@ def get_case_audit_trail(
         List of ``AuditEntry`` objects ordered by timestamp ascending.
     """
     sql = """
-    SELECT entry_id, case_id, step, payload_json, ts
+    SELECT id, entry_id, case_id, step, action, actor, decision, payload, ts
     FROM audit_log
     WHERE case_id = ?
     ORDER BY ts ASC
@@ -89,16 +98,25 @@ def get_case_audit_trail(
 
     entries: list[AuditEntry] = []
     for row in rows:
-        payload = json.loads(row["payload_json"])
+        payload_val = None
+        if row["payload"]:
+            try:
+                payload_val = json.loads(row["payload"])
+            except json.JSONDecodeError:
+                pass
+                
         ts_val = _parse_dt(row["ts"])
         assert ts_val is not None
 
         entries.append(
             AuditEntry(
-                entry_id=row["entry_id"],
+                entry_id=row["entry_id"] or str(row["id"]),
                 case_id=row["case_id"],
-                step=row["step"],
-                payload=payload,
+                step=row["step"] or "operator_action",
+                action=row["action"],
+                actor=row["actor"],
+                decision=row["decision"],
+                payload=payload_val,
                 ts=ts_val,
             )
         )

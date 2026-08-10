@@ -80,11 +80,26 @@ interface CaseState {
   setLatencyMark: (key: string, ts: number) => void
   setLessonWritten: (lesson: any | null) => void
   setPendingAuth: (auth: { toolName: string; actionPreview: string } | null) => void
+  
+  // ── ui state (agent piloted) ───────────────────────────────────────── //
+  uiState: {
+    focusedZone: string | null
+    activePanel: 'evidence' | 'history' | 'audit' | 'authorization' | null
+    panelContext: any
+    announcement: string | null
+    proposedEdit: { target_id: string; field: string; from_value: string; to_value: string; reason: string } | null
+    navTarget: string | null
+  }
+  setUiFocusZone: (zoneId: string | null) => void
+  setUiPanel: (panel: 'evidence' | 'history' | 'audit' | 'authorization' | null, context?: any) => void
+  setUiAnnouncement: (text: string | null) => void
+  setUiProposedEdit: (edit: any | null) => void
+  setNavTarget: (path: string | null) => void
 }
 
 // ── Store implementation ─────────────────────────────────────────────── //
 
-export const useCaseStore = create<CaseState>((set) => ({
+export const useCaseStore = create<CaseState & any>((set) => ({
   cases: [],
   activeCase: null,
   currentStage: null,
@@ -144,4 +159,18 @@ export const useCaseStore = create<CaseState>((set) => ({
   setLessonWritten: (lesson) => set({ lessonWritten: lesson }),
   
   setPendingAuth: (auth) => set({ pendingAuth: auth, hasPendingAuth: !!auth }),
+
+  uiState: {
+    focusedZone: null,
+    activePanel: null,
+    panelContext: null,
+    announcement: null,
+    proposedEdit: null,
+    navTarget: null,
+  },
+  setUiFocusZone: (zoneId) => set((prev: any) => ({ uiState: { ...prev.uiState, focusedZone: zoneId } })),
+  setUiPanel: (panel, context) => set((prev: any) => ({ uiState: { ...prev.uiState, activePanel: panel, panelContext: context } })),
+  setUiAnnouncement: (text) => set((prev: any) => ({ uiState: { ...prev.uiState, announcement: text } })),
+  setUiProposedEdit: (edit) => set((prev: any) => ({ uiState: { ...prev.uiState, proposedEdit: edit } })),
+  setNavTarget: (path) => set((prev: any) => ({ uiState: { ...prev.uiState, navTarget: path } })),
 }))

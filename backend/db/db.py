@@ -37,10 +37,14 @@ CREATE TABLE IF NOT EXISTS cases (
 );
 
 CREATE TABLE IF NOT EXISTS audit_log (
-    entry_id TEXT PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    entry_id TEXT UNIQUE,
     case_id TEXT REFERENCES cases(case_id),
-    step TEXT NOT NULL,
-    payload_json TEXT NOT NULL,
+    step TEXT,
+    action TEXT,
+    actor TEXT,
+    decision TEXT,
+    payload TEXT,
     ts TEXT NOT NULL
 );
 
@@ -135,7 +139,7 @@ async def seed_demo_cases(db_path: str | None = None) -> None:
                 (case_id, zone_id, state, tier, compound_score, created_at, resolved_at)
             VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-            ("case-zone-a-001", "zone-a", "INVESTIGATING", "high", 0.72, now, None),
+            ("case-bay3", "Bay3", "INVESTIGATING", "high", 0.72, now, now),
         )
 
         await db.execute(
@@ -144,20 +148,12 @@ async def seed_demo_cases(db_path: str | None = None) -> None:
                 (case_id, zone_id, state, tier, compound_score, created_at, resolved_at)
             VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-            ("case-zone-b-002", "zone-b", "DETECTED", "medium", 0.45,
-             "2026-08-09T06:30:00Z", None),
-        )
-
-        await db.execute(
-            """
-            INSERT OR IGNORE INTO cases
-                (case_id, zone_id, state, tier, compound_score, created_at, resolved_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """,
-            ("c_8f21", "Bay3", "DETECTED", "high", 0.78, now, None),
+            ("case-zone-b", "zone-b", "DETECTED", "medium", 0.45,
+             "2026-08-09T06:30:00Z", "2026-08-09T06:30:00Z"),
         )
 
     logger.info("VIGIL: seeded demo cases into %s", resolved_path)
+
 
 
 @asynccontextmanager

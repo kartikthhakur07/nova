@@ -94,8 +94,9 @@ def transition(case: Case, to_state: str) -> tuple[Case, AuditEntry]:
         entry_id=str(uuid.uuid4()),
         case_id=case.case_id,
         step=step,  # type: ignore[arg-type]
+        action="state_transition",
+        actor="system",
         payload={
-            "action": "state_transition",
             "from_state": from_state,
             "to_state": to_state,
             "timestamp": now.isoformat(),

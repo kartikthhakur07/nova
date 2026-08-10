@@ -44,4 +44,30 @@ async def handle(
         with get_connection() as conn:
             _execute_update(conn)
 
-    return {"permit_id": permit_id, "new_status": "suspended"}
+    return {\"permit_id\": permit_id, \"new_status\": \"suspended\"}
+
+
+async def suspend_permit(case_id: str, reason: str = "") -> dict:
+    """Convenience wrapper — suspends the first active permit for a case zone."""
+    import logging
+    import os
+    from backend.db.db import get_db as _get_db
+    logger = logging.getLogger(__name__)
+    db_path = os.environ.get("SQLITE_PATH", "./vigil.db")
+    try:
+        async with _get_db(db_path) as db:
+            cursor = await db.execute(
+                "SELECT permit_id FROM permits WHERE status='active' LIMIT 1"
+            )
+            row = await cursor.fetchone()
+            if row:
+                await db.execute(
+                    "UPDATE permits SET status='suspended' WHERE permit_id=?",
+                    (row["permit_id"],)
+                )
+                logger.info("Suspended permit %s for case %s", row["permit_id"], case_id)
+                return {"permit_id": row["permit_id"], "new_status": "suspended"}
+    except Exception as e:
+        logger.warning("suspend_permit failed: %s", e)
+    return {"permit_id": None, "new_status": "no_active_permit"}
+

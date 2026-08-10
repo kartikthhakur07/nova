@@ -95,11 +95,11 @@ def _sync_transcribe(
         return ""
 
 
-async def transcribe_utterance(audio_bytes: bytes) -> str:
+async def transcribe_utterance(audio_bytes: bytes | str) -> str:
     """Transcribe a complete audio utterance non-blockingly using a thread executor.
 
     Args:
-        audio_bytes: Raw PCM16 audio bytes or file bytes.
+        audio_bytes: Raw PCM16 audio bytes or file path (str).
 
     Returns:
         Transcribed text string.

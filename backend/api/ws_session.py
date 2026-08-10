@@ -25,6 +25,8 @@ from typing import TYPE_CHECKING, Any
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
+from backend.db.db import get_db
+
 if TYPE_CHECKING:
     from backend.bus.event_bus import EventBus
 
@@ -166,29 +168,74 @@ async def start_ws_bridge(bus: "EventBus") -> None:
             {"type": "audit.entry", "payload": event, "ts": _ts()}
         )
 
+    async def on_ui_directive(event: dict[str, Any]) -> None:
+        await manager.broadcast_all(event)
+
     async def on_raw_telemetry(event: dict[str, Any]) -> None:
         # Fallback baseline risk assessment for simulation telemetry if agents not active
         hint = event.get("severity_hint", "normal")
         val = event.get("value")
         if hint in ("elevated", "critical") or (isinstance(val, (int, float)) and val >= 210):
-            risk_payload = {
-                "case_id": "c_8f21",
-                "compound_score": 0.78 if hint != "critical" else 0.92,
-                "tier": "high" if hint != "critical" else "critical",
-                "evidence": [
-                    {
-                        "source": event.get("source", "sensor"),
-                        "description": f"Signal detected: source={event.get('source')} zone={event.get('zone_id')} value={event.get('value')} {event.get('unit') or ''}".strip(),
-                        "timestamp": event.get("ts", _ts()),
-                        "severity": hint,
-                    }
-                ],
-            }
+            zone_id = event.get("zone_id", "unknown_zone")
+            now_iso = _ts()
+            
+            # Generate a reproducible case ID for this zone
+            # For the demo, we map the zone to a specific case_id (e.g. Bay3 -> case-bay3)
+            case_id = f"case-{zone_id.lower()}"
+            
+            from backend.models.case import OperationalContext, ShiftState
+            from backend.models.event import NormalizedEvent
+            from backend.agents.risk_reasoner.agent import RiskReasonerAgent
+            import uuid
+            from datetime import datetime, timezone
+            
+            event_copy = dict(event)
+            if "event_id" not in event_copy:
+                event_copy["event_id"] = str(uuid.uuid4())
+            if "severity_hint" not in event_copy:
+                event_copy["severity_hint"] = hint
+            if "metadata" not in event_copy:
+                event_copy["metadata"] = {}
+                
+            ctx = OperationalContext(
+                zone_id=zone_id,
+                ts=datetime.now(timezone.utc),
+                active_permits=[],
+                recent_maintenance=[],
+                shift_state=ShiftState(current_shift="Day", changeover_at=None),
+                equipment=[],
+                recent_events=[NormalizedEvent(**event_copy)]
+            )
+            
+            reasoner = RiskReasonerAgent()
+            assessment = await reasoner.assess(ctx, case_id)
+            
+            tier = assessment.tier
+            score = assessment.compound_score
+            
+            # Upsert into DB so the frontend can pull it
+            from backend.api.routes_cases import _db_path
+            async with get_db(_db_path()) as db:
+                await db.execute(
+                    """
+                    INSERT INTO cases (case_id, zone_id, state, tier, compound_score, created_at, resolved_at)
+                    VALUES (?, ?, 'DETECTED', ?, ?, ?, NULL)
+                    ON CONFLICT(case_id) DO UPDATE SET
+                        tier = excluded.tier,
+                        compound_score = excluded.compound_score,
+                        state = CASE WHEN cases.state = 'RESOLVED' THEN 'DETECTED' ELSE cases.state END
+                    """,
+                    (case_id, zone_id, tier, score, now_iso),
+                )
+            
+            risk_payload = assessment.model_dump(mode="json")
+            risk_payload["case_id"] = case_id
             await bus.publish("risk.assessed", risk_payload)
 
     await bus.subscribe("raw.telemetry", on_raw_telemetry)
     await bus.subscribe("risk.assessed", on_risk_updated)
     await bus.subscribe("case.state_changed", on_case_state_changed)
     await bus.subscribe("tool.executed", on_audit_entry)
+    await bus.subscribe("ui.directive", on_ui_directive)
 
-    logger.info("WS bridge: subscribed to raw.telemetry, risk.assessed, case.state_changed, tool.executed")
+    logger.info("WS bridge: subscribed to raw.telemetry, risk.assessed, case.state_changed, tool.executed, ui.directive")

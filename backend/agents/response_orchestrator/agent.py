@@ -24,6 +24,7 @@ from backend.services.audit_service import persist_case, write_audit_entry
 from backend.services.case_state_machine import transition
 from backend.services.notification_service import VoiceNotifier, notify_for_tier
 from backend.tools.registry import execute_tool
+from backend.bus.event_bus import bus
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +84,42 @@ class ResponseOrchestratorAgent:
         # Propose tool call if warranted by tier + evidence pattern
         tool_call = propose_tool_call(assessment)
 
+        # Emit UI directives to set the scene on the frontend
+        if tool_call:
+            await bus.publish("ui.directive", {
+                "type": "ui.focus_zone",
+                "payload": {"zone_id": assessment.zone_id}
+            })
+            await bus.publish("ui.directive", {
+                "type": "ui.open_panel",
+                "payload": {
+                    "panel": "authorization" if tool_call.tool_name == "UpdateControlParameter" else "evidence",
+                    "context": {
+                        "title": "Authorization Required" if tool_call.tool_name == "UpdateControlParameter" else "Context & Evidence",
+                        "subtitle": f"Correlated signals for {assessment.zone_id}"
+                    }
+                }
+            })
+            await bus.publish("ui.directive", {
+                "type": "ui.announce",
+                "payload": {"text": msg}
+            })
+            await bus.publish("voice.speak", {
+                "case_id": case.case_id,
+                "text": msg
+            })
+            if tool_call.tool_name == "UpdateControlParameter":
+                await bus.publish("ui.directive", {
+                    "type": "ui.propose_edit",
+                    "payload": {
+                        "target_id": tool_call.parameters.get("parameter_id", "param"),
+                        "field": "value",
+                        "from_value": str(tool_call.parameters.get("current_value", "N/A")),
+                        "to_value": str(tool_call.parameters.get("new_value", "N/A")),
+                        "reason": tool_call.parameters.get("reason", "Automatic risk mitigation")
+                    }
+                })
+
         persist_case(current_case)
         return current_case, tool_call
 
@@ -111,10 +148,10 @@ class ResponseOrchestratorAgent:
             entry_id=str(uuid.uuid4()),
             case_id=case.case_id,
             step="human_decision",
+            action="human_decision",
+            actor=authorized_by,
+            decision=decision_str,
             payload={
-                "action": "human_decision",
-                "decision": decision_str,
-                "authorized_by": authorized_by,
                 "tool_name": tool_call.tool_name,
                 "parameters": tool_call.parameters,
                 "timestamp": now.isoformat(),
@@ -161,8 +198,9 @@ class ResponseOrchestratorAgent:
                 entry_id=str(uuid.uuid4()),
                 case_id=case.case_id,
                 step="tool_executed",
+                action="tool_execution_failed",
+                actor="system",
                 payload={
-                    "action": "tool_execution_failed",
                     "tool_name": finalized_tool.tool_name,
                     "error": str(exc),
                     "timestamp": datetime.now(timezone.utc).isoformat(),

@@ -69,17 +69,16 @@ function CaseLayout() {
 
 // ── Router ────────────────────────────────────────────────────────────── //
 import RiskOverview from './pages/RiskOverview'
-import DashboardHome from './pages/DashboardHome'
+import MissionControl from './pages/MissionControl'
 import AppShell from './components/AppShell'
 import DemoControl from './pages/DemoControl'
 import Benchmark from './pages/Benchmark'
-import ConvergingSignals from './pages/ConvergingSignals'
-import RetrievalTrace from './pages/RetrievalTrace'
-import VoiceInteraction from './pages/VoiceInteraction'
-import Confirmation from './pages/Confirmation'
 import AuditTrail from './pages/AuditTrail'
 import LessonsLearned from './pages/LessonsLearned'
 import MemoryBrowser from './pages/MemoryBrowser'
+import Factory3DTwin from './pages/Factory3DTwin'
+import FridayCoPilot from './pages/FridayCoPilot'
+import SensorTelemetry from './pages/SensorTelemetry'
 import { useCaseState } from './hooks/useCaseState'
 
 const router = createBrowserRouter([
@@ -88,11 +87,10 @@ const router = createBrowserRouter([
     path: '/',
     element: <AppShell />,
     children: [
-      { index: true,         element: <DashboardHome /> },
-      { path: 'signals',     element: <ConvergingSignals /> },
-      { path: 'retrieval',   element: <RetrievalTrace /> },
-      { path: 'voice',       element: <VoiceInteraction /> },
-      { path: 'confirm',     element: <Confirmation /> },
+      { index: true,         element: <MissionControl /> },
+      { path: 'factory-twin',element: <Factory3DTwin /> },
+      { path: 'friday',      element: <FridayCoPilot /> },
+      { path: 'telemetry',   element: <SensorTelemetry /> },
       { path: 'audit',       element: <AuditTrail /> },
       { path: 'lessons',     element: <LessonsLearned /> },
       { path: 'memory',      element: <MemoryBrowser /> },
@@ -113,11 +111,7 @@ const router = createBrowserRouter([
     path: '/case/:id',
     element: <CaseLayout />,
     children: [
-      { index: true,       element: <DashboardHome /> },
-      { path: 'signals',   element: <ConvergingSignals /> },
-      { path: 'retrieval', element: <RetrievalTrace /> },
-      { path: 'voice',     element: <VoiceInteraction /> },
-      { path: 'confirm',   element: <Confirmation /> },
+      { index: true,       element: <MissionControl /> },
       { path: 'audit',     element: <AuditTrail /> },
       { path: 'memory',    element: <LessonsLearned /> },
     ],

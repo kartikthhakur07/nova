@@ -28,6 +28,10 @@ export function useSessionSocket(sessionId: string, onRawMessage?: (msg: any) =>
   const connectionStatus = useCaseStore((s) => s.connectionStatus)
   const setLessonWritten = useCaseStore((s) => s.setLessonWritten)
   const setPendingAuth = useCaseStore((s) => s.setPendingAuth)
+  const setUiFocusZone = useCaseStore((s) => s.setUiFocusZone)
+  const setUiPanel = useCaseStore((s) => s.setUiPanel)
+  const setUiAnnouncement = useCaseStore((s) => s.setUiAnnouncement)
+  const setUiProposedEdit = useCaseStore((s) => s.setUiProposedEdit)
 
   const socketRef = useRef<CaseWebSocket | null>(null)
 
@@ -68,6 +72,30 @@ export function useSessionSocket(sessionId: string, onRawMessage?: (msg: any) =>
             actionPreview: msg.payload.action_preview
           })
           break
+        case 'ui.focus_zone':
+          setUiFocusZone(msg.payload.zone_id)
+          break
+        case 'ui.reset_view':
+          setUiFocusZone(null)
+          break
+        case 'ui.open_panel':
+          setUiPanel(msg.payload.panel, msg.payload.context)
+          break
+        case 'ui.close_panel':
+          if (useCaseStore.getState().uiState.activePanel === msg.payload.panel) {
+             setUiPanel(null)
+          }
+          break
+        case 'ui.announce':
+          setUiAnnouncement(msg.payload.text)
+          break
+        case 'ui.propose_edit':
+          setUiProposedEdit(msg.payload)
+          setUiPanel('authorization')
+          break
+        case 'ui.switch_screen':
+          useCaseStore.getState().setNavTarget(msg.payload.screen)
+          break
         // Other message types (transcript.delta, audit.entry, etc.) will be
         // handled in future PRs by dedicated hooks
         default:
@@ -85,7 +113,11 @@ export function useSessionSocket(sessionId: string, onRawMessage?: (msg: any) =>
       socket.disconnect()
       socketRef.current = null
     }
-  }, [sessionId, appendEvidence, setLatencyMark, updateCaseStage, markStageReached, setWsStatus, setLessonWritten, setPendingAuth, onRawMessage])
+  }, [
+    sessionId, appendEvidence, setLatencyMark, updateCaseStage, markStageReached, 
+    setWsStatus, setLessonWritten, setPendingAuth, setUiFocusZone, setUiPanel, 
+    setUiAnnouncement, setUiProposedEdit, onRawMessage
+  ])
 
   return { status: connectionStatus }
 }

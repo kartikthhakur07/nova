@@ -1,153 +1,202 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useCaseStore } from '../store/useCaseStore'
+/**
+ * frontend/src/pages/LessonsLearned.tsx
+ * Lessons learned from Qdrant — shows all resolved incidents and their debrief notes.
+ */
+import React, { useState, useEffect } from 'react'
+import { getLessonsLearned } from '../services/api'
+import { BookOpen, CheckCircle, Clock, ChevronDown, ChevronUp } from 'lucide-react'
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   LESSONS LEARNED — Premium Light Theme
-   ═══════════════════════════════════════════════════════════════════════════ */
 const P = '#0F1729', S = '#5A6578', M = '#9CA3B4', BD = '#E4E8EF'
-const CARD = '#FFFFFF', CARD2 = '#F1F3F7'
-const GREEN = '#16A34A', AMBER = '#D97706', ORANGE = '#EA580C', RED = '#DC2626'
-const TEAL = '#0D9488', PURPLE = '#7C3AED', BLUE = '#2563EB'
+const CARD = '#FFFFFF', BG = '#F8F9FB'
+const GREEN = '#16A34A', BLUE = '#2563EB', PURPLE = '#7C3AED'
 const FD = "'Plus Jakarta Sans', sans-serif"
 const FM = "'JetBrains Mono', monospace"
-const cs = (shadow = false): React.CSSProperties => ({ background: CARD, borderRadius: 14, border: `1px solid ${BD}`, ...(shadow ? { boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03)' } : {}) })
 
-const LESSON = {
-  id: 'LSN-2026-0891', caseId: 'CASE-2026-0891',
-  summary: 'Compound risk from convergence of rising combustible gas (18.2% LEL), active hot-work permit, incomplete valve purge, and reduced shift supervision. Historical pattern INC-2024-1182 (0.94 match). Timely permit suspension prevented potential ignition.',
-  factors: ['Gas LEL approaching threshold','Hot-work ignition source','Valve purge incomplete','Shift understaffing','Multi-signal convergence'],
-  collections: ['incidents_historical','lessons_learned','risk_patterns'],
-  vectorId: 'vec_8f21a3c4', model: 'bge-large-en-v1.5',
+type Lesson = {
+  id?: string
+  case_id?: string
+  zone_id?: string
+  equipment_id?: string
+  incident_type?: string
+  contributing_factors?: string[]
+  resolution?: string
+  debrief?: string
+  verified?: boolean
+  ts?: string
+  [key: string]: unknown
 }
-const RULES = [
-  { cond: 'Gas LEL > 15% AND active hot-work in same zone', thresh: 'Compound ≥ 60', action: 'Voice alert + permit review' },
-  { cond: 'Valve maintenance overdue > 48h AND gas rising', thresh: 'Rate > 0.5%/min', action: 'Automated inspection order' },
-  { cond: 'Shift handover + < 50% supervisor coverage', thresh: 'During active incidents', action: 'Escalation timer → 2 minutes' },
-]
-const RELATED = [
-  { id: 'INC-2024-1182', sim: 0.94, title: 'Bay 3 H₂S + PTW overlap — Nov 2024', coll: 'incidents_historical', color: ORANGE },
-  { id: 'INC-2023-0774', sim: 0.88, title: 'Compressor fault + understaffing — Jul 2023', coll: 'incidents_historical', color: RED },
-  { id: 'LSN-2024-0412', sim: 0.76, title: 'Cross-zone gas propagation lesson', coll: 'lessons_learned', color: PURPLE },
-]
-const COLLECTIONS = [
-  { name: 'incidents_historical', count: 1848, latest: 'CASE-2026-0891', ts: '2m ago' },
-  { name: 'lessons_learned', count: 424, latest: 'LSN-2026-0891', ts: 'Just now' },
-  { name: 'risk_patterns', count: 313, latest: 'RP-compound-gas-permit', ts: '2m ago' },
-  { name: 'near_misses', count: 671, latest: 'NM-2026-0044', ts: '3d ago' },
-  { name: 'safety_procedures', count: 89, latest: 'SP-bay-isolation-v3', ts: '2w ago' },
-]
 
 export default function LessonsLearned() {
-  const lessonWritten = useCaseStore(s => s.lessonWritten)
-  const [activeColl, setActiveColl] = useState('lessons_learned')
+  const [lessons, setLessons] = useState<Lesson[]>([])
+  const [loading, setLoading] = useState(true)
+  const [expanded, setExpanded] = useState<number | null>(null)
+  const [filter, setFilter] = useState<'all' | 'verified' | 'recent'>('all')
+
+  useEffect(() => {
+    getLessonsLearned()
+      .then(data => setLessons((data?.records ?? []) as Lesson[]))
+      .catch(() => setLessons([]))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const displayed = lessons.filter(l => {
+    if (filter === 'verified') return l.verified
+    if (filter === 'recent') {
+      const ts = l.ts ? new Date(l.ts).getTime() : 0
+      return Date.now() - ts < 7 * 24 * 60 * 60 * 1000
+    }
+    return true
+  })
 
   return (
-    <div style={{ padding: '20px 24px', color: P, fontFamily: "'Inter', sans-serif" }}>
-      <div style={{ maxWidth: 1400, margin: '0 auto' }}>
-        {/* Header */}
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ fontFamily: FM, fontSize: 11, color: GREEN, letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>STAGE 6 — MEMORY & LESSONS</div>
-          <h1 style={{ fontFamily: FD, fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 4 }}>Memory Intelligence Dashboard</h1>
-          <p style={{ fontSize: 13, color: S }}>The learning loop: incident → lesson → organizational memory → future prevention</p>
+    <div style={{ padding: 24, maxWidth: 1000, margin: '0 auto', color: P }}>
+      {/* Header */}
+      <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{
+          width: 44, height: 44, borderRadius: 12,
+          background: `${GREEN}12`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <BookOpen size={20} color={GREEN} />
         </div>
-
-        {/* Write status */}
-        <div style={{ ...cs(true), padding: '20px 24px', borderLeft: `4px solid ${GREEN}`, marginBottom: 20, background: `${GREEN}02` }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-            <div style={{ width: 28, height: 28, borderRadius: '50%', background: `${GREEN}08`, border: `2px solid ${GREEN}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: GREEN }}>✓</div>
-            <div>
-              <div style={{ fontFamily: FD, fontSize: 15, fontWeight: 700, color: GREEN }}>Lesson Written to Organizational Memory</div>
-              <div style={{ fontFamily: FM, fontSize: 10, color: M, marginTop: 2 }}>{LESSON.id} · {LESSON.vectorId} · {LESSON.model}</div>
-            </div>
-            <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
-              {LESSON.collections.map(c => <span key={c} style={{ fontFamily: FM, fontSize: 9, padding: '2px 8px', borderRadius: 100, background: `${PURPLE}06`, border: `1px solid ${PURPLE}15`, color: PURPLE }}>{c}</span>)}
-            </div>
-          </div>
-          <div style={{ padding: '14px 18px', borderRadius: 10, background: CARD, border: `1px solid ${BD}`, fontSize: 13, color: S, lineHeight: 1.7 }}>{LESSON.summary}</div>
-        </div>
-
-        {/* 3 columns */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 20 }}>
-          <div style={{ ...cs(true), padding: '18px 20px' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: M, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>This Lesson Covers</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {LESSON.factors.map(f => <div key={f} style={{ padding: '6px 12px', borderRadius: 8, background: `${BLUE}06`, border: `1px solid ${BLUE}15`, fontSize: 12, color: BLUE, fontWeight: 500 }}>{f}</div>)}
-            </div>
-          </div>
-
-          <div style={{ ...cs(true), padding: '18px 20px' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: M, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>Matching Rules for Future</div>
-            {RULES.map((r, i) => (
-              <div key={i} style={{ padding: '10px 12px', borderRadius: 10, background: CARD2, border: `1px solid ${BD}`, borderLeft: `3px solid ${GREEN}`, marginBottom: 8 }}>
-                <div style={{ fontSize: 11, color: P, fontWeight: 500, marginBottom: 4 }}>{r.cond}</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontFamily: FM, fontSize: 9, color: AMBER }}>{r.thresh}</span>
-                  <span style={{ fontFamily: FM, fontSize: 9, color: GREEN }}>→ {r.action}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ ...cs(true), padding: '18px 20px' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: M, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>Related Memories</div>
-            {RELATED.map(m => (
-              <div key={m.id} style={{ padding: '10px 12px', borderRadius: 10, background: CARD2, border: `1px solid ${BD}`, borderLeft: `3px solid ${m.color}`, marginBottom: 8 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontFamily: FM, fontSize: 10, color: M }}>{m.id}</span>
-                  <span style={{ fontFamily: FM, fontSize: 10, color: m.color, fontWeight: 700 }}>{m.sim}</span>
-                </div>
-                <div style={{ fontSize: 12, color: P, fontWeight: 500, marginBottom: 3 }}>{m.title}</div>
-                <span style={{ fontFamily: FM, fontSize: 9, padding: '1px 6px', borderRadius: 100, background: `${PURPLE}06`, color: PURPLE }}>{m.coll}</span>
-              </div>
-            ))}
+        <div>
+          <h1 style={{ fontFamily: FD, fontSize: 22, fontWeight: 800, color: P, margin: 0, letterSpacing: '-0.02em' }}>
+            Lessons Learned
+          </h1>
+          <div style={{ fontSize: 13, color: S, marginTop: 3 }}>
+            Organizational memory from resolved incidents — {lessons.length} entries in Qdrant
           </div>
         </div>
-
-        {/* Collection browser */}
-        <div style={{ ...cs(true), overflow: 'hidden' }}>
-          <div style={{ display: 'flex', gap: 0, borderBottom: `1px solid ${BD}`, padding: '0 16px' }}>
-            {COLLECTIONS.map(col => (
-              <button key={col.name} onClick={() => setActiveColl(col.name)} style={{ padding: '10px 16px', border: 'none', borderBottom: activeColl===col.name ? `2px solid ${PURPLE}` : '2px solid transparent', background: 'transparent', color: activeColl===col.name ? PURPLE : M, fontFamily: FM, fontSize: 11, cursor: 'pointer', fontWeight: activeColl===col.name ? 700 : 400 }}>
-                {col.name} <span style={{ marginLeft: 4, fontFamily: FM, fontSize: 9, padding: '1px 5px', borderRadius: 100, background: activeColl===col.name ? `${PURPLE}08` : CARD2, color: activeColl===col.name ? PURPLE : M }}>{col.count}</span>
-              </button>
-            ))}
-          </div>
-          <div style={{ padding: '16px 20px' }}>
-            {COLLECTIONS.filter(c => c.name===activeColl).map(col => (
-              <div key={col.name}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                  <div>
-                    <div style={{ fontFamily: FD, fontSize: 15, fontWeight: 700 }}>{col.name}</div>
-                    <div style={{ fontFamily: FM, fontSize: 11, color: M, marginTop: 2 }}><span style={{ color: P, fontWeight: 700 }}>{col.count.toLocaleString()}</span> records · Latest: <span style={{ color: PURPLE }}>{col.latest}</span> · {col.ts}</div>
-                  </div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-                  {[
-                    { id: col.latest, desc: 'Latest entry for this collection', ts: col.ts, hl: true },
-                    { id: `${col.name.slice(0,3).toUpperCase()}-${Math.floor(Math.random()*900+100)}`, desc: 'Compound risk — gas + maintenance', ts: '1d ago', hl: false },
-                    { id: `${col.name.slice(0,3).toUpperCase()}-${Math.floor(Math.random()*900+100)}`, desc: 'Cross-zone propagation scenario', ts: '3d ago', hl: false },
-                  ].map((rec, i) => (
-                    <div key={i} style={{ padding: '10px 12px', borderRadius: 10, background: rec.hl ? `${GREEN}03` : CARD2, border: `1px solid ${rec.hl ? GREEN+'18' : BD}`, borderLeft: `3px solid ${rec.hl ? GREEN : BD}` }}>
-                      <div style={{ fontFamily: FM, fontSize: 10, color: rec.hl ? GREEN : PURPLE, fontWeight: 600, marginBottom: 4 }}>{rec.id}</div>
-                      <div style={{ fontSize: 11, color: S, marginBottom: 4 }}>{rec.desc}</div>
-                      <div style={{ fontFamily: FM, fontSize: 9, color: M }}>{rec.ts}</div>
-                      {rec.hl && <span style={{ display: 'inline-block', marginTop: 4, fontFamily: FM, fontSize: 8, padding: '1px 5px', borderRadius: 4, background: `${GREEN}08`, color: GREEN, fontWeight: 700 }}>NEW</span>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Nav */}
-        <div style={{ display: 'flex', gap: 10, justifyContent: 'space-between', marginTop: 20, alignItems: 'center' }}>
-          <Link to="/audit" style={{ padding: '10px 18px', borderRadius: 10, border: `1px solid ${BD}`, background: CARD, textDecoration: 'none', color: S, fontSize: 13 }}>← Audit Trail</Link>
-          <div style={{ fontFamily: FM, fontSize: 10, color: M }}>Memory loop complete · <span style={{ color: GREEN, fontWeight: 600 }}>Case lifecycle closed</span></div>
-          <Link to="/" style={{ padding: '10px 18px', borderRadius: 10, background: BLUE, color: '#fff', textDecoration: 'none', fontSize: 13, fontWeight: 600, boxShadow: `0 2px 8px ${BLUE}30` }}>Mission Control →</Link>
+        {/* Filters */}
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+          {(['all', 'verified', 'recent'] as const).map(f => (
+            <button key={f} onClick={() => setFilter(f)} style={{
+              padding: '5px 12px', borderRadius: 8, fontSize: 11, fontWeight: 600,
+              border: `1px solid ${filter === f ? BLUE : BD}`,
+              background: filter === f ? '#EFF6FF' : BG,
+              color: filter === f ? BLUE : S, cursor: 'pointer',
+              textTransform: 'capitalize' as const,
+            }}>
+              {f}
+            </button>
+          ))}
         </div>
       </div>
+
+      {/* Stats row */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
+        {[
+          ['Total Lessons', lessons.length, BLUE, BookOpen],
+          ['Verified', lessons.filter(l => l.verified).length, GREEN, CheckCircle],
+          ['This Week', lessons.filter(l => l.ts && Date.now() - new Date(l.ts).getTime() < 7*86400000).length, PURPLE, Clock],
+        ].map(([label, count, color, Icon]) => (
+          <div key={label as string} style={{
+            background: CARD, borderRadius: 12, border: `1px solid ${BD}`,
+            padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10,
+            flex: 1,
+          }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: `${color}12`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon size={15} color={color as string} />
+            </div>
+            <div>
+              <div style={{ fontFamily: FD, fontSize: 20, fontWeight: 800, color: color as string, lineHeight: 1 }}>{count as number}</div>
+              <div style={{ fontSize: 11, color: M }}>{label as string}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Lessons list */}
+      {loading ? (
+        <div style={{ textAlign: 'center' as const, padding: 48, color: M }}>Loading from Qdrant...</div>
+      ) : displayed.length === 0 ? (
+        <div style={{ textAlign: 'center' as const, padding: 48, color: M, background: CARD, borderRadius: 12, border: `1px solid ${BD}` }}>
+          <BookOpen size={32} color={M} style={{ margin: '0 auto 12px' }} />
+          <div style={{ fontFamily: FD, fontSize: 16, fontWeight: 700, marginBottom: 6 }}>No lessons yet</div>
+          <div style={{ fontSize: 13 }}>Resolve a case with debrief to write your first lesson to Qdrant</div>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {displayed.map((lesson, i) => (
+            <div key={i} style={{
+              background: CARD, borderRadius: 14, border: `1px solid ${BD}`,
+              borderLeft: `3px solid ${lesson.verified ? GREEN : M}`,
+              overflow: 'hidden',
+              boxShadow: expanded === i ? '0 4px 16px rgba(0,0,0,0.06)' : 'none',
+            }}>
+              <button
+                onClick={() => setExpanded(expanded === i ? null : i)}
+                style={{
+                  width: '100%', padding: '14px 18px', background: 'transparent', border: 'none',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' as const,
+                }}
+              >
+                {lesson.verified
+                  ? <CheckCircle size={16} color={GREEN} style={{ flexShrink: 0 }} />
+                  : <Clock size={16} color={M} style={{ flexShrink: 0 }} />
+                }
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: FM, fontSize: 12, fontWeight: 700, color: BLUE, marginBottom: 2 }}>
+                    {lesson.case_id ?? `LESSON-${i + 1}`}
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: P, overflow: 'hidden', whiteSpace: 'nowrap' as const, textOverflow: 'ellipsis' }}>
+                    {lesson.debrief ?? lesson.resolution ?? lesson.incident_type ?? 'Incident lesson'}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                  {lesson.zone_id && (
+                    <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 5,
+                      background: '#EFF6FF', color: BLUE, fontWeight: 600 }}>
+                      {lesson.zone_id}
+                    </span>
+                  )}
+                  {lesson.ts && (
+                    <span style={{ fontSize: 10, color: M }}>
+                      {new Date(lesson.ts as string).toLocaleDateString()}
+                    </span>
+                  )}
+                  {expanded === i ? <ChevronUp size={13} color={M} /> : <ChevronDown size={13} color={M} />}
+                </div>
+              </button>
+
+              {expanded === i && (
+                <div style={{ padding: '0 18px 14px', borderTop: `1px solid ${BD}` }}>
+                  <div style={{ paddingTop: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    {[
+                      ['Equipment', lesson.equipment_id],
+                      ['Zone', lesson.zone_id],
+                      ['Incident Type', lesson.incident_type?.replace(/_/g, ' ')],
+                    ].filter(([, v]) => v).map(([k, v]) => (
+                      <div key={k as string}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: M, textTransform: 'uppercase' as const, marginBottom: 2 }}>{k}</div>
+                        <div style={{ fontSize: 12, color: P, fontWeight: 600 }}>{v as string}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {lesson.contributing_factors && (lesson.contributing_factors as string[]).length > 0 && (
+                    <div style={{ marginTop: 10 }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: M, textTransform: 'uppercase' as const, marginBottom: 6 }}>Contributing Factors</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6 }}>
+                        {(lesson.contributing_factors as string[]).map((f, j) => (
+                          <span key={j} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 6,
+                            background: '#FFF7ED', color: '#EA580C', border: '1px solid #EA580C22', fontWeight: 500 }}>
+                            {f.replace(/_/g, ' ')}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {(lesson.debrief || lesson.resolution) && (
+                    <div style={{ marginTop: 12, padding: 12, background: BG, borderRadius: 8, fontSize: 12, color: S, lineHeight: 1.6 }}>
+                      {(lesson.debrief ?? lesson.resolution) as string}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

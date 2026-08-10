@@ -25,6 +25,10 @@ class AuditEntry(BaseModel):
         "tool_executed",
         "case_resolved",
         "memory_written",
+        "operator_action"
     ]
-    payload: dict[str, Any]
+    action: str | None = None
+    actor: str | None = None
+    decision: str | None = None
+    payload: dict[str, Any] | None = None
     ts: datetime

@@ -150,6 +150,105 @@
       }
     },
     {
+      "offset_seconds": 55,
+      "source": "scada",
+      "zone_id": "Bay3",
+      "equipment_id": "compressor-C14",
+      "value": 90,
+      "unit": "C",
+      "severity_hint": "elevated",
+      "metadata": {
+        "tag": "TEMP-C14",
+        "alarm_state": false,
+        "note": "Compressor casing temperature rising"
+      }
+    },
+    {
+      "offset_seconds": 65,
+      "source": "cctv",
+      "zone_id": "Bay3",
+      "equipment_id": null,
+      "value": null,
+      "unit": null,
+      "severity_hint": "elevated",
+      "metadata": {
+        "event_type": "zone_activity",
+        "confidence": 0.88,
+        "zone_id": "Bay3",
+        "note": "Worker approaching compressor-C14 with tools"
+      }
+    },
+    {
+      "offset_seconds": 75,
+      "source": "gas_sensor",
+      "zone_id": "Bay3",
+      "equipment_id": "gas-detector-B3-01",
+      "value": 222,
+      "unit": "ppm",
+      "severity_hint": "critical",
+      "metadata": {
+        "baseline_ppm": 200,
+        "note": "11% above baseline — peak gas concentration"
+      }
+    },
+    {
+      "offset_seconds": 85,
+      "source": "scada",
+      "zone_id": "Bay3",
+      "equipment_id": "compressor-C14",
+      "value": 9.5,
+      "unit": "bar",
+      "severity_hint": "critical",
+      "metadata": {
+        "tag": "PRESS-C14",
+        "alarm_state": true,
+        "note": "Pressure alarm triggered on C14"
+      }
+    },
+    {
+      "offset_seconds": 95,
+      "source": "maintenance",
+      "zone_id": "Bay3",
+      "equipment_id": "compressor-C14",
+      "value": null,
+      "unit": null,
+      "severity_hint": "elevated",
+      "metadata": {
+        "record_id": "MNT-C14-0809-002",
+        "equipment_id": "compressor-C14",
+        "fault_code": "WORK-START",
+        "summary": "Technician logged start of diagnostic work"
+      }
+    },
+    {
+      "offset_seconds": 105,
+      "source": "gas_sensor",
+      "zone_id": "Bay3",
+      "equipment_id": "gas-detector-B3-01",
+      "value": 218,
+      "unit": "ppm",
+      "severity_hint": "elevated",
+      "metadata": {
+        "baseline_ppm": 200,
+        "note": "Gas dropping slightly but remains high"
+      }
+    },
+    {
+      "offset_seconds": 115,
+      "source": "cctv",
+      "zone_id": "Bay3",
+      "equipment_id": null,
+      "value": null,
+      "unit": null,
+      "severity_hint": "normal",
+      "metadata": {
+        "event_type": "zone_exit",
+        "confidence": 0.95,
+        "zone_id": "Bay3",
+        "note": "Worker steps back from active zone"
+      }
+    },
+    {
       "offset_seconds": 120,
       "source": "permit",
       "zone_id": "Bay3",

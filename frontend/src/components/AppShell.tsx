@@ -1,15 +1,19 @@
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Radio, Database, Mic2, ShieldCheck,
-  FileText, BookOpen, Home, WifiOff, Cpu, ChevronRight
+  FileText, BookOpen, Home, WifiOff, Cpu, ChevronRight, Wifi,
+  Building2, Bot, Activity
 } from 'lucide-react'
+import { getCases } from '../services/api'
+import { useCaseStore } from '../store/useCaseStore'
+import { useSessionSocket } from '../ws/useSessionSocket'
 
 const NAV_ITEMS = [
-  { label: 'Risk Overview',      icon: LayoutDashboard, to: '/',          badge: null,    badgeCol: '' },
-  { label: 'Converging Signals', icon: Radio,           to: '/signals',   badge: '4',     badgeCol: '#EA580C' },
-  { label: 'Qdrant Memory',      icon: Database,        to: '/retrieval', badge: '3',     badgeCol: '#7C3AED' },
-  { label: 'Voice Officer',      icon: Mic2,            to: '/voice',     badge: 'Rime',  badgeCol: '#0D9488' },
-  { label: 'Confirmation Gate',  icon: ShieldCheck,     to: '/confirm',   badge: 'Gated', badgeCol: '#D97706' },
+  { label: 'Mission Control',    icon: LayoutDashboard, to: '/',          badge: 'Live',  badgeCol: '#2563EB' },
+  { label: '3D Factory Twin',    icon: Building2,       to: '/factory-twin', badge: 'New',   badgeCol: '#10B981' },
+  { label: 'FRIDAY Co-Pilot',    icon: Bot,             to: '/friday',    badge: 'AI',    badgeCol: '#8B5CF6' },
+  { label: 'Sensor Telemetry',   icon: Activity,        to: '/telemetry', badge: null,    badgeCol: '' },
   { label: 'Audit Trail',        icon: FileText,        to: '/audit',     badge: null,    badgeCol: '' },
   { label: 'Lessons Learned',    icon: BookOpen,        to: '/lessons',   badge: null,    badgeCol: '' },
 ]
@@ -24,6 +28,35 @@ export default function AppShell() {
   const location = useLocation()
   const isActive = (to: string) =>
     to === '/' ? location.pathname === '/' : location.pathname.startsWith(to)
+
+  const activeCase = useCaseStore(s => s.activeCase)
+  const setActiveCase = useCaseStore(s => s.setActiveCase)
+  const connectionStatus = useCaseStore(s => s.connectionStatus)
+
+  // Auto-fetch cases on load and pick the first one
+  useEffect(() => {
+    getCases().then(cases => {
+      if (cases.length > 0 && !activeCase) {
+        setActiveCase(cases[0])
+      }
+    }).catch(err => console.error("Failed to fetch cases:", err))
+  }, [activeCase, setActiveCase])
+
+  // Connect websocket for the active case
+  useSessionSocket(activeCase?.case_id || 'demo')
+
+  const navigate = useNavigate()
+  const navTarget = useCaseStore(s => s.uiState.navTarget)
+  const setNavTarget = useCaseStore(s => s.setNavTarget)
+
+  useEffect(() => {
+    if (navTarget) {
+      // Clear the target so we don't keep navigating
+      setNavTarget(null)
+      // Switch screen
+      navigate(navTarget)
+    }
+  }, [navTarget, navigate, setNavTarget])
 
   return (
     <div style={{
@@ -126,8 +159,12 @@ export default function AppShell() {
           <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', color: '#9CA3B4', textTransform: 'uppercase', marginBottom: 6 }}>
             Active Session
           </div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: '#D97706', fontWeight: 700 }}>CASE-2026-0891</div>
-          <div style={{ fontSize: 11, color: '#9CA3B4', marginTop: 2 }}>Bay 3 · Refining Unit 4</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: '#D97706', fontWeight: 700 }}>
+            {activeCase ? activeCase.case_id : 'WAITING...'}
+          </div>
+          <div style={{ fontSize: 11, color: '#9CA3B4', marginTop: 2 }}>
+            {activeCase ? activeCase.zone_id : '---'}
+          </div>
         </div>
       </aside>
 
@@ -163,21 +200,23 @@ export default function AppShell() {
           </div>
 
           {/* Active case */}
-          <TopBarChip label="Active Case" value="CASE-2026-0891" mono valueColor="#D97706" />
-          <TopBarChip label="Zone" value="Refining Unit 4 — Sector B" />
+          <TopBarChip label="Active Case" value={activeCase ? activeCase.case_id : '---'} mono valueColor="#D97706" />
+          <TopBarChip label="Zone" value={activeCase ? activeCase.zone_id : '---'} />
 
           {/* Risk */}
           <div style={{ paddingRight: 20, borderRight: '1px solid #E4E8EF', marginRight: 20 }}>
             <div style={{ fontSize: 10, color: '#9CA3B4', letterSpacing: '0.06em', marginBottom: 1 }}>Compound Risk</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 700, color: '#0F1729' }}>
-                87 <span style={{ color: '#9CA3B4', fontSize: 11 }}>/ 100</span>
+                {activeCase ? Math.round(activeCase.compound_score * 100) : 0} <span style={{ color: '#9CA3B4', fontSize: 11 }}>/ 100</span>
               </span>
               <span style={{
                 fontSize: 9, padding: '2px 7px', borderRadius: 5,
-                background: '#FFF7ED', border: '1px solid #FED7AA',
-                color: '#EA580C', fontWeight: 700,
-              }}>HIGH</span>
+                background: activeCase?.risk_tier === 'critical' ? '#FEF2F2' : '#FFF7ED',
+                border: `1px solid ${activeCase?.risk_tier === 'critical' ? '#FCA5A5' : '#FED7AA'}`,
+                color: activeCase?.risk_tier === 'critical' ? '#DC2626' : '#EA580C',
+                fontWeight: 700, textTransform: 'uppercase'
+              }}>{activeCase ? activeCase.risk_tier : '---'}</span>
             </div>
           </div>
 
@@ -193,8 +232,17 @@ export default function AppShell() {
 
           {/* Status */}
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 5 }}>
-            <WifiOff size={13} color="#DC2626" />
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#DC2626', fontWeight: 700 }}>DISCONNECTED</span>
+            {connectionStatus === 'connected' ? (
+              <>
+                <Wifi size={13} color="#16A34A" />
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#16A34A', fontWeight: 700 }}>CONNECTED</span>
+              </>
+            ) : (
+              <>
+                <WifiOff size={13} color="#DC2626" />
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#DC2626', fontWeight: 700 }}>DISCONNECTED</span>
+              </>
+            )}
           </div>
         </header>
 

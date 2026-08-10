@@ -5,9 +5,9 @@ Startup sequence
 ----------------
 1. Read environment variables (python-dotenv loads .env if present)
 2. Lifespan: init SQLite schema, log "VIGIL backend ready"
-3. CORS: allow localhost:5173 and VITE_ORIGIN env var
+3. CORS: allow localhost:5173/5174 and VITE_ORIGIN env var
 4. Mount all /api route modules
-5. Mount WebSocket at /ws/session/{session_id}
+5. Mount WebSocket at /ws/session/{session_id} and /ws/audio/{case_id}
 """
 from __future__ import annotations
 
@@ -22,8 +22,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()  # noqa: E402 — must run before any os.environ reads
 
-from backend.api import routes_cases, routes_demo, routes_memory, routes_retrieval, routes_risk, routes_voice
+from backend.api import routes_cases, routes_demo, routes_memory, routes_retrieval, routes_risk, routes_voice, routes_voice_command
+from backend.api.routes_factory import router as factory_router, get_factory_state
 from backend.api.ws_session import router as ws_router, start_ws_bridge
+from backend.api.ws_audio import router as audio_router
 from backend.bus.event_bus import bus
 from backend.db.db import init_db, seed_demo_cases
 
@@ -47,8 +49,58 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     await bus.start()
     await start_ws_bridge(bus)
-    logger.info("Event bus started, WS bridge active")
 
+    # Wire factory state updates from raw telemetry events
+    async def _update_factory_state(event: dict) -> None:
+        get_factory_state().apply_event(event)
+
+    await bus.subscribe("raw.telemetry", _update_factory_state)
+
+    # Wire Rime TTS to scenario voice events
+    async def _speak_from_event(event: dict) -> None:
+        text = event.get("text") or event.get("payload", {}).get("text", "")
+        case_id = event.get("case_id", "demo")
+        if text:
+            try:
+                from backend.api.ws_audio import speak_to_case
+                await speak_to_case(case_id, text)
+            except Exception as exc:
+                logger.warning("Voice event TTS failed: %s", exc)
+
+    await bus.subscribe("voice.speak", _speak_from_event)
+
+    # Wire Risk Reasoner to Response Orchestrator
+    async def _handle_risk_assessed(event: dict) -> None:
+        try:
+            from backend.models.risk import RiskAssessment
+            from backend.services.audit_service import get_case
+            from backend.agents.response_orchestrator.agent import ResponseOrchestratorAgent
+            from backend.services.notification_service import VoiceNotifier
+            
+            # Extract case_id injected by ws_session
+            case_id = event.pop("case_id", None)
+            if not case_id:
+                case_id = "case-" + event.get("zone_id", "unknown").lower()
+                
+            assessment = RiskAssessment(**event)
+            case = get_case(case_id)
+            if not case:
+                logger.warning("No case found for %s, skipping orchestration", case_id)
+                return
+            
+            class DummyNotifier:
+                def notify(self, target: str, message: str, case_id: str) -> None:
+                    logger.info("Notify %s for %s: %s", target, case_id, message)
+                    
+            notifier = DummyNotifier()
+            orchestrator = ResponseOrchestratorAgent(notifier)
+            await orchestrator.handle_assessment(assessment, case)
+        except Exception as exc:
+            logger.error("Response Orchestrator failed: %s", exc)
+
+    await bus.subscribe("risk.assessed", _handle_risk_assessed)
+
+    logger.info("Event bus started, WS bridge active, audio WS ready")
     logger.info("VIGIL backend ready  |  db=%s", db_path)
 
     yield
@@ -64,7 +116,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 app = FastAPI(
     title="VIGIL — Compound-Risk Voice Intelligence",
-    version="0.1.0-scaffold",
+    version="1.0.0",
     lifespan=lifespan,
 )
 
@@ -72,6 +124,10 @@ app = FastAPI(
 _allowed_origins: list[str] = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
+    "http://localhost:5175",
+    "http://127.0.0.1:5175",
 ]
 _vite_origin = os.environ.get("VITE_ORIGIN", "")
 if _vite_origin and _vite_origin not in _allowed_origins:
@@ -92,11 +148,22 @@ app.include_router(routes_cases.router,      prefix=_API_PREFIX)
 app.include_router(routes_risk.router,       prefix=_API_PREFIX)
 app.include_router(routes_retrieval.router,  prefix=_API_PREFIX)
 app.include_router(routes_voice.router,      prefix=_API_PREFIX)
+app.include_router(routes_voice_command.router, prefix=_API_PREFIX)
 app.include_router(routes_memory.router,     prefix=_API_PREFIX)
 app.include_router(routes_demo.router,       prefix=_API_PREFIX)
 
-# WebSocket (/ws prefix) -----------------------------------------------------
-app.include_router(ws_router)  # path defined inside ws_session.py as /ws/session/{session_id}
+# Factory state routes (already has /api/factory prefix) --------------------
+app.include_router(factory_router)
+
+# WebSocket routes -----------------------------------------------------------
+app.include_router(ws_router)     # /ws/session/{session_id}
+app.include_router(audio_router)  # /ws/audio/{case_id}
+
+
+# Health check ---------------------------------------------------------------
+@app.get("/health")
+async def health() -> dict:
+    return {"status": "ok", "version": "1.0.0"}
 
 
 # --------------------------------------------------------------------------- #
