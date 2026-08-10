@@ -107,3 +107,7 @@ export async function resetScenario(scenarioId: string): Promise<void> {
 export function getDemoStatus(): Promise<DemoStatus> {
   return apiGet<DemoStatus>('/api/demo/status')
 }
+
+export function getBenchmarkResults(): Promise<Record<string, unknown>> {
+  return apiGet<Record<string, unknown>>('/api/benchmark/results')
+}

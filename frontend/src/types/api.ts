@@ -163,3 +163,9 @@ export type WsEnvelope =
       payload: { case_id: string }
       ts: string
     }
+  | {
+      type: 'memory.write_back'
+      payload: Record<string, unknown>
+      ts: string
+    }
+

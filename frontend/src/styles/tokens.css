@@ -1,76 +1,116 @@
-/*
- * frontend/src/styles/tokens.css
- *
- * VIGIL design tokens — CSS custom properties.
- *
- * Convention: all hue/saturation/lightness values use HSL so Tailwind
- * JIT can consume them via `hsl(var(--color-foo))`.
- *
- * Pipeline stages → accent colours
- * Risk tiers       → semantic colours
- */
+/* Import fonts — Premium stack */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  /* ── Pipeline stage colours (HSL components) ─────────────────────────── */
-  --stage-signals-h:    220;
-  --stage-signals-s:    70%;
-  --stage-signals-l:    55%;
-  --stage-signals:      hsl(var(--stage-signals-h), var(--stage-signals-s), var(--stage-signals-l));
+  /* ── Surfaces ─────────────────────────────────────────────────────── */
+  --nova-bg:          #F8F9FB;
+  --nova-surface:     #FFFFFF;
+  --nova-surface-2:   #F1F3F7;
+  --nova-border:      #E4E8EF;
+  --nova-border-strong: #D0D5DE;
 
-  --stage-retrieval-h:  262;
-  --stage-retrieval-s:  65%;
-  --stage-retrieval-l:  58%;
-  --stage-retrieval:    hsl(var(--stage-retrieval-h), var(--stage-retrieval-s), var(--stage-retrieval-l));
+  /* ── Text ─────────────────────────────────────────────────────────── */
+  --nova-text-primary:   #0F1729;
+  --nova-text-secondary: #5A6578;
+  --nova-text-muted:     #9CA3B4;
 
-  --stage-voice-h:      188;
-  --stage-voice-s:      72%;
-  --stage-voice-l:      48%;
-  --stage-voice:        hsl(var(--stage-voice-h), var(--stage-voice-s), var(--stage-voice-l));
+  /* ── Accent palette (muted/sophisticated) ─────────────────────────── */
+  --tier-low:      #16A34A;
+  --tier-medium:   #D97706;
+  --tier-high:     #EA580C;
+  --tier-critical: #DC2626;
 
-  --stage-confirm-h:    36;
-  --stage-confirm-s:    90%;
-  --stage-confirm-l:    52%;
-  --stage-confirm:      hsl(var(--stage-confirm-h), var(--stage-confirm-s), var(--stage-confirm-l));
+  --tier-low-bg:      rgba(22, 163, 74, 0.06);
+  --tier-medium-bg:   rgba(217, 119, 6, 0.06);
+  --tier-high-bg:     rgba(234, 88, 12, 0.06);
+  --tier-critical-bg: rgba(220, 38, 38, 0.06);
 
-  --stage-audit-h:      160;
-  --stage-audit-s:      55%;
-  --stage-audit-l:      45%;
-  --stage-audit:        hsl(var(--stage-audit-h), var(--stage-audit-s), var(--stage-audit-l));
+  --voice-active:    #0D9488;
+  --voice-active-bg: rgba(13, 148, 136, 0.06);
 
-  --stage-memory-h:     280;
-  --stage-memory-s:     55%;
-  --stage-memory-l:     60%;
-  --stage-memory:       hsl(var(--stage-memory-h), var(--stage-memory-s), var(--stage-memory-l));
+  --ai-blue:         #2563EB;
+  --qdrant-purple:   #7C3AED;
 
-  /* overview is not a pipeline stage but shares the nav bar */
-  --stage-overview-h:   210;
-  --stage-overview-s:   15%;
-  --stage-overview-l:   55%;
-  --stage-overview:     hsl(var(--stage-overview-h), var(--stage-overview-s), var(--stage-overview-l));
+  /* ── Fonts ────────────────────────────────────────────────────────── */
+  --font-display: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:    'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
 
-  /* ── Risk tier colours ──────────────────────────────────────────────── */
-  --tier-low:           hsl(140, 60%, 42%);   /* green  */
-  --tier-low-bg:        hsl(140, 60%, 95%);
+  /* ── Radii ────────────────────────────────────────────────────────── */
+  --radius-sm: 6px;
+  --radius:    10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+}
 
-  --tier-medium:        hsl(45,  90%, 48%);   /* amber  */
-  --tier-medium-bg:     hsl(45,  90%, 95%);
+/* ── Base ────────────────────────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  --tier-high:          hsl(24,  90%, 52%);   /* orange */
-  --tier-high-bg:       hsl(24,  90%, 95%);
+body {
+  background: var(--nova-bg);
+  color: var(--nova-text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-  --tier-critical:      hsl(0,   78%, 50%);   /* red    */
-  --tier-critical-bg:   hsl(0,   78%, 96%);
+.mono { font-family: var(--font-mono); }
+.display { font-family: var(--font-display); }
 
-  /* ── WebSocket status colours ──────────────────────────────────────── */
-  --ws-connected:       hsl(140, 60%, 42%);
-  --ws-reconnecting:    hsl(45,  90%, 48%);
-  --ws-disconnected:    hsl(0,   60%, 50%);
+/* ── Tier utilities ─────────────────────────────────────────────────── */
+.tier-low      { color: var(--tier-low); }
+.tier-medium   { color: var(--tier-medium); }
+.tier-high     { color: var(--tier-high); }
+.tier-critical { color: var(--tier-critical); }
 
-  /* ── Neutral surface / text ─────────────────────────────────────────── */
-  --surface-0:          hsl(220, 14%, 10%);   /* darkest background   */
-  --surface-1:          hsl(220, 12%, 16%);   /* card background      */
-  --surface-2:          hsl(220, 10%, 24%);   /* elevated surface     */
-  --text-primary:       hsl(220,  8%, 92%);
-  --text-secondary:     hsl(220,  6%, 58%);
-  --border:             hsl(220, 10%, 28%);
+.tier-low-bg      { background: var(--tier-low-bg);      border: 1px solid rgba(22,163,74,0.15); }
+.tier-medium-bg   { background: var(--tier-medium-bg);   border: 1px solid rgba(217,119,6,0.15); }
+.tier-high-bg     { background: var(--tier-high-bg);     border: 1px solid rgba(234,88,12,0.15); }
+.tier-critical-bg { background: var(--tier-critical-bg); border: 1px solid rgba(220,38,38,0.15); }
+
+/* ── Keyframes ──────────────────────────────────────────────────────── */
+@keyframes nova-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@keyframes nova-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+@keyframes nova-slide-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes nova-ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes nova-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+@keyframes nova-ring-pulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  70% { transform: scale(1.5); opacity: 0; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+@keyframes nova-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--nova-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--nova-border-strong); }
+
+/* ── Premium card shadow utility ────────────────────────────────────── */
+.card-shadow {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+}
+.card-shadow-lg {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
 }

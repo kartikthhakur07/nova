@@ -29,12 +29,15 @@ import { useCaseStore } from './store/useCaseStore'
 import { useSessionSocket } from './ws/useSessionSocket'
 
 
+import { SystemStatusBar } from './components/SystemStatusBar'
+
 // ── CaseLayout ────────────────────────────────────────────────────────── //
 
 function CaseLayout() {
   const { id: caseId = '' } = useParams<{ id: string }>()
   const currentStage = useCaseStore((s) => s.currentStage)
-  const reachedStages = useCaseStore((s) => s.reachedStages)
+  const reachedStagesSet = useCaseStore((s) => s.reachedStages)
+  const reachedStages = Array.from(reachedStagesSet) as import('./store/useCaseStore').PipelineStage[]
 
   // Fetch case on mount
   useCaseState(caseId)
@@ -54,17 +57,20 @@ function CaseLayout() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900">
+    <div className="flex flex-col min-h-screen bg-nova-bg pb-8">
       <CaseStepperNav caseId={caseId} currentStage={currentStage} reachedStages={reachedStages} />
       <main className="flex-1">
         <Outlet />
       </main>
+      <SystemStatusBar />
     </div>
   )
 }
 
 // ── Router ────────────────────────────────────────────────────────────── //
 import RiskOverview from './pages/RiskOverview'
+import DashboardHome from './pages/DashboardHome'
+import AppShell from './components/AppShell'
 import DemoControl from './pages/DemoControl'
 import Benchmark from './pages/Benchmark'
 import ConvergingSignals from './pages/ConvergingSignals'
@@ -73,26 +79,41 @@ import VoiceInteraction from './pages/VoiceInteraction'
 import Confirmation from './pages/Confirmation'
 import AuditTrail from './pages/AuditTrail'
 import LessonsLearned from './pages/LessonsLearned'
+import MemoryBrowser from './pages/MemoryBrowser'
 import { useCaseState } from './hooks/useCaseState'
 
 const router = createBrowserRouter([
+  // ── Dashboard shell (main app) ──
   {
     path: '/',
+    element: <AppShell />,
+    children: [
+      { index: true,         element: <DashboardHome /> },
+      { path: 'signals',     element: <ConvergingSignals /> },
+      { path: 'retrieval',   element: <RetrievalTrace /> },
+      { path: 'voice',       element: <VoiceInteraction /> },
+      { path: 'confirm',     element: <Confirmation /> },
+      { path: 'audit',       element: <AuditTrail /> },
+      { path: 'lessons',     element: <LessonsLearned /> },
+      { path: 'memory',      element: <MemoryBrowser /> },
+      { path: 'benchmark',   element: <Benchmark /> },
+    ],
+  },
+  // ── Marketing landing page ──
+  {
+    path: '/landing',
     element: <RiskOverview />,
   },
   {
     path: '/demo',
     element: <DemoControl />,
   },
-  {
-    path: '/benchmark',
-    element: <Benchmark />,
-  },
+  // ── Legacy case routes (keep for backward compat) ──
   {
     path: '/case/:id',
     element: <CaseLayout />,
     children: [
-      { index: true,       element: <RiskOverview /> },
+      { index: true,       element: <DashboardHome /> },
       { path: 'signals',   element: <ConvergingSignals /> },
       { path: 'retrieval', element: <RetrievalTrace /> },
       { path: 'voice',     element: <VoiceInteraction /> },
