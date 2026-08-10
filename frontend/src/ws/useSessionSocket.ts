@@ -26,6 +26,8 @@ export function useSessionSocket(sessionId: string, onRawMessage?: (msg: any) =>
   const markStageReached = useCaseStore((s) => s.markStageReached)
   const setWsStatus = useCaseStore((s) => s.setWsStatus)
   const connectionStatus = useCaseStore((s) => s.connectionStatus)
+  const setLessonWritten = useCaseStore((s) => s.setLessonWritten)
+  const setPendingAuth = useCaseStore((s) => s.setPendingAuth)
 
   const socketRef = useRef<CaseWebSocket | null>(null)
 
@@ -57,6 +59,15 @@ export function useSessionSocket(sessionId: string, onRawMessage?: (msg: any) =>
           }
           break
         }
+        case 'memory.write_back':
+          setLessonWritten(msg.payload)
+          break
+        case 'authorization.requested':
+          setPendingAuth({
+            toolName: msg.payload.tool_name,
+            actionPreview: msg.payload.action_preview
+          })
+          break
         // Other message types (transcript.delta, audit.entry, etc.) will be
         // handled in future PRs by dedicated hooks
         default:
@@ -74,7 +85,7 @@ export function useSessionSocket(sessionId: string, onRawMessage?: (msg: any) =>
       socket.disconnect()
       socketRef.current = null
     }
-  }, [sessionId, appendEvidence, setLatencyMark, updateCaseStage, markStageReached, setWsStatus, onRawMessage])
+  }, [sessionId, appendEvidence, setLatencyMark, updateCaseStage, markStageReached, setWsStatus, setLessonWritten, setPendingAuth, onRawMessage])
 
   return { status: connectionStatus }
 }

@@ -1,47 +1,49 @@
-/* Import fonts */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap');
+/* Import fonts — Premium stack */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Surfaces */
-  --nova-bg:        #0A0D10;
-  --nova-surface:   #12171C;
-  --nova-surface-2: #1A2028;
-  --nova-border:    #2A3340;
-  --nova-border-strong: #3A4555;
+  /* ── Surfaces ─────────────────────────────────────────────────────── */
+  --nova-bg:          #F8F9FB;
+  --nova-surface:     #FFFFFF;
+  --nova-surface-2:   #F1F3F7;
+  --nova-border:      #E4E8EF;
+  --nova-border-strong: #D0D5DE;
 
-  /* Text */
-  --nova-text-primary:   #E8EDF2;
-  --nova-text-secondary: #8A9AB0;
-  --nova-text-muted:     #4A5A6A;
+  /* ── Text ─────────────────────────────────────────────────────────── */
+  --nova-text-primary:   #0F1729;
+  --nova-text-secondary: #5A6578;
+  --nova-text-muted:     #9CA3B4;
 
-  /* Risk tiers */
-  --tier-low:      #22C55E;
-  --tier-medium:   #F59E0B;
-  --tier-high:     #F97316;
-  --tier-critical: #EF4444;
+  /* ── Accent palette (muted/sophisticated) ─────────────────────────── */
+  --tier-low:      #16A34A;
+  --tier-medium:   #D97706;
+  --tier-high:     #EA580C;
+  --tier-critical: #DC2626;
 
-  /* Risk tier backgrounds (10% opacity versions) */
-  --tier-low-bg:      rgba(34, 197, 94, 0.08);
-  --tier-medium-bg:   rgba(245, 158, 11, 0.08);
-  --tier-high-bg:     rgba(249, 115, 22, 0.08);
-  --tier-critical-bg: rgba(239, 68, 68, 0.08);
+  --tier-low-bg:      rgba(22, 163, 74, 0.06);
+  --tier-medium-bg:   rgba(217, 119, 6, 0.06);
+  --tier-high-bg:     rgba(234, 88, 12, 0.06);
+  --tier-critical-bg: rgba(220, 38, 38, 0.06);
 
-  /* Voice */
-  --voice-active:    #14B8A6;
-  --voice-active-bg: rgba(20, 184, 166, 0.08);
+  --voice-active:    #0D9488;
+  --voice-active-bg: rgba(13, 148, 136, 0.06);
 
-  /* Fonts */
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body:    'IBM Plex Sans', sans-serif;
-  --font-mono:    'IBM Plex Mono', monospace;
+  --ai-blue:         #2563EB;
+  --qdrant-purple:   #7C3AED;
 
-  /* Spacing */
-  --radius-sm: 4px;
-  --radius:    8px;
-  --radius-lg: 12px;
+  /* ── Fonts ────────────────────────────────────────────────────────── */
+  --font-display: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:    'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
+
+  /* ── Radii ────────────────────────────────────────────────────────── */
+  --radius-sm: 6px;
+  --radius:    10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
 }
 
-/* Base reset for NOVA */
+/* ── Base ────────────────────────────────────────────────────────────── */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -51,19 +53,64 @@ body {
   font-size: 14px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Utility: anything that is a measured value, ID, or timestamp */
 .mono { font-family: var(--font-mono); }
 .display { font-family: var(--font-display); }
 
-/* Tier utility classes */
+/* ── Tier utilities ─────────────────────────────────────────────────── */
 .tier-low      { color: var(--tier-low); }
 .tier-medium   { color: var(--tier-medium); }
 .tier-high     { color: var(--tier-high); }
 .tier-critical { color: var(--tier-critical); }
 
-.tier-low-bg      { background: var(--tier-low-bg);      border: 1px solid rgba(34,197,94,0.2); }
-.tier-medium-bg   { background: var(--tier-medium-bg);   border: 1px solid rgba(245,158,11,0.2); }
-.tier-high-bg     { background: var(--tier-high-bg);     border: 1px solid rgba(249,115,22,0.2); }
-.tier-critical-bg { background: var(--tier-critical-bg); border: 1px solid rgba(239,68,68,0.2); }
+.tier-low-bg      { background: var(--tier-low-bg);      border: 1px solid rgba(22,163,74,0.15); }
+.tier-medium-bg   { background: var(--tier-medium-bg);   border: 1px solid rgba(217,119,6,0.15); }
+.tier-high-bg     { background: var(--tier-high-bg);     border: 1px solid rgba(234,88,12,0.15); }
+.tier-critical-bg { background: var(--tier-critical-bg); border: 1px solid rgba(220,38,38,0.15); }
+
+/* ── Keyframes ──────────────────────────────────────────────────────── */
+@keyframes nova-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@keyframes nova-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+@keyframes nova-slide-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes nova-ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes nova-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+@keyframes nova-ring-pulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  70% { transform: scale(1.5); opacity: 0; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+@keyframes nova-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--nova-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--nova-border-strong); }
+
+/* ── Premium card shadow utility ────────────────────────────────────── */
+.card-shadow {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+}
+.card-shadow-lg {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+}

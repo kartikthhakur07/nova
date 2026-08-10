@@ -65,6 +65,9 @@ interface CaseState {
   retrievalMatches: HistoricalMatch[]
   latencyMarks: Record<string, number>
   connectionStatus: WsStatus
+  lessonWritten: any | null
+  pendingAuth: { toolName: string; actionPreview: string } | null
+  hasPendingAuth: boolean
 
   // ── actions ───────────────────────────────────────────────────────── //
   setCases: (cases: Case[]) => void
@@ -75,6 +78,8 @@ interface CaseState {
   setWsStatus: (s: WsStatus) => void
   appendEvidence: (items: EvidenceItem[]) => void
   setLatencyMark: (key: string, ts: number) => void
+  setLessonWritten: (lesson: any | null) => void
+  setPendingAuth: (auth: { toolName: string; actionPreview: string } | null) => void
 }
 
 // ── Store implementation ─────────────────────────────────────────────── //
@@ -88,6 +93,9 @@ export const useCaseStore = create<CaseState>((set) => ({
   retrievalMatches: [],
   latencyMarks: {},
   connectionStatus: 'disconnected',
+  lessonWritten: null,
+  pendingAuth: null,
+  hasPendingAuth: false,
 
   setCases: (cases) => set({ cases }),
 
@@ -132,4 +140,8 @@ export const useCaseStore = create<CaseState>((set) => ({
     set((prev) => ({
       latencyMarks: { ...prev.latencyMarks, [key]: ts },
     })),
+
+  setLessonWritten: (lesson) => set({ lessonWritten: lesson }),
+  
+  setPendingAuth: (auth) => set({ pendingAuth: auth, hasPendingAuth: !!auth }),
 }))

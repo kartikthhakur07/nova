@@ -7,6 +7,7 @@ interface CaseStepperNavProps {
   caseId: string
   currentStage: PipelineStage | null
   reachedStages: PipelineStage[]
+  hasPendingAuth?: boolean
 }
 
 const STAGES: { id: PipelineStage; label: string }[] = [
@@ -19,6 +20,7 @@ const STAGES: { id: PipelineStage; label: string }[] = [
 ]
 
 export function CaseStepperNav({ caseId, currentStage, reachedStages }: CaseStepperNavProps) {
+  const hasPendingAuth = useCaseStore(s => s.hasPendingAuth)
   const activeCase = useCaseStore((s) => s.activeCase)
   const connectionStatus = useCaseStore((s) => s.connectionStatus)
 
@@ -79,6 +81,9 @@ export function CaseStepperNav({ caseId, currentStage, reachedStages }: CaseStep
               return (
                 <Link key={stage.id} to={`/case/${caseId}/${stage.id}`} className={linkStyles}>
                   {stage.label}
+                  {stage.id === 'confirm' && hasPendingAuth && (
+                    <span className="ml-2 w-2 h-2 rounded-full bg-tier-critical animate-pulse" />
+                  )}
                 </Link>
               )
             }
@@ -86,6 +91,9 @@ export function CaseStepperNav({ caseId, currentStage, reachedStages }: CaseStep
             return (
               <div key={stage.id} className={linkStyles}>
                 {stage.label}
+                {stage.id === 'confirm' && hasPendingAuth && (
+                  <span className="ml-2 w-2 h-2 rounded-full bg-tier-critical animate-pulse" />
+                )}
               </div>
             )
           })}

@@ -69,6 +69,8 @@ function CaseLayout() {
 
 // ── Router ────────────────────────────────────────────────────────────── //
 import RiskOverview from './pages/RiskOverview'
+import DashboardHome from './pages/DashboardHome'
+import AppShell from './components/AppShell'
 import DemoControl from './pages/DemoControl'
 import Benchmark from './pages/Benchmark'
 import ConvergingSignals from './pages/ConvergingSignals'
@@ -77,26 +79,41 @@ import VoiceInteraction from './pages/VoiceInteraction'
 import Confirmation from './pages/Confirmation'
 import AuditTrail from './pages/AuditTrail'
 import LessonsLearned from './pages/LessonsLearned'
+import MemoryBrowser from './pages/MemoryBrowser'
 import { useCaseState } from './hooks/useCaseState'
 
 const router = createBrowserRouter([
+  // ── Dashboard shell (main app) ──
   {
     path: '/',
+    element: <AppShell />,
+    children: [
+      { index: true,         element: <DashboardHome /> },
+      { path: 'signals',     element: <ConvergingSignals /> },
+      { path: 'retrieval',   element: <RetrievalTrace /> },
+      { path: 'voice',       element: <VoiceInteraction /> },
+      { path: 'confirm',     element: <Confirmation /> },
+      { path: 'audit',       element: <AuditTrail /> },
+      { path: 'lessons',     element: <LessonsLearned /> },
+      { path: 'memory',      element: <MemoryBrowser /> },
+      { path: 'benchmark',   element: <Benchmark /> },
+    ],
+  },
+  // ── Marketing landing page ──
+  {
+    path: '/landing',
     element: <RiskOverview />,
   },
   {
     path: '/demo',
     element: <DemoControl />,
   },
-  {
-    path: '/benchmark',
-    element: <Benchmark />,
-  },
+  // ── Legacy case routes (keep for backward compat) ──
   {
     path: '/case/:id',
     element: <CaseLayout />,
     children: [
-      { index: true,       element: <RiskOverview /> },
+      { index: true,       element: <DashboardHome /> },
       { path: 'signals',   element: <ConvergingSignals /> },
       { path: 'retrieval', element: <RetrievalTrace /> },
       { path: 'voice',     element: <VoiceInteraction /> },
