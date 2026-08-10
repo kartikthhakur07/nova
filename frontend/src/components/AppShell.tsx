@@ -12,7 +12,7 @@ import { useSessionSocket } from '../ws/useSessionSocket'
 const NAV_ITEMS = [
   { label: 'Mission Control',    icon: LayoutDashboard, to: '/',          badge: 'Live',  badgeCol: '#2563EB' },
   { label: '3D Factory Twin',    icon: Building2,       to: '/factory-twin', badge: 'New',   badgeCol: '#10B981' },
-  { label: 'FRIDAY Co-Pilot',    icon: Bot,             to: '/friday',    badge: 'AI',    badgeCol: '#8B5CF6' },
+  { label: 'NOVA Co-Pilot',      icon: Bot,             to: '/dashboard/nova', badge: 'AI',    badgeCol: '#8B5CF6' },
   { label: 'Sensor Telemetry',   icon: Activity,        to: '/telemetry', badge: null,    badgeCol: '' },
   { label: 'Audit Trail',        icon: FileText,        to: '/audit',     badge: null,    badgeCol: '' },
   { label: 'Lessons Learned',    icon: BookOpen,        to: '/lessons',   badge: null,    badgeCol: '' },

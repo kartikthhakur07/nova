@@ -1,23 +1,9 @@
 /**
  * frontend/src/App.tsx
  *
- * React Router v6 application root.
- *
- * Routes
- * ──────
- *  /                    → RiskOverview  (placeholder — Saishree)
- *  /demo                → DemoControl   (placeholder — Kartik)
- *  /case/:id            → CaseLayout (nested)
- *    /case/:id/signals    → placeholder
- *    /case/:id/retrieval  → placeholder
- *    /case/:id/voice      → placeholder
- *    /case/:id/confirm    → placeholder
- *    /case/:id/audit      → placeholder
- *    /case/:id/memory     → placeholder
- *
- * Global ErrorBoundary wraps RouterProvider.
+ * React Router v6 application root with NOVA Agent-Piloted Architecture.
  */
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
   createBrowserRouter,
   RouterProvider,
@@ -27,11 +13,22 @@ import {
 import { CaseStepperNav } from './components/CaseStepperNav'
 import { useCaseStore } from './store/useCaseStore'
 import { useSessionSocket } from './ws/useSessionSocket'
-
+import { useCaseState } from './hooks/useCaseState'
 
 import { SystemStatusBar } from './components/SystemStatusBar'
-
-// ── CaseLayout ────────────────────────────────────────────────────────── //
+import HomePage from './pages/HomePage'
+import DemoMode from './pages/DemoMode'
+import RealSystemSimulation from './pages/RealSystemSimulation'
+import AppShell from './components/AppShell'
+import MissionControl from './pages/MissionControl'
+import DemoControl from './pages/DemoControl'
+import Benchmark from './pages/Benchmark'
+import AuditTrail from './pages/AuditTrail'
+import LessonsLearned from './pages/LessonsLearned'
+import MemoryBrowser from './pages/MemoryBrowser'
+import Factory3DTwin from './pages/Factory3DTwin'
+import NovaCoPilot from './pages/FridayCoPilot'
+import SensorTelemetry from './pages/SensorTelemetry'
 
 function CaseLayout() {
   const { id: caseId = '' } = useParams<{ id: string }>()
@@ -39,18 +36,10 @@ function CaseLayout() {
   const reachedStagesSet = useCaseStore((s) => s.reachedStages)
   const reachedStages = Array.from(reachedStagesSet) as import('./store/useCaseStore').PipelineStage[]
 
-  // Fetch case on mount
   useCaseState(caseId)
-
-  // Connect WebSocket for this case session
   useSessionSocket(caseId)
 
-  // The instructions said to use CaseStepperNav + Outlet
-  // If case not found: show a simple "Case not found" message
   const activeCase = useCaseStore(s => s.activeCase)
-
-  // To prevent flash of "Case not found", we should probably handle loading, but keeping it simple as requested.
-  // Actually, useCaseState handles it.
 
   if (!activeCase) {
     return <div className="p-8 text-gray-300">Case not found or loading...</div>
@@ -67,46 +56,38 @@ function CaseLayout() {
   )
 }
 
-// ── Router ────────────────────────────────────────────────────────────── //
-import RiskOverview from './pages/RiskOverview'
-import MissionControl from './pages/MissionControl'
-import AppShell from './components/AppShell'
-import DemoControl from './pages/DemoControl'
-import Benchmark from './pages/Benchmark'
-import AuditTrail from './pages/AuditTrail'
-import LessonsLearned from './pages/LessonsLearned'
-import MemoryBrowser from './pages/MemoryBrowser'
-import Factory3DTwin from './pages/Factory3DTwin'
-import FridayCoPilot from './pages/FridayCoPilot'
-import SensorTelemetry from './pages/SensorTelemetry'
-import { useCaseState } from './hooks/useCaseState'
-
 const router = createBrowserRouter([
-  // ── Dashboard shell (main app) ──
+  // ── First screen is HomePage with the new design ──
   {
     path: '/',
-    element: <AppShell />,
-    children: [
-      { index: true,         element: <MissionControl /> },
-      { path: 'factory-twin',element: <Factory3DTwin /> },
-      { path: 'friday',      element: <FridayCoPilot /> },
-      { path: 'telemetry',   element: <SensorTelemetry /> },
-      { path: 'audit',       element: <AuditTrail /> },
-      { path: 'lessons',     element: <LessonsLearned /> },
-      { path: 'memory',      element: <MemoryBrowser /> },
-      { path: 'benchmark',   element: <Benchmark /> },
-    ],
+    element: <HomePage />,
   },
-  // ── Marketing landing page ──
-  {
-    path: '/landing',
-    element: <RiskOverview />,
-  },
+  // ── Demo mode ──
   {
     path: '/demo',
-    element: <DemoControl />,
+    element: <DemoMode />,
   },
-  // ── Legacy case routes (keep for backward compat) ──
+  // ── Real System Simulation Mode ──
+  {
+    path: '/simulation',
+    element: <RealSystemSimulation />,
+  },
+  // ── Dashboard shell ──
+  {
+    path: '/dashboard',
+    element: <AppShell />,
+    children: [
+      { index: true,          element: <MissionControl /> },
+      { path: 'factory-twin', element: <Factory3DTwin /> },
+      { path: 'nova',         element: <NovaCoPilot /> },
+      { path: 'telemetry',    element: <SensorTelemetry /> },
+      { path: 'audit',        element: <AuditTrail /> },
+      { path: 'lessons',      element: <LessonsLearned /> },
+      { path: 'memory',       element: <MemoryBrowser /> },
+      { path: 'benchmark',    element: <Benchmark /> },
+    ],
+  },
+  // ── Legacy case routes ──
   {
     path: '/case/:id',
     element: <CaseLayout />,
@@ -117,8 +98,6 @@ const router = createBrowserRouter([
     ],
   },
 ])
-
-// ── ErrorBoundary ─────────────────────────────────────────────────────── //
 
 interface ErrorBoundaryState {
   hasError: boolean
@@ -153,9 +132,6 @@ class ErrorBoundary extends React.Component<
     return this.props.children
   }
 }
-
-// ── App root ──────────────────────────────────────────────────────────── //
-import { useEffect } from 'react'
 
 function GlobalShortcuts() {
   useEffect(() => {
