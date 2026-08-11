@@ -2,6 +2,8 @@
 
 ### The voice that notices what no single sensor can.
 
+![NOVA](assets/banner.png)
+
 NOVA is an agentic industrial safety intelligence system. It watches a plant's live operational signals — gas sensors, permit-to-work logs, maintenance records, shift data, and CCTV events — continuously and autonomously, correlates them against each other and against organizational memory, and speaks up the moment an otherwise invisible combination of facts becomes dangerous. It asks for authorization before it acts, executes only what a human approves, and writes what it learns back into memory so the next incident is caught faster.
 
 Built for **StarForge 2026 — Track 1 (VoxForge).**
