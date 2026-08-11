@@ -41,9 +41,11 @@ interface SimulationStore {
   novaState: NovaState
   novaCaption: string
   novaMessage: string
+  novaTranscript: string
   setNovaState: (state: NovaState) => void
   setNovaCaption: (caption: string) => void
   setNovaMessage: (msg: string) => void
+  setNovaTranscript: (t: string) => void
 
   sensors: SensorReading[]
   updateSensor: (id: string, value: number, status: SensorReading['status']) => void
@@ -113,9 +115,11 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   novaState: 'idle',
   novaCaption: '',
   novaMessage: '',
+  novaTranscript: '',
   setNovaState: (state) => set({ novaState: state }),
   setNovaCaption: (caption) => set({ novaCaption: caption }),
   setNovaMessage: (msg) => set({ novaMessage: msg }),
+  setNovaTranscript: (t) => set({ novaTranscript: t }),
 
   sensors: [...INITIAL_SENSORS],
   updateSensor: (id, value, status) => set(s => ({
@@ -146,26 +150,18 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   setAuthorizationPending: (pending, action) => set({ authorizationPending: pending, proposedAction: action || null }),
 
   authorizeAction: () => {
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      window.speechSynthesis.cancel()
-    }
     const { addEvent, proposedAction } = get()
     addEvent({ type: 'authorization', message: `Action authorized by supervisor: ${proposedAction}`, risk: 'normal' })
     set({ authorizationPending: false, proposedAction: null, evidenceOpen: false, compoundRiskScore: 0.22, riskLevel: 'normal' })
-    
     import('../engine/realSystemEngine').then(m => {
       m.novaSpeakSimulation("Authorization confirmed. Executing emergency response protocol and isolating gas manifold line.")
     })
   },
 
   rejectAction: () => {
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      window.speechSynthesis.cancel()
-    }
     const { addEvent, proposedAction } = get()
     addEvent({ type: 'authorization', message: `Action rejected: ${proposedAction}`, risk: 'elevated' })
     set({ authorizationPending: false, proposedAction: null })
-    
     import('../engine/realSystemEngine').then(m => {
       m.novaSpeakSimulation("Authorization rejected by operator. Resuming continuous telemetry monitoring.")
     })
@@ -189,9 +185,6 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   },
 
   resetTelemetry: () => {
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      window.speechSynthesis.cancel()
-    }
     set({
       sensors: INITIAL_SENSORS.map(s => ({ ...s, timestamp: Date.now() })),
       compoundRiskScore: 0.12,
