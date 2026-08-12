@@ -1,50 +1,56 @@
 /* Import fonts — Premium stack */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto+Slab:wght@100..900&family=Saira:ital,wght@0,100..900;1,100..900&family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap');
 
 :root {
   /* ── Surfaces ─────────────────────────────────────────────────────── */
-  --nova-bg:          #F8F9FB;
-  --nova-surface:     #FFFFFF;
-  --nova-surface-2:   #F1F3F7;
-  --nova-border:      #E4E8EF;
+  --nova-bg: #F8F9FB;
+  --nova-surface: #FFFFFF;
+  --nova-surface-2: #F1F3F7;
+  --nova-border: #E4E8EF;
   --nova-border-strong: #D0D5DE;
 
   /* ── Text ─────────────────────────────────────────────────────────── */
-  --nova-text-primary:   #0F1729;
+  --nova-text-primary: #0F1729;
   --nova-text-secondary: #5A6578;
-  --nova-text-muted:     #9CA3B4;
+  --nova-text-muted: #9CA3B4;
 
   /* ── Accent palette (muted/sophisticated) ─────────────────────────── */
-  --tier-low:      #16A34A;
-  --tier-medium:   #D97706;
-  --tier-high:     #EA580C;
+  --tier-low: #16A34A;
+  --tier-medium: #D97706;
+  --tier-high: #EA580C;
   --tier-critical: #DC2626;
 
-  --tier-low-bg:      rgba(22, 163, 74, 0.06);
-  --tier-medium-bg:   rgba(217, 119, 6, 0.06);
-  --tier-high-bg:     rgba(234, 88, 12, 0.06);
+  --tier-low-bg: rgba(22, 163, 74, 0.06);
+  --tier-medium-bg: rgba(217, 119, 6, 0.06);
+  --tier-high-bg: rgba(234, 88, 12, 0.06);
   --tier-critical-bg: rgba(220, 38, 38, 0.06);
 
-  --voice-active:    #0D9488;
+  --voice-active: #0D9488;
   --voice-active-bg: rgba(13, 148, 136, 0.06);
 
-  --ai-blue:         #2563EB;
-  --qdrant-purple:   #7C3AED;
+  --ai-blue: #2563EB;
+  --qdrant-purple: #7C3AED;
 
   /* ── Fonts ────────────────────────────────────────────────────────── */
   --font-display: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
-  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono:    'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
 
   /* ── Radii ────────────────────────────────────────────────────────── */
   --radius-sm: 6px;
-  --radius:    10px;
+  --radius: 10px;
   --radius-lg: 16px;
   --radius-xl: 20px;
 }
 
 /* ── Base ────────────────────────────────────────────────────────────── */
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
   background: var(--nova-bg);
@@ -56,61 +62,172 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.mono { font-family: var(--font-mono); }
-.display { font-family: var(--font-display); }
+.mono {
+  font-family: var(--font-mono);
+}
+
+.display {
+  font-family: var(--font-display);
+}
 
 /* ── Tier utilities ─────────────────────────────────────────────────── */
-.tier-low      { color: var(--tier-low); }
-.tier-medium   { color: var(--tier-medium); }
-.tier-high     { color: var(--tier-high); }
-.tier-critical { color: var(--tier-critical); }
+.tier-low {
+  color: var(--tier-low);
+}
 
-.tier-low-bg      { background: var(--tier-low-bg);      border: 1px solid rgba(22,163,74,0.15); }
-.tier-medium-bg   { background: var(--tier-medium-bg);   border: 1px solid rgba(217,119,6,0.15); }
-.tier-high-bg     { background: var(--tier-high-bg);     border: 1px solid rgba(234,88,12,0.15); }
-.tier-critical-bg { background: var(--tier-critical-bg); border: 1px solid rgba(220,38,38,0.15); }
+.tier-medium {
+  color: var(--tier-medium);
+}
+
+.tier-high {
+  color: var(--tier-high);
+}
+
+.tier-critical {
+  color: var(--tier-critical);
+}
+
+.tier-low-bg {
+  background: var(--tier-low-bg);
+  border: 1px solid rgba(22, 163, 74, 0.15);
+}
+
+.tier-medium-bg {
+  background: var(--tier-medium-bg);
+  border: 1px solid rgba(217, 119, 6, 0.15);
+}
+
+.tier-high-bg {
+  background: var(--tier-high-bg);
+  border: 1px solid rgba(234, 88, 12, 0.15);
+}
+
+.tier-critical-bg {
+  background: var(--tier-critical-bg);
+  border: 1px solid rgba(220, 38, 38, 0.15);
+}
 
 /* ── Keyframes ──────────────────────────────────────────────────────── */
 @keyframes nova-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
+
 @keyframes nova-breathe {
-  0%, 100% { transform: scale(1); opacity: 0.6; }
-  50% { transform: scale(1.1); opacity: 1; }
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
 }
+
 @keyframes nova-slide-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
 @keyframes nova-ticker-scroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
 }
+
 @keyframes nova-flash {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
 }
+
 @keyframes nova-ring-pulse {
-  0% { transform: scale(1); opacity: 0.6; }
-  70% { transform: scale(1.5); opacity: 0; }
-  100% { transform: scale(1.5); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+
+  70% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
 }
+
 @keyframes nova-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 /* ── Scrollbar ──────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--nova-border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--nova-border-strong); }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--nova-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--nova-border-strong);
+}
 
 /* ── Premium card shadow utility ────────────────────────────────────── */
 .card-shadow {
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
 }
+
 .card-shadow-lg {
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
 }

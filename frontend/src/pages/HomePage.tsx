@@ -1,12 +1,15 @@
 import { Link } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import heroHandsImg from '../assets/hero-hands.png'
+import HeroSection from '../components/HeroSection'
+import LOGO from '../assets/LOGO.png'
+import { motion } from 'framer-motion'
 
 export default function HomePage() {
   return (
     <div style={{ background: '#fafaf5', minHeight: '100vh', overflowX: 'hidden' }}>
       <HomeNavbar />
-      <HeroBlock />
+      <HeroSection />
       <ProblemSection />
       <ApproachSection />
       <CapabilitiesSection />
@@ -46,100 +49,129 @@ function HomeNavbar() {
   }, [])
 
   return (
-    <nav style={{
-      position: 'fixed',
-      top: 0, left: 0, right: 0,
-      zIndex: 100,
-      height: '64px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '0 40px',
-      background: scrolled ? 'rgba(12,16,12,0.92)' : 'rgba(12,16,12,0.25)',
-      backdropFilter: 'blur(16px)',
-      borderBottom: '1px solid rgba(255,255,255,0.08)',
-      transition: 'all 0.35s ease',
-    }}>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8f542" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="3" />
-            <path d="M12 1v4m0 14v4m-9-11h4m14 0h4" />
-          </svg>
-          <span style={{
-            fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: '1.5rem',
-            color: '#ffffff',
-            letterSpacing: '0.1em',
-            lineHeight: 1,
-          }}>
-            NOVA
-          </span>
-        </div>
-        <span style={{
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: '0.42rem',
-          color: 'rgba(255,255,255,0.5)',
-          letterSpacing: '0.12em',
-          textTransform: 'uppercase',
-          marginTop: '2px',
-        }}>
-          THE VOICE THAT NOTICES WHAT NO SINGLE SENSOR CAN.
-        </span>
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-        {[
-          { label: 'PRODUCT', href: '#product' },
-          { label: 'APPROACH', href: '#approach' },
-          { label: 'CAPABILITIES', href: '#capabilities' },
-          { label: 'CONTACT', href: '#contact' },
-        ].map(item => (
-          <a
-            key={item.label}
-            href={item.href}
-            style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: '0.65rem',
-              fontWeight: 700,
-              color: 'rgba(255,255,255,0.75)',
-              textDecoration: 'none',
-              letterSpacing: '0.12em',
-              transition: 'color 0.2s ease',
-            }}
-            onMouseEnter={e => e.currentTarget.style.color = '#c8f542'}
-            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.75)'}
-          >
-            {item.label}
-          </a>
-        ))}
-
-        <div style={{
+    <nav
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        height: '86px',
+        display: 'flex',
+        alignItems: 'center',
+        background: 'rgba(10, 13, 11, 0.35)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        borderBottom: '1px solid rgba(255,255,255,0.04)',
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '1455px',
+          margin: '0 auto',
+          padding: '0 20px',
           display: 'flex',
           alignItems: 'center',
-          gap: '6px',
-          background: 'rgba(255,255,255,0.06)',
-          border: '1px solid rgba(255,255,255,0.2)',
-          borderRadius: '4px',
-          padding: '3px 8px',
-        }}>
-          <div style={{
-            width: 5,
-            height: 5,
-            borderRadius: '50%',
-            background: '#c8f542',
-            boxShadow: '0 0 6px #c8f542',
-            animation: 'pulse-ring 2s ease-in-out infinite',
-          }} />
-          <span style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: '0.5rem',
-            fontWeight: 700,
-            color: '#ffffff',
-            letterSpacing: '0.12em',
-          }}>
-            LIVE
-          </span>
+          justifyContent: 'space-between',
+        }}
+      >
+        {/* NOVA LOGO */}
+        <a
+          href="/"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            textDecoration: 'none',
+            flexShrink: 0,
+          }}
+        >
+          <img
+            src={LOGO}
+            alt="NOVA"
+            style={{
+              width: '205px',
+              height: 'auto',
+              display: 'block',
+            }}
+          />
+        </a>
+
+        {/* NAVIGATION */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '40px',
+          }}
+        >
+          {[
+            { label: 'PRODUCT', href: '#product' },
+            { label: 'APPROACH', href: '#approach' },
+            { label: 'CAPABILITIES', href: '#capabilities' },
+            { label: 'CONTACT', href: '#contact' },
+          ].map((item) => (
+            <a
+              key={item.label}
+              href={item.href}
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '13px',
+                fontWeight: 700,
+                color: 'rgba(255,255,255,0.88)',
+                textDecoration: 'none',
+                letterSpacing: '0.12em',
+                whiteSpace: 'nowrap',
+                transition: 'color 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#4a6741';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'rgba(255,255,255,0.88)';
+              }}
+            >
+              {item.label}
+            </a>
+          ))}
+
+          {/* LIVE STATUS */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              height: '22px',
+              padding: '0 8px',
+              borderRadius: '4px',
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.25)',
+            }}
+          >
+            <div
+              style={{
+                width: '7px',
+                height: '7px',
+                borderRadius: '50%',
+                background: '#c8f542',
+                boxShadow: '0 0 7px rgba(200,245,66,0.8)',
+                animation: 'pulse-ring 2s ease-in-out infinite',
+              }}
+            />
+
+            <span
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '11px',
+                fontWeight: 700,
+                color: '#fff',
+                letterSpacing: '0.1em',
+                lineHeight: 1,
+              }}
+            >
+              LIVE
+            </span>
+          </div>
         </div>
       </div>
     </nav>
@@ -297,9 +329,8 @@ function HeroBlock() {
   )
 }
 
-function ProblemSection() {
-  const { ref, isVisible } = useScrollReveal()
 
+function ProblemSection() {
   const isolatedSignals = [
     {
       title: 'GAS SENSOR',
@@ -332,241 +363,479 @@ function ProblemSection() {
   ]
 
   return (
-    <section ref={ref} style={{
-      background: '#fafaf5',
-      padding: '80px 0',
-      opacity: isVisible ? 1 : 0,
-      transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
-      transition: 'all 0.7s cubic-bezier(0.16, 1, 0.3, 1)',
-    }}>
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 40px' }}>
-        <div style={{ marginBottom: '48px' }}>
-          <div style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: '0.6rem',
-            letterSpacing: '0.14em',
-            color: '#4a6741',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            marginBottom: '8px',
-          }}>
+    <section
+      id="problem"
+      style={{
+        background: '#F3F0E6',
+        padding: '110px 0',
+        color: '#4a6741',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          padding: '0 40px',
+        }}
+      >
+
+        {/* SECTION HEADER */}
+        <motion.div
+          initial={{
+            opacity: 0,
+            y: 50,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+            amount: 0.25,
+          }}
+          transition={{
+            duration: 0.7,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+          style={{
+            marginBottom: '55px',
+          }}
+        >
+          <div
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: '0.65rem',
+              letterSpacing: '0.14em',
+              color: '#040703ff',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              marginBottom: '10px',
+            }}
+          >
             THE SYSTEMIC INDUSTRIAL GAP
           </div>
-          <h2 style={{
-            fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: 'clamp(2.2rem, 3.5vw, 3.2rem)',
-            color: '#1a1a1a',
-            lineHeight: 0.95,
-            maxWidth: '640px',
-          }}>
-            Industrial Disasters Don't Start With Single Alarms
-          </h2>
-          <p style={{
-            fontFamily: "'Titillium Web', sans-serif",
-            fontSize: '0.95rem',
-            fontWeight: 300,
-            color: '#555',
-            lineHeight: 1.6,
-            maxWidth: '780px',
-            marginTop: '12px',
-          }}>
-            DGFASLI recorded over 6,500 fatal workplace accidents in India in FY2023. In January 2025 at the Visakhapatnam Steel Plant, eight workers died in a coke oven explosion despite functioning gas detectors, permit controls, and SCADA. The warning signals existed — but no intelligence connected them in time. A FICCI survey found that over 60 percent of industrial facilities rely on manual handoffs between isolated safety tools.
-          </p>
-        </div>
 
-        {/* 4 Isolated Signal Cards */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '16px',
-        }}>
+          <h2
+            style={{
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: 'clamp(2.8rem, 5vw, 4.5rem)',
+              color: '#050e03ff',
+              lineHeight: 0.9,
+              maxWidth: '720px',
+              margin: 0,
+              letterSpacing: '0.01em',
+            }}
+          >
+            Industrial Disasters
+            <br />
+            Don't Start With
+            <br />
+            Single Alarms
+          </h2>
+
+          <p
+            style={{
+              fontFamily: "'Titillium Web', sans-serif",
+              fontSize: '1rem',
+              fontWeight: 400,
+              color: 'rgba(74,103,65,0.75)',
+              lineHeight: 1.6,
+              maxWidth: '780px',
+              marginTop: '20px',
+            }}
+          >
+            DGFASLI recorded over 6,500 fatal workplace accidents in India in
+            FY2023. In January 2025 at the Visakhapatnam Steel Plant, eight
+            workers died in a coke oven explosion despite functioning gas
+            detectors, permit controls, and SCADA. The warning signals existed
+            — but no intelligence connected them in time. A FICCI survey found
+            that over 60 percent of industrial facilities rely on manual
+            handoffs between isolated safety tools.
+          </p>
+        </motion.div>
+
+        {/* ISOLATED SIGNAL CARDS */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: '18px',
+          }}
+        >
           {isolatedSignals.map((sig, idx) => (
-            <div
-              key={idx}
+            <motion.div
+              key={sig.title}
+
+              /* INITIAL STATE */
+              initial={{
+                opacity: 0,
+                y: 70,
+                scale: 0.92,
+              }}
+
+              /* SCROLL-IN STATE */
+              whileInView={{
+                opacity: 1,
+                y: 0,
+                scale: 1,
+              }}
+
+              viewport={{
+                once: true,
+                amount: 0.2,
+              }}
+
+              /* STAGGER */
+              transition={{
+                duration: 0.65,
+                delay: idx * 0.12,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+
+              /* HOVER */
+              whileHover={{
+                y: -8,
+                scale: 1.02,
+                transition: {
+                  duration: 0.25,
+                  ease: 'easeOut',
+                },
+              }}
+
               style={{
-                background: '#ffffff',
-                border: '1px solid rgba(0,0,0,0.12)',
-                borderRadius: '6px',
-                padding: '24px 20px',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.03)',
-                transition: 'all 0.3s ease',
+                position: 'relative',
+                background: '#E8E5D8',
+                border: '1px solid rgba(74,103,65,0.25)',
                 borderLeft: '4px solid #4a6741',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-5px)'
-                e.currentTarget.style.boxShadow = '0 10px 24px rgba(0,0,0,0.08)'
-                e.currentTarget.style.borderColor = '#4a6741'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.03)'
-                e.currentTarget.style.borderColor = 'rgba(0,0,0,0.12)'
+                borderRadius: '7px',
+                padding: '26px 22px',
+                minHeight: '205px',
+                boxShadow: '0 8px 25px rgba(74,103,65,0.07)',
+                cursor: 'default',
               }}
             >
-              <div style={{
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: '0.52rem',
-                color: '#4a6741',
-                fontWeight: 700,
-                letterSpacing: '0.1em',
-                marginBottom: '10px',
-              }}>
+
+              {/* SYSTEM TAG */}
+              <div
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: '0.55rem',
+                  color: '#4a6741',
+                  fontWeight: 700,
+                  letterSpacing: '0.1em',
+                  marginBottom: '12px',
+                }}
+              >
                 {sig.tag}
               </div>
-              <h3 style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: '1.3rem',
-                color: '#1a1a1a',
-                letterSpacing: '0.04em',
-                marginBottom: '6px',
-              }}>
+
+              {/* TITLE */}
+              <h3
+                style={{
+                  fontFamily: "'Bebas Neue', sans-serif",
+                  fontSize: '1.45rem',
+                  color: '#4a6741',
+                  letterSpacing: '0.04em',
+                  margin: '0 0 8px 0',
+                  lineHeight: 1,
+                }}
+              >
                 {sig.title}
               </h3>
-              <div style={{
-                fontFamily: "'Titillium Web', sans-serif",
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                color: '#d97706',
-                marginBottom: '4px',
-              }}>
+
+              {/* READING */}
+              <div
+                style={{
+                  fontFamily: "'Titillium Web', sans-serif",
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  color: '#8a5a16',
+                  marginBottom: '5px',
+                }}
+              >
                 {sig.reading}
               </div>
-              <div style={{
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: '0.6rem',
-                color: '#888',
-                marginBottom: '10px',
-              }}>
+
+              {/* VERDICT */}
+              <div
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: '0.58rem',
+                  color: 'rgba(74,103,65,0.55)',
+                  marginBottom: '12px',
+                }}
+              >
                 Verdict: {sig.verdict}
               </div>
-              <p style={{
-                fontFamily: "'Titillium Web', sans-serif",
-                fontSize: '0.75rem',
-                fontWeight: 300,
-                color: '#666',
-                lineHeight: 1.45,
-              }}>
+
+              {/* DESCRIPTION */}
+              <p
+                style={{
+                  fontFamily: "'Titillium Web', sans-serif",
+                  fontSize: '0.78rem',
+                  fontWeight: 400,
+                  color: 'rgba(40,55,38,0.7)',
+                  lineHeight: 1.5,
+                  margin: 0,
+                }}
+              >
                 {sig.desc}
               </p>
-            </div>
+
+              {/* CORNER DETAIL */}
+              <div
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: 0,
+                  width: '18px',
+                  height: '18px',
+                  borderTop: '3px solid #4a6741',
+                  borderRight: '3px solid #4a6741',
+                  borderRadius: '0 6px 0 0',
+                  opacity: 0.45,
+                }}
+              />
+            </motion.div>
           ))}
         </div>
+
       </div>
     </section>
   )
 }
 
 function ApproachSection() {
-  const { ref, isVisible } = useScrollReveal()
-
   const steps = [
-    { num: '01', title: 'DETECT & CONTEXTUALIZE', desc: 'Continuous stream ingestion across SCADA, permits, CCTV, and maintenance logs inside a rolling time window per bay.' },
-    { num: '02', title: 'RETRIEVE MEMORY', desc: 'Searching Qdrant vector memory for matching historical near-misses and organizational precedents.' },
-    { num: '03', title: 'REASON & EXPLAIN', desc: 'Computing compound risk via auditable, deterministic arithmetic and structuring transparent evidence chains.' },
-    { num: '04', title: 'PROACTIVE VOICE RECOMMENDATION', desc: 'Initiating hands-free voice calls to safety officers structured as state -> evidence -> ask.' },
-    { num: '05', title: 'AUTHORIZE & ACT', desc: 'Single human confirmation gate before executing typed safety tools with immutable audit logging.' },
-    { num: '06', title: 'COMPOUNDING MEMORY', desc: 'Embedding resolved incidents back into Qdrant memory so the next incident is caught faster.' },
+    {
+      num: '01',
+      title: 'DETECT & CONTEXTUALIZE',
+      desc: 'Continuous stream ingestion across SCADA, permits, CCTV, and maintenance logs inside a rolling time window per bay.',
+    },
+    {
+      num: '02',
+      title: 'RETRIEVE MEMORY',
+      desc: 'Searching Qdrant vector memory for matching historical near-misses and organizational precedents.',
+    },
+    {
+      num: '03',
+      title: 'REASON & EXPLAIN',
+      desc: 'Computing compound risk via auditable, deterministic arithmetic and structuring transparent evidence chains.',
+    },
+    {
+      num: '04',
+      title: 'PROACTIVE VOICE RECOMMENDATION',
+      desc: 'Initiating hands-free voice calls to safety officers structured as state → evidence → ask.',
+    },
+    {
+      num: '05',
+      title: 'AUTHORIZE & ACT',
+      desc: 'Single human confirmation gate before executing typed safety tools with immutable audit logging.',
+    },
+    {
+      num: '06',
+      title: 'COMPOUNDING MEMORY',
+      desc: 'Embedding resolved incidents back into Qdrant memory so the next incident is caught faster.',
+    },
   ]
 
   return (
-    <section id="approach" ref={ref} style={{
-      background: '#080c08',
-      padding: '80px 0',
-      color: '#ffffff',
-      opacity: isVisible ? 1 : 0,
-      transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
-      transition: 'all 0.7s cubic-bezier(0.16, 1, 0.3, 1)',
-    }}>
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 40px' }}>
-        <div style={{ marginBottom: '48px' }}>
-          <div style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: '0.6rem',
-            letterSpacing: '0.14em',
-            color: '#c8f542',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            marginBottom: '8px',
-          }}>
+    <section
+      id="approach"
+      style={{
+        background: '#F3F0E6',
+        padding: '110px 0',
+        color: '#4a6741',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          padding: '0 40px',
+        }}
+      >
+
+        {/* SECTION HEADER */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{
+            once: true,
+            amount: 0.25,
+          }}
+          transition={{
+            duration: 0.7,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+          style={{
+            marginBottom: '55px',
+          }}
+        >
+          <div
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: '0.65rem',
+              letterSpacing: '0.14em',
+              color: '#4a6741',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              marginBottom: '10px',
+            }}
+          >
             THE STANDING AGENTIC PIPELINE
           </div>
-          <h2 style={{
-            fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: 'clamp(2.2rem, 3.5vw, 3.2rem)',
-            color: '#ffffff',
-            lineHeight: 0.95,
-          }}>
-            How Nova Reasons and Operates
-          </h2>
-          <p style={{
-            fontFamily: "'Titillium Web', sans-serif",
-            fontSize: '0.95rem',
-            fontWeight: 300,
-            color: 'rgba(255,255,255,0.65)',
-            maxWidth: '640px',
-            marginTop: '12px',
-          }}>
-            NOVA runs a continuous autonomous loop over live operational data. It speaks up the moment an otherwise invisible combination of facts becomes dangerous.
-          </p>
-        </div>
 
-        {/* 6 Cards Grid (3x2) */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '20px',
-        }}>
+          <h2
+            style={{
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: 'clamp(2.8rem, 5vw, 4.5rem)',
+              color: '#0b0f0aff',
+              lineHeight: 0.9,
+              margin: 0,
+              letterSpacing: '0.01em',
+            }}
+          >
+            How Nova Reasons
+            <br />
+            and Operates
+          </h2>
+
+          <p
+            style={{
+              fontFamily: "'Titillium Web', sans-serif",
+              fontSize: '1rem',
+              fontWeight: 400,
+              color: 'rgba(74,103,65,0.75)',
+              maxWidth: '640px',
+              marginTop: '18px',
+              lineHeight: 1.6,
+            }}
+          >
+            NOVA runs a continuous autonomous loop over live operational data.
+            It speaks up the moment an otherwise invisible combination of facts
+            becomes dangerous.
+          </p>
+        </motion.div>
+
+        {/* 6 CARDS */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '20px',
+          }}
+        >
           {steps.map((step, idx) => (
-            <div
-              key={idx}
+            <motion.div
+              key={step.num}
+
+              /* POP-UP START STATE */
+              initial={{
+                opacity: 0,
+                y: 70,
+                scale: 0.94,
+              }}
+
+              /* WHEN USER SCROLLS TO IT */
+              whileInView={{
+                opacity: 1,
+                y: 0,
+                scale: 1,
+              }}
+
+              viewport={{
+                once: true,
+                amount: 0.2,
+              }}
+
+              transition={{
+                duration: 0.65,
+                delay: idx * 0.1,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+
+              whileHover={{
+                y: -8,
+                scale: 1.015,
+                transition: {
+                  duration: 0.25,
+                  ease: 'easeOut',
+                },
+              }}
+
               style={{
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
-                border: '1px solid rgba(200,245,66,0.25)',
+                position: 'relative',
+                background: '#E8E5D8',
+                border: '1px solid rgba(74,103,65,0.28)',
+                borderTop: '3px solid #4a6741',
                 borderRadius: '8px',
-                padding: '24px 20px',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
-                borderTop: '3px solid #c8f542',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-5px)'
-                e.currentTarget.style.borderColor = '#c8f542'
-                e.currentTarget.style.boxShadow = '0 10px 28px rgba(200,245,66,0.15)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.borderColor = 'rgba(200,245,66,0.25)'
-                e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.2)'
+                padding: '28px 24px',
+                minHeight: '185px',
+                boxShadow: '0 8px 25px rgba(74,103,65,0.08)',
+                cursor: 'default',
+                transition: 'box-shadow 0.3s ease',
               }}
             >
-              <div style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: '2.2rem',
-                color: '#c8f542',
-                lineHeight: 1,
-                marginBottom: '6px',
-              }}>
+
+              {/* STEP NUMBER */}
+              <div
+                style={{
+                  fontFamily: "'Bebas Neue', sans-serif",
+                  fontSize: '2.8rem',
+                  color: '#4a6741',
+                  lineHeight: 1,
+                  marginBottom: '8px',
+                }}
+              >
                 {step.num}
               </div>
-              <h3 style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: '1.25rem',
-                color: '#ffffff',
-                letterSpacing: '0.04em',
-                marginBottom: '8px',
-              }}>
+
+              {/* TITLE */}
+              <h3
+                style={{
+                  fontFamily: "'Bebas Neue', sans-serif",
+                  fontSize: '1.35rem',
+                  color: '#4a6741',
+                  letterSpacing: '0.04em',
+                  margin: '0 0 10px 0',
+                  lineHeight: 1,
+                }}
+              >
                 {step.title}
               </h3>
-              <p style={{
-                fontFamily: "'Titillium Web', sans-serif",
-                fontSize: '0.78rem',
-                fontWeight: 300,
-                color: 'rgba(255,255,255,0.6)',
-                lineHeight: 1.5,
-              }}>
+
+              {/* DESCRIPTION */}
+              <p
+                style={{
+                  fontFamily: "'Titillium Web', sans-serif",
+                  fontSize: '0.82rem',
+                  fontWeight: 400,
+                  color: 'rgba(40,55,38,0.72)',
+                  lineHeight: 1.55,
+                  margin: 0,
+                }}
+              >
                 {step.desc}
               </p>
-            </div>
+
+              {/* LITTLE GREEN CORNER */}
+              <div
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: 0,
+                  width: '18px',
+                  height: '18px',
+                  borderTop: '3px solid #4a6741',
+                  borderRight: '3px solid #4a6741',
+                  borderRadius: '0 6px 0 0',
+                  opacity: 0.5,
+                }}
+              />
+            </motion.div>
           ))}
         </div>
       </div>
@@ -574,9 +843,9 @@ function ApproachSection() {
   )
 }
 
-function CapabilitiesSection() {
-  const { ref, isVisible } = useScrollReveal()
 
+
+function CapabilitiesSection() {
   const capabilities = [
     {
       title: 'COMPOUND-RISK REASONING',
@@ -605,95 +874,196 @@ function CapabilitiesSection() {
   ]
 
   return (
-    <section id="capabilities" ref={ref} style={{
-      background: '#fafaf5',
-      padding: '80px 0',
-      opacity: isVisible ? 1 : 0,
-      transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
-      transition: 'all 0.7s cubic-bezier(0.16, 1, 0.3, 1)',
-    }}>
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 40px' }}>
-        <div style={{ marginBottom: '48px' }}>
-          <div style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: '0.6rem',
-            letterSpacing: '0.14em',
-            color: '#4a6741',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            marginBottom: '8px',
-          }}>
+    <section
+      id="capabilities"
+      style={{
+        background: '#F3F0E6',
+        padding: '110px 0',
+        color: '#4a6741',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          padding: '0 40px',
+        }}
+      >
+
+        {/* SECTION HEADER */}
+        <motion.div
+          initial={{
+            opacity: 0,
+            y: 50,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+            amount: 0.25,
+          }}
+          transition={{
+            duration: 0.7,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+          style={{
+            marginBottom: '55px',
+          }}
+        >
+          <div
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: '0.65rem',
+              letterSpacing: '0.14em',
+              color: '#060805ff',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              marginBottom: '10px',
+            }}
+          >
             CAPABILITIES & ADVANTAGES
           </div>
-          <h2 style={{
-            fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: 'clamp(2.2rem, 3.5vw, 3.2rem)',
-            color: '#1a1a1a',
-            lineHeight: 0.95,
-          }}>
-            Why Generic Chatbots & Dashboards Fail
-          </h2>
-          <p style={{
-            fontFamily: "'Titillium Web', sans-serif",
-            fontSize: '0.95rem',
-            fontWeight: 300,
-            color: '#555',
-            lineHeight: 1.6,
-            maxWidth: '640px',
-            marginTop: '12px',
-          }}>
-            Workers in hazardous industrial zones wear PPE and operate heavy machinery. They cannot safely stop to read screens or type prompts into chatbots.
-          </p>
-        </div>
 
-        {/* 6 Cards Grid (3x2) */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '20px',
-        }}>
+          <h2
+            style={{
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: 'clamp(2.8rem, 5vw, 4.5rem)',
+              color: '#0b0e0bff',
+              lineHeight: 0.9,
+              maxWidth: '800px',
+              margin: 0,
+              letterSpacing: '0.01em',
+            }}
+          >
+            Why Generic Chatbots
+            <br />
+            & Dashboards Fail
+          </h2>
+
+          <p
+            style={{
+              fontFamily: "'Titillium Web', sans-serif",
+              fontSize: '1rem',
+              fontWeight: 400,
+              color: 'rgba(74,103,65,0.75)',
+              lineHeight: 1.6,
+              maxWidth: '680px',
+              marginTop: '20px',
+            }}
+          >
+            Workers in hazardous industrial zones wear PPE and operate heavy
+            machinery. They cannot safely stop to read screens or type prompts
+            into chatbots.
+          </p>
+        </motion.div>
+
+        {/* CAPABILITY CARDS */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '20px',
+          }}
+        >
           {capabilities.map((cap, idx) => (
-            <div
-              key={idx}
+            <motion.div
+              key={cap.title}
+
+              // Initial hidden state
+              initial={{
+                opacity: 0,
+                y: 70,
+                scale: 0.92,
+              }}
+
+              // Pop into view
+              whileInView={{
+                opacity: 1,
+                y: 0,
+                scale: 1,
+              }}
+
+              viewport={{
+                once: true,
+                amount: 0.2,
+              }}
+
+              // Stagger cards
+              transition={{
+                duration: 0.65,
+                delay: idx * 0.1,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+
+              // Hover effect
+              whileHover={{
+                y: -8,
+                scale: 1.02,
+                transition: {
+                  duration: 0.25,
+                  ease: 'easeOut',
+                },
+              }}
+
               style={{
-                background: '#ffffff',
-                border: '1px solid rgba(0,0,0,0.12)',
+                position: 'relative',
+                background: '#E8E5D8',
+                border: '1px solid rgba(74,103,65,0.25)',
+                borderTop: '3px solid #4a6741',
                 borderRadius: '8px',
                 padding: '28px 24px',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.03)',
-                transition: 'all 0.3s ease',
-                borderTop: '3px solid #4a6741',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-5px)'
-                e.currentTarget.style.boxShadow = '0 12px 28px rgba(0,0,0,0.08)'
-                e.currentTarget.style.borderColor = '#4a6741'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.03)'
-                e.currentTarget.style.borderColor = 'rgba(0,0,0,0.12)'
+                minHeight: '155px',
+                boxShadow: '0 8px 25px rgba(74,103,65,0.07)',
+                cursor: 'default',
               }}
             >
-              <div style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: '1.25rem',
-                color: '#1a1a1a',
-                letterSpacing: '0.04em',
-                marginBottom: '10px',
-              }}>
+
+              {/* TITLE */}
+              <h3
+                style={{
+                  fontFamily: "'Bebas Neue', sans-serif",
+                  fontSize: '1.4rem',
+                  color: '#4a6741',
+                  letterSpacing: '0.04em',
+                  lineHeight: 1,
+                  margin: '0 0 12px 0',
+                }}
+              >
                 {cap.title}
-              </div>
-              <p style={{
-                fontFamily: "'Titillium Web', sans-serif",
-                fontSize: '0.8rem',
-                fontWeight: 300,
-                color: '#666',
-                lineHeight: 1.55,
-              }}>
+              </h3>
+
+              {/* DESCRIPTION */}
+              <p
+                style={{
+                  fontFamily: "'Titillium Web', sans-serif",
+                  fontSize: '0.82rem',
+                  fontWeight: 400,
+                  color: 'rgba(40,55,38,0.72)',
+                  lineHeight: 1.55,
+                  margin: 0,
+                }}
+              >
                 {cap.why}
               </p>
-            </div>
+
+              {/* CORNER DETAIL */}
+              <div
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: 0,
+                  width: '18px',
+                  height: '18px',
+                  borderTop: '3px solid #4a6741',
+                  borderRight: '3px solid #4a6741',
+                  borderRadius: '0 6px 0 0',
+                  opacity: 0.45,
+                }}
+              />
+            </motion.div>
           ))}
         </div>
       </div>
