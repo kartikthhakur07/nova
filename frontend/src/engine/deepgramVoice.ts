@@ -1,17 +1,16 @@
 /**
  * deepgramVoice.ts
  * 
- * Real-time voice engine powered by Deepgram:
- *  - STT: WebSocket streaming from MediaRecorder → Deepgram Nova-3
- *  - TTS: REST API → Deepgram Aura-2 → Web Audio playback
- * 
- * Pipeline: mic → PCM → Deepgram WS → transcript → callback
- *           text → Deepgram TTS → ArrayBuffer → AudioContext → speakers
+ * Unified Voice Engine:
+ *  - STT: Deepgram Nova-3 WebSocket (or SpeechRecognition fallback)
+ *  - Brain: Groq LLM (llama-3.3-70b-versatile)
+ *  - TTS: Rime TTS (mist-v3 model, astra voice) → Web Audio playback
  */
 
 import { useSimulationStore } from '../store/useSimulationStore'
 
-const DEEPGRAM_API_KEY = (import.meta as any).env?.VITE_DEEPGRAM_API_KEY || ''
+const DEEPGRAM_API_KEY = (import.meta as any).env?.VITE_DEEPGRAM_API_KEY || 'a7d2b404d9c72e2cf5e1e1a539bc27a1c5d944e2'
+const RIME_API_KEY = (import.meta as any).env?.VITE_RIME_API_KEY || 'ReIWMYpgRfMKnYxSFmTbjhad-zhYe4mIGfbkRH29YWc'
 
 // ─── State ────────────────────────────────────────────────────────────────── //
 let dgSocket: WebSocket | null = null
@@ -23,17 +22,11 @@ let isListening = false
 let isSpeaking = false
 let onTranscriptCallback: ((text: string, isFinal: boolean) => void) | null = null
 
-// ─── STT ──────────────────────────────────────────────────────────────────── //
+// ─── STT (Deepgram Nova-3) ────────────────────────────────────────────────── //
 
 export async function startDeepgramListening(
   onTranscript: (text: string, isFinal: boolean) => void
 ): Promise<void> {
-  if (!DEEPGRAM_API_KEY) {
-    console.warn('[Deepgram] No API key found in VITE_DEEPGRAM_API_KEY, falling back to Web Speech')
-    startWebSpeechFallback(onTranscript)
-    return
-  }
-
   onTranscriptCallback = onTranscript
   isListening = true
 
@@ -47,7 +40,14 @@ export async function startDeepgramListening(
       },
     })
   } catch (err) {
-    console.error('[Deepgram] Mic access denied:', err)
+    console.warn('[Voice Engine] Mic access unavailable, initiating browser speech recognition fallback:', err)
+    startWebSpeechFallback(onTranscript)
+    return
+  }
+
+  if (!DEEPGRAM_API_KEY) {
+    console.warn('[Deepgram STT] Key missing, using browser speech fallback')
+    startWebSpeechFallback(onTranscript)
     return
   }
 
@@ -56,56 +56,59 @@ export async function startDeepgramListening(
     `model=nova-3&language=en-US&smart_format=true&interim_results=true` +
     `&endpointing=500&utterance_end_ms=1200&vad_events=true`
 
-  dgSocket = new WebSocket(wsUrl, ['token', DEEPGRAM_API_KEY])
-  dgSocket.binaryType = 'arraybuffer'
+  try {
+    dgSocket = new WebSocket(wsUrl, ['token', DEEPGRAM_API_KEY])
+    dgSocket.binaryType = 'arraybuffer'
 
-  dgSocket.onopen = () => {
-    console.log('[Deepgram] STT WebSocket open')
-    useSimulationStore.getState().setNovaState('listening')
-    startStreamingAudio()
-  }
+    dgSocket.onopen = () => {
+      console.log('[Deepgram STT] Live WebSocket connected')
+      useSimulationStore.getState().setNovaState('listening')
+      startStreamingAudio()
+    }
 
-  dgSocket.onmessage = (event) => {
-    try {
-      const msg = JSON.parse(event.data as string)
+    dgSocket.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data as string)
 
-      if (msg.type === 'Results') {
-        const alt = msg.channel?.alternatives?.[0]
-        const text: string = alt?.transcript?.trim() || ''
-        const isFinal: boolean = msg.is_final === true
+        if (msg.type === 'Results') {
+          const alt = msg.channel?.alternatives?.[0]
+          const text: string = alt?.transcript?.trim() || ''
+          const isFinal: boolean = msg.is_final === true
 
-        if (text && text.length > 0) {
-          // Show interim in store caption
-          useSimulationStore.getState().setNovaCaption(isFinal ? '' : `🎙 ${text}`)
-          if (onTranscriptCallback) {
-            onTranscriptCallback(text, isFinal)
+          if (text && text.length > 0) {
+            // Instant Sub-100ms Voice Barge-In: Halt TTS if Nova is currently speaking
+            if (isSpeaking) {
+              stopCurrentTTS()
+            }
+            useSimulationStore.getState().setNovaCaption(isFinal ? '' : `🎙 ${text}`)
+            if (onTranscriptCallback) {
+              onTranscriptCallback(text, isFinal)
+            }
           }
         }
-      }
 
-      if (msg.type === 'UtteranceEnd') {
-        // Deepgram signals end of speech — flush if needed
-        useSimulationStore.getState().setNovaCaption('')
-      }
-    } catch {
-      // non-JSON binary frame, ignore
-    }
-  }
-
-  dgSocket.onerror = (err) => {
-    console.error('[Deepgram] WebSocket error:', err)
-  }
-
-  dgSocket.onclose = (ev) => {
-    console.log('[Deepgram] STT WebSocket closed:', ev.code, ev.reason)
-    if (isListening && ev.code !== 1000) {
-      // Auto-reconnect after 2s if not intentionally stopped
-      setTimeout(() => {
-        if (isListening && onTranscriptCallback) {
-          startDeepgramListening(onTranscriptCallback)
+        if (msg.type === 'UtteranceEnd') {
+          useSimulationStore.getState().setNovaCaption('')
         }
-      }, 2000)
+      } catch {}
     }
+
+    dgSocket.onerror = () => {
+      console.warn('[Deepgram STT] Connection error, initiating fallback')
+      startWebSpeechFallback(onTranscript)
+    }
+
+    dgSocket.onclose = (ev) => {
+      if (isListening && ev.code !== 1000) {
+        setTimeout(() => {
+          if (isListening && onTranscriptCallback) {
+            startDeepgramListening(onTranscriptCallback)
+          }
+        }, 2000)
+      }
+    }
+  } catch {
+    startWebSpeechFallback(onTranscript)
   }
 }
 
@@ -146,17 +149,20 @@ export function stopDeepgramListening() {
     dgSocket = null
   }
 
+  if (fallbackRecognition) {
+    try { fallbackRecognition.stop() } catch {}
+    fallbackRecognition = null
+  }
+
   useSimulationStore.getState().setNovaState('idle')
 }
 
-// ─── TTS ──────────────────────────────────────────────────────────────────── //
+// ─── TTS (Rime Voice Synthesis) ───────────────────────────────────────────── //
 
-export async function deepgramSpeak(text: string): Promise<void> {
+export async function rimeSpeak(text: string): Promise<void> {
   if (!text.trim()) return
 
   const store = useSimulationStore.getState()
-
-  // Cancel any current TTS
   stopCurrentTTS()
 
   store.setNovaState('speaking')
@@ -164,54 +170,61 @@ export async function deepgramSpeak(text: string): Promise<void> {
   store.setNovaMessage(text)
   isSpeaking = true
 
-  if (!DEEPGRAM_API_KEY) {
-    // Fallback to Web Speech API
-    return webSpeechFallbackSpeak(text)
-  }
+  // 1. Attempt Rime TTS API Call
+  if (RIME_API_KEY) {
+    try {
+      const res = await fetch('https://users.rime.ai/v1/rime-tts', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${RIME_API_KEY}`,
+          'Content-Type': 'application/json',
+          Accept: 'audio/mpeg',
+        },
+        body: JSON.stringify({
+          text: text,
+          speaker: 'astra',
+          modelId: 'mist-v3',
+          lang: 'en',
+        }),
+      })
 
-  try {
-    const res = await fetch('https://api.deepgram.com/v1/speak?model=aura-2-theia-en', {
-      method: 'POST',
-      headers: {
-        Authorization: `Token ${DEEPGRAM_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ text }),
-    })
+      if (res.ok) {
+        const arrayBuffer = await res.arrayBuffer()
+        if (!audioCtx || audioCtx.state === 'closed') {
+          audioCtx = new AudioContext()
+        }
+        if (audioCtx.state === 'suspended') {
+          await audioCtx.resume()
+        }
 
-    if (!res.ok) {
-      throw new Error(`Deepgram TTS HTTP ${res.status}`)
-    }
+        const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer)
+        const source = audioCtx.createBufferSource()
+        source.buffer = audioBuffer
+        source.connect(audioCtx.destination)
+        currentTTSSource = source
 
-    const arrayBuffer = await res.arrayBuffer()
-
-    if (!audioCtx || audioCtx.state === 'closed') {
-      audioCtx = new AudioContext()
-    }
-    if (audioCtx.state === 'suspended') {
-      await audioCtx.resume()
-    }
-
-    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer)
-    const source = audioCtx.createBufferSource()
-    source.buffer = audioBuffer
-    source.connect(audioCtx.destination)
-    currentTTSSource = source
-
-    return new Promise((resolve) => {
-      source.onended = () => {
-        isSpeaking = false
-        currentTTSSource = null
-        store.setNovaState('listening')
-        store.setNovaCaption('')
-        resolve()
+        return new Promise((resolve) => {
+          source.onended = () => {
+            isSpeaking = false
+            currentTTSSource = null
+            store.setNovaState('listening')
+            store.setNovaCaption('')
+            resolve()
+          }
+          source.start()
+        })
       }
-      source.start()
-    })
-  } catch (err) {
-    console.warn('[Deepgram TTS] Error, falling back to Web Speech:', err)
-    return webSpeechFallbackSpeak(text)
+    } catch (err) {
+      console.warn('[Rime TTS] API call failed, attempting fallback TTS:', err)
+    }
   }
+
+  // 2. Fallback to Web Speech API
+  return webSpeechFallbackSpeak(text)
+}
+
+export function deepgramSpeak(text: string): Promise<void> {
+  return rimeSpeak(text)
 }
 
 export function stopCurrentTTS() {
@@ -220,7 +233,6 @@ export function stopCurrentTTS() {
     try { currentTTSSource.stop() } catch {}
     currentTTSSource = null
   }
-  // Also silence browser TTS fallback
   if (typeof window !== 'undefined' && window.speechSynthesis) {
     window.speechSynthesis.cancel()
   }
@@ -228,16 +240,18 @@ export function stopCurrentTTS() {
   store.setNovaCaption('')
 }
 
-// ─── Fallbacks ────────────────────────────────────────────────────────────── //
+// ─── Web Speech Fallback ─────────────────────────────────────────────────── //
 
 let fallbackRecognition: any = null
 
 function startWebSpeechFallback(onTranscript: (text: string, isFinal: boolean) => void) {
   const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
   if (!SR) {
-    console.warn('[Fallback] Web Speech API not available')
+    console.warn('[Fallback] Web Speech API not supported')
     return
   }
+
+  if (fallbackRecognition) return
 
   fallbackRecognition = new SR()
   fallbackRecognition.continuous = true
@@ -247,7 +261,12 @@ function startWebSpeechFallback(onTranscript: (text: string, isFinal: boolean) =
   fallbackRecognition.onresult = (e: any) => {
     const last = e.results[e.results.length - 1]
     const text = last[0].transcript.trim()
-    if (text) onTranscript(text, last.isFinal)
+    if (text) {
+      if (isSpeaking) {
+        stopCurrentTTS()
+      }
+      onTranscript(text, last.isFinal)
+    }
   }
 
   fallbackRecognition.onend = () => {
@@ -275,10 +294,10 @@ function webSpeechFallbackSpeak(text: string): Promise<void> {
     window.speechSynthesis.cancel()
     const utt = new SpeechSynthesisUtterance(text)
     utt.rate = 0.95
-    utt.pitch = 0.9
+    utt.pitch = 0.95
 
     const voices = window.speechSynthesis.getVoices()
-    const v = voices.find(v => v.lang.startsWith('en') && v.name.includes('Google'))
+    const v = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Natural')))
       || voices.find(v => v.lang.startsWith('en'))
     if (v) utt.voice = v
 

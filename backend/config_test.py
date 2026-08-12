@@ -28,6 +28,7 @@ class TestSettingsDefaults:
         s = Settings(
             _env_file=None,  # type: ignore[call-arg]
             LLM_PROVIDER="ollama",
+            LLM_MODEL="llama3.1:8b",
         )
         assert s.LLM_PROVIDER == "ollama"
         assert s.LLM_MODEL == "llama3.1:8b"

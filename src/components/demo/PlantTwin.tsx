@@ -66,7 +66,11 @@ export default function PlantTwin() {
             const hasCritical = zoneSensors.some((s: any) => s.status === 'critical')
 
             return (
-              <g key={zone.id} style={{ cursor: 'pointer' }}>
+              <g
+                key={zone.id}
+                onClick={() => store.focusZone ? store.focusZone(zone.id) : null}
+                style={{ cursor: 'pointer' }}
+              >
                 <rect
                   x={zone.x}
                   y={zone.y}
