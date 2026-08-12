@@ -10,16 +10,25 @@ import { useCaseStore } from '../store/useCaseStore'
 import { useSessionSocket } from '../ws/useSessionSocket'
 
 const NAV_ITEMS = [
-  { label: 'Live Plant',         icon: Activity,        to: '/',             badge: 'Live',  badgeCol: '#2563EB' },
-  { label: 'Active Case',        icon: ShieldCheck,     to: '/case',         badge: 'AI',    badgeCol: '#8B5CF6' },
-  { label: 'Counterfactual',     icon: Cpu,             to: '/counterfactual', badge: null,    badgeCol: '' },
-  { label: 'Memory & Reports',   icon: Database,        to: '/memory',       badge: null,    badgeCol: '' },
+  { label: 'Mission Control',    icon: LayoutDashboard, to: '/',          badge: 'Live',  badgeCol: '#2563EB' },
+  { label: '3D Factory Twin',    icon: Building2,       to: '/factory-twin', badge: 'New',   badgeCol: '#10B981' },
+  { label: 'NOVA Co-Pilot',      icon: Bot,             to: '/dashboard/nova', badge: 'AI',    badgeCol: '#8B5CF6' },
+  { label: 'Sensor Telemetry',   icon: Activity,        to: '/telemetry', badge: null,    badgeCol: '' },
+  { label: 'Audit Trail',        icon: FileText,        to: '/audit',     badge: null,    badgeCol: '' },
+  { label: 'Lessons Learned',    icon: BookOpen,        to: '/lessons',   badge: null,    badgeCol: '' },
 ]
 
 const TOPBAR_METRICS = [
   { label: 'ASR Whisper', value: '140ms', color: '#2563EB' },
   { label: 'LLM Token',   value: '219ms', color: '#7C3AED' },
   { label: 'Rime Audio',  value: '388ms', color: '#0D9488' },
+]
+
+const PHASE_5_NAV_ITEMS = [
+  { label: 'Live Plant',         icon: Activity,        to: '/dashboard/live-plant' },
+  { label: 'Active Case',        icon: ShieldCheck,     to: '/dashboard/active-case' },
+  { label: 'Counterfactual',     icon: Cpu,             to: '/dashboard/counterfactual' },
+  { label: 'Memory & Reports',   icon: Database,        to: '/dashboard/reports' },
 ]
 
 export default function AppShell() {
@@ -147,6 +156,39 @@ export default function AppShell() {
                     {item.badge}
                   </span>
                 )}
+              </Link>
+            )
+          })}
+        </div>
+
+        <div style={{ padding: '12px 12px 8px', borderTop: '1px solid #F1F3F7' }}>
+          <div style={{
+            fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', color: '#9CA3B4',
+            textTransform: 'uppercase', marginBottom: 8, paddingLeft: 8,
+          }}>
+            Phase 5 Tabs
+          </div>
+          {PHASE_5_NAV_ITEMS.map(item => {
+            const active = isActive(item.to)
+            const Icon = item.icon
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '9px 12px', borderRadius: 8, marginBottom: 2,
+                  background: active ? '#EFF6FF' : 'transparent',
+                  color: active ? '#2563EB' : '#5A6578',
+                  textDecoration: 'none', fontSize: 13.5,
+                  fontWeight: active ? 600 : 500,
+                  transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => { if (!active) { e.currentTarget.style.background = '#F8F9FB'; e.currentTarget.style.color = '#0F1729' } }}
+                onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#5A6578' } }}
+              >
+                <Icon size={15} color={active ? '#2563EB' : '#9CA3B4'} style={{ flexShrink: 0 }} />
+                <span style={{ flex: 1 }}>{item.label}</span>
               </Link>
             )
           })}
