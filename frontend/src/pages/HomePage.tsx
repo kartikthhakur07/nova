@@ -1048,7 +1048,7 @@ function CTASection() {
   return (
     <section ref={ref} style={{
       background: 'linear-gradient(135deg, #141c14 0%, #080c08 100%)',
-      padding: '80px 0',
+      padding: '50px 0',
       color: '#ffffff',
       borderTop: '1px solid rgba(200,245,66,0.2)',
       opacity: isVisible ? 1 : 0,
@@ -1087,43 +1087,10 @@ function CTASection() {
           fontWeight: 300,
           color: 'rgba(255,255,255,0.7)',
           lineHeight: 1.55,
-          marginBottom: '32px',
+          marginBottom: '0',
         }}>
           Launch the interactive control suite to experience the 6-stage compound-risk detection lifecycle, review Qdrant vector traces, and verify automated permit control tools.
         </p>
-
-        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-          <Link
-            to="/demo"
-            style={{
-              fontFamily: "'Titillium Web', sans-serif",
-              fontWeight: 700,
-              fontSize: '0.8rem',
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              background: '#4a6741',
-              color: '#ffffff',
-              padding: '14px 32px',
-              borderRadius: '3px',
-              clipPath: 'polygon(0 0, 92% 0, 100% 100%, 0% 100%)',
-              textDecoration: 'none',
-              transition: 'all 0.25s ease',
-              boxShadow: '0 4px 16px rgba(74,103,65,0.4)',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = '#587a4d'
-              e.currentTarget.style.transform = 'translateY(-2px)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = '#4a6741'
-              e.currentTarget.style.transform = 'translateY(0)'
-            }}
-          >
-            SEE IT IN ACTION
-          </Link>
-
-
-        </div>
       </div>
     </section>
   )
