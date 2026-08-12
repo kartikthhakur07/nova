@@ -906,7 +906,7 @@ function HomeFooter() {
 
         <div style={{
           display: 'flex',
-          justify: 'space-between',
+          justifyContent: 'space-between',
           alignItems: 'center',
         }}>
           <span style={{

@@ -27,7 +27,7 @@ export default function EvidencePanel() {
     }}>
       <div style={{
         display: 'flex',
-        justify: 'space-between',
+        justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: '20px',
         borderBottom: '1px solid rgba(255,255,255,0.1)',
