@@ -221,7 +221,7 @@ RULES:
                 if "Response:" in text:
                     # We are done
                     response_text = text.split("Response:")[-1].strip()
-                    return {"spoken": response_text, "actions": actions_taken, "resolved": resolved_dict}
+                    return {"response": response_text, "tool_calls": actions_taken, "resolved": resolved_dict}
                     
                 if "Action:" in text:
                     # Execute tool
@@ -249,21 +249,21 @@ RULES:
                             continue
                             
                 # If we get here, no Action or Response, so force a response
-                return {"spoken": text, "actions": actions_taken, "resolved": resolved_dict}
+                return {"response": text, "tool_calls": actions_taken, "resolved": resolved_dict}
                 
         except Exception as e:
             logger.error(f"Error in ReAct loop: {e}")
             break
 
-    return {"spoken": "I'm having trouble processing that command.", "actions": actions_taken, "resolved": resolved_dict}
+    return {"response": "I'm having trouble processing that command.", "tool_calls": actions_taken, "resolved": resolved_dict}
 
 
 async def process_voice_command(case_id: str, text: str) -> None:
     """Process a voice command transcription and emit UI directives."""
     logger.info(f"Processing voice command for case {case_id}: {text}")
     res = await query_backend_agent(text)
-    spoken = res.get("spoken", "")
-    actions = res.get("actions", [])
+    spoken = res.get("response", "")
+    actions = res.get("tool_calls", [])
 
     await bus.publish("ui.announce", {"case_id": case_id, "text": spoken})
 

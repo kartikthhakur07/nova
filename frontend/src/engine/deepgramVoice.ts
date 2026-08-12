@@ -22,6 +22,8 @@ let isListening = false
 let isSpeaking = false
 let onTranscriptCallback: ((text: string, isFinal: boolean) => void) | null = null
 
+const MAX_RETRIES = 2
+let retryCount = 0
 // ─── STT (Deepgram Nova-3) ────────────────────────────────────────────────── //
 
 export async function startDeepgramListening(
@@ -53,7 +55,7 @@ export async function startDeepgramListening(
 
   const wsUrl =
     `wss://api.deepgram.com/v1/listen?` +
-    `model=nova-3&language=en-US&smart_format=true&interim_results=true` +
+    `model=nova-2&language=en-US&smart_format=true&interim_results=true` +
     `&endpointing=500&utterance_end_ms=1200&vad_events=true`
 
   try {
@@ -62,6 +64,7 @@ export async function startDeepgramListening(
 
     dgSocket.onopen = () => {
       console.log('[Deepgram STT] Live WebSocket connected')
+      retryCount = 0 // reset on successful connection
       useSimulationStore.getState().setNovaState('listening')
       startStreamingAudio()
     }
@@ -94,17 +97,24 @@ export async function startDeepgramListening(
     }
 
     dgSocket.onerror = () => {
-      console.warn('[Deepgram STT] Connection error, initiating fallback')
-      startWebSpeechFallback(onTranscript)
+      console.warn('[Deepgram STT] Error — will retry on close event, not here')
     }
 
     dgSocket.onclose = (ev) => {
       if (isListening && ev.code !== 1000) {
+        if (retryCount >= MAX_RETRIES) {
+          console.warn('[Deepgram STT] Max retries reached — STT unavailable.')
+          startWebSpeechFallback(onTranscript)
+          return
+        }
+        
+        retryCount++
+        console.warn(`[Deepgram STT] Closed (${ev.code}), retry ${retryCount}/${MAX_RETRIES}`)
         setTimeout(() => {
           if (isListening && onTranscriptCallback) {
             startDeepgramListening(onTranscriptCallback)
           }
-        }, 2000)
+        }, 2000 * retryCount)
       }
     }
   } catch {
