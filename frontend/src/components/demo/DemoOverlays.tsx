@@ -29,7 +29,7 @@ export default function DemoOverlays() {
     >
       <div style={{
         display: 'flex',
-        justify: 'space-between',
+        justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: '28px',
         borderBottom: '1px solid rgba(255,255,255,0.12)',
@@ -109,11 +109,11 @@ function RecentTracksContent() {
             borderRadius: '12px',
             padding: '24px 28px',
             display: 'flex',
-            justify: 'space-between',
+            justifyContent: 'space-between',
             alignItems: 'center',
             backdropFilter: 'blur(10px)',
           }}>
-            <div>
+            <div style={{ width: '61.8%' }}>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '6px' }}>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.8rem', color: '#84ff00', fontWeight: 700 }}>{t.id}</span>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)' }}>{t.ts}</span>
@@ -124,7 +124,7 @@ function RecentTracksContent() {
               <div style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '1.1rem', color: '#fff', fontWeight: 600, marginBottom: '4px' }}>{t.vector}</div>
               <div style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)' }}>{t.details}</div>
             </div>
-            <div style={{ textAlign: 'right' }}>
+            <div style={{ width: '38.2%', textAlign: 'right' }}>
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em' }}>SIMILARITY SCORE</div>
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '2.2rem', fontWeight: 700, color: '#84ff00' }}>{t.score.toFixed(2)}</div>
             </div>
