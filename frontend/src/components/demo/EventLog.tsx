@@ -1,5 +1,14 @@
 import { useDemoStore } from '../../store/useDemoStore'
 import { useSimulationStore } from '../../store/useSimulationStore'
+import { Link } from 'react-router-dom'
+import { Activity, ShieldCheck, Cpu, Database } from 'lucide-react'
+
+const PHASE_5_NAV_ITEMS = [
+  { label: 'Live Plant',         icon: Activity,        to: '/dashboard/live-plant' },
+  { label: 'Active Case',        icon: ShieldCheck,     to: '/dashboard/active-case' },
+  { label: 'Counterfactual',     icon: Cpu,             to: '/dashboard/counterfactual' },
+  { label: 'Memory & Reports',   icon: Database,        to: '/dashboard/reports' },
+]
 
 export default function EventLog() {
   const isSim = useSimulationStore(s => s.isRunning)
@@ -109,6 +118,58 @@ export default function EventLog() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div style={{
+        padding: '12px 16px',
+        borderTop: '1px solid rgba(255,255,255,0.08)',
+        background: 'rgba(0,0,0,0.2)',
+      }}>
+        <div style={{
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: '0.55rem',
+          letterSpacing: '0.12em',
+          color: 'rgba(255,255,255,0.4)',
+          marginBottom: '10px',
+        }}>
+          PHASE 5 VIEWS
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {PHASE_5_NAV_ITEMS.map(item => {
+            const Icon = item.icon
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '10px',
+                  padding: '8px 12px',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.05)',
+                  borderRadius: '6px',
+                  color: 'rgba(255,255,255,0.7)',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s',
+                  fontFamily: "'Titillium Web', sans-serif",
+                  fontSize: '0.8rem',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(132,255,0,0.1)'
+                  e.currentTarget.style.color = '#84ff00'
+                  e.currentTarget.style.borderColor = 'rgba(132,255,0,0.3)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
+                  e.currentTarget.style.color = 'rgba(255,255,255,0.7)'
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'
+                }}
+              >
+                <Icon size={14} style={{ flexShrink: 0 }} />
+                <span>{item.label}</span>
+              </Link>
+            )
+          })}
+        </div>
       </div>
     </div>
   )
