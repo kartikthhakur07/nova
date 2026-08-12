@@ -87,6 +87,35 @@ CREATE TABLE IF NOT EXISTS equipment (
     name TEXT,
     aliases TEXT
 );
+CREATE TABLE IF NOT EXISTS decision_traces (
+    trace_id TEXT PRIMARY KEY,
+    case_id TEXT REFERENCES cases(case_id),
+    raw_reading TEXT,
+    threshold_checks TEXT,
+    rag_matches TEXT,
+    learnings_snapshot TEXT,
+    gemini_raw_response TEXT,
+    latency_ms REAL,
+    created_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS actions (
+    action_id TEXT PRIMARY KEY,
+    case_id TEXT REFERENCES cases(case_id),
+    action_type TEXT,
+    details TEXT,
+    status TEXT,
+    created_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS pending_actions (
+    action_id TEXT PRIMARY KEY,
+    case_id TEXT REFERENCES cases(case_id),
+    action_type TEXT,
+    details TEXT,
+    status TEXT,
+    created_at TEXT
+);
 """
 
 

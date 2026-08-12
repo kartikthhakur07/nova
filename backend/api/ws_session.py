@@ -172,6 +172,9 @@ async def start_ws_bridge(bus: "EventBus") -> None:
         await manager.broadcast_all(event)
 
     async def on_raw_telemetry(event: dict[str, Any]) -> None:
+        await manager.broadcast_all(
+            {"type": "raw.telemetry", "payload": event, "ts": _ts()}
+        )
         # Fallback baseline risk assessment for simulation telemetry if agents not active
         hint = event.get("severity_hint", "normal")
         val = event.get("value")
@@ -232,10 +235,28 @@ async def start_ws_bridge(bus: "EventBus") -> None:
             risk_payload["case_id"] = case_id
             await bus.publish("risk.assessed", risk_payload)
 
+    async def on_action_proposed(event: dict[str, Any]) -> None:
+        await manager.broadcast_all(
+            {"type": "action.proposed", "payload": event, "ts": _ts()}
+        )
+        
+    async def on_action_resolved(event: dict[str, Any]) -> None:
+        await manager.broadcast_all(
+            {"type": "action.resolved", "payload": event, "ts": _ts()}
+        )
+
+    async def on_report_generated(event: dict[str, Any]) -> None:
+        await manager.broadcast_all(
+            {"type": "report.generated", "payload": event, "ts": _ts()}
+        )
+
     await bus.subscribe("raw.telemetry", on_raw_telemetry)
     await bus.subscribe("risk.assessed", on_risk_updated)
     await bus.subscribe("case.state_changed", on_case_state_changed)
     await bus.subscribe("tool.executed", on_audit_entry)
     await bus.subscribe("ui.directive", on_ui_directive)
+    await bus.subscribe("action.proposed", on_action_proposed)
+    await bus.subscribe("action.resolved", on_action_resolved)
+    await bus.subscribe("report.generated", on_report_generated)
 
-    logger.info("WS bridge: subscribed to raw.telemetry, risk.assessed, case.state_changed, tool.executed, ui.directive")
+    logger.info("WS bridge: subscribed to raw.telemetry, risk.assessed, case.state_changed, tool.executed, ui.directive, action.*, report.*")

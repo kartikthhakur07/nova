@@ -1,8 +1,12 @@
 import time
+import json
+import uuid
+from datetime import datetime, timezone
 from backend.services.qdrant_client import init_collections
 from backend.pipeline.watcher import watch_and_classify
 from backend.pipeline.responder import generate_response
-from backend.pipeline.memory_agent import process_flagged_incident
+from backend.pipeline.memory_agent import process_flagged_incident, get_current_learnings
+from backend.db.db import get_db
 
 async def init_pipeline():
     """Ensure Qdrant collections exist before running."""
@@ -16,7 +20,7 @@ async def run_pipeline(reading: dict) -> dict:
     
     # 1. Watcher (Retrieves context + Classifies via Gemini)
     t0 = time.time()
-    classification, learnings_were_present = await watch_and_classify(reading)
+    classification, raw_response, learnings_were_present, context = await watch_and_classify(reading)
     t_watcher = time.time() - t0
     
     is_flagged = classification.get("flagged", False)
@@ -38,7 +42,31 @@ async def run_pipeline(reading: dict) -> dict:
     
     t_memory = time.time() - t0
     
-    # 4. Simulate TTS Audit Log Write
+    # 4. Save Decision Trace to DB
+    trace_id = f"trace-{uuid.uuid4().hex[:8]}"
+    case_id = f"case-{reading.get('zone_id', 'unknown')}"
+    
+    async with get_db() as db:
+        await db.execute(
+            """
+            INSERT INTO decision_traces
+            (trace_id, case_id, raw_reading, threshold_checks, rag_matches, learnings_snapshot, gemini_raw_response, latency_ms, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                trace_id,
+                case_id,
+                json.dumps(reading),
+                json.dumps(classification),
+                json.dumps(context),
+                get_current_learnings(),
+                raw_response,
+                (t_watcher + t_responder + t_memory) * 1000.0,
+                datetime.now(timezone.utc).isoformat()
+            )
+        )
+    
+    # 5. Simulate TTS Audit Log Write
     # We just write it to a text file
     with open("tts_audit_log.txt", "a") as f:
         log_entry = f"FLAGGED: {is_flagged} | RESPONSE: {groq_response}\n"

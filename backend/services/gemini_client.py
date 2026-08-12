@@ -41,11 +41,12 @@ async def classify(system_prompt: str, reading: dict) -> dict:
             text_response = data.get("candidates", [])[0].get("content", {}).get("parts", [])[0].get("text", "{}")
             
             try:
-                return json.loads(text_response)
+                parsed = json.loads(text_response)
+                return parsed, text_response
             except json.JSONDecodeError:
                 print(f"Failed to parse JSON from Gemini: {text_response}")
-                return {"flagged": False, "reason": "JSON decode error"}
+                return {"flagged": False, "reason": "JSON decode error", "confidence": 0.0}, text_response
                 
         except Exception as e:
             print(f"Error calling Gemini classify API: {e}")
-            return {"flagged": False, "reason": f"API Error: {str(e)}"}
+            return {"flagged": False, "reason": f"API Error: {str(e)}", "confidence": 0.0}, ""

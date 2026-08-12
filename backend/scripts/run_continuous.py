@@ -42,6 +42,13 @@ async def continuous_loop():
             for event in events:
                 reading_count += 1
                 
+                value = event.get("value")
+                if value is not None and isinstance(value, (int, float)):
+                    # Use real generation logic
+                    import random
+                    variance = random.gauss(0, max(value * 0.01, 0.1))
+                    event["value"] = round(value + variance, 2)
+                
                 print(f"\n[{reading_count}] Processing new reading (Zone: {event.get('zone_id')} - {event.get('equipment_id')})")
                 print(f"Value: {event.get('value')} {event.get('unit')} | Hint: {event.get('severity_hint')}")
                 

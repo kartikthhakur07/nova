@@ -203,4 +203,29 @@ export type WsEnvelope =
       payload: { text: string }
       ts: string
     }
+  | {
+      type: 'ui.switch_screen'
+      payload: { screen: string }
+      ts: string
+    }
+  | {
+      type: 'raw.telemetry'
+      payload: { event_id: string; zone_id: string; equipment_id: string; value: number; unit: string; severity_hint: string }
+      ts: string
+    }
+  | {
+      type: 'action.proposed'
+      payload: { case_id: string; action_id: string; permit_id: string; reason: string }
+      ts: string
+    }
+  | {
+      type: 'action.resolved'
+      payload: { case_id: string; action_id: string; approved: boolean }
+      ts: string
+    }
+  | {
+      type: 'report.generated'
+      payload: { case_id: string; report: string }
+      ts: string
+    }
 

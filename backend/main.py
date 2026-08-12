@@ -30,7 +30,7 @@ if _repo_root not in sys.path:
 
 load_dotenv()  # noqa: E402 — must run before any os.environ reads
 
-from backend.api import routes_cases, routes_demo, routes_memory, routes_retrieval, routes_risk, routes_voice, routes_voice_command
+from backend.api import routes_cases, routes_demo, routes_memory, routes_retrieval, routes_risk, routes_voice, routes_voice_command, routes_explainability
 from backend.api.routes_factory import router as factory_router, get_factory_state
 from backend.api.ws_session import router as ws_router, start_ws_bridge
 from backend.api.ws_audio import router as audio_router
@@ -159,6 +159,7 @@ app.include_router(routes_voice.router,      prefix=_API_PREFIX)
 app.include_router(routes_voice_command.router, prefix=_API_PREFIX)
 app.include_router(routes_memory.router,     prefix=_API_PREFIX)
 app.include_router(routes_demo.router,       prefix=_API_PREFIX)
+app.include_router(routes_explainability.router)
 
 # Factory state routes (already has /api/factory prefix) --------------------
 app.include_router(factory_router)

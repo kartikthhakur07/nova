@@ -16,19 +16,12 @@ import { useSessionSocket } from './ws/useSessionSocket'
 import { useCaseState } from './hooks/useCaseState'
 
 import { SystemStatusBar } from './components/SystemStatusBar'
-import HomePage from './pages/HomePage'
-import DemoMode from './pages/DemoMode'
-import RealSystemSimulation from './pages/RealSystemSimulation'
 import AppShell from './components/AppShell'
-import MissionControl from './pages/MissionControl'
-import DemoControl from './pages/DemoControl'
-import Benchmark from './pages/Benchmark'
-import AuditTrail from './pages/AuditTrail'
-import LessonsLearned from './pages/LessonsLearned'
-import MemoryBrowser from './pages/MemoryBrowser'
-import Factory3DTwin from './pages/Factory3DTwin'
-import NovaCoPilot from './pages/FridayCoPilot'
-import SensorTelemetry from './pages/SensorTelemetry'
+import TabLivePlant from './pages/TabLivePlant'
+import TabActiveCase from './pages/TabActiveCase'
+import TabCounterfactual from './pages/TabCounterfactual'
+import TabMemoryReports from './pages/TabMemoryReports'
+
 
 function CaseLayout() {
   const { id: caseId = '' } = useParams<{ id: string }>()
@@ -57,42 +50,14 @@ function CaseLayout() {
 }
 
 const router = createBrowserRouter([
-  // ── Primary Live System Simulation Route ──
   {
     path: '/',
-    element: <RealSystemSimulation />,
-  },
-  {
-    path: '/demo',
-    element: <RealSystemSimulation />,
-  },
-  {
-    path: '/simulation',
-    element: <RealSystemSimulation />,
-  },
-  // ── Dashboard shell ──
-  {
-    path: '/dashboard',
     element: <AppShell />,
     children: [
-      { index: true,          element: <MissionControl /> },
-      { path: 'factory-twin', element: <Factory3DTwin /> },
-      { path: 'nova',         element: <NovaCoPilot /> },
-      { path: 'telemetry',    element: <SensorTelemetry /> },
-      { path: 'audit',        element: <AuditTrail /> },
-      { path: 'lessons',      element: <LessonsLearned /> },
-      { path: 'memory',       element: <MemoryBrowser /> },
-      { path: 'benchmark',    element: <Benchmark /> },
-    ],
-  },
-  // ── Legacy case routes ──
-  {
-    path: '/case/:id',
-    element: <CaseLayout />,
-    children: [
-      { index: true,       element: <MissionControl /> },
-      { path: 'audit',     element: <AuditTrail /> },
-      { path: 'memory',    element: <LessonsLearned /> },
+      { index: true,             element: <TabLivePlant /> },
+      { path: 'case',            element: <TabActiveCase /> },
+      { path: 'counterfactual',  element: <TabCounterfactual /> },
+      { path: 'memory',          element: <TabMemoryReports /> },
     ],
   },
 ])

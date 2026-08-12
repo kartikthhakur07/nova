@@ -40,10 +40,11 @@ Return a JSON object with:
 - "flagged": boolean (true if WARNING or CRITICAL)
 - "severity": "NORMAL", "WARNING", or "CRITICAL"
 - "reason": brief string explaining the classification
+- "confidence": float between 0.0 and 1.0 indicating confidence in this classification
 """
     
     # Classify
-    classification = await classify(system_prompt, reading)
+    classification, raw_response = await classify(system_prompt, reading)
     
     # Return classification and whether learnings block was actively used (for CLI logging)
-    return classification, learnings_were_present
+    return classification, raw_response, learnings_were_present, context

@@ -225,3 +225,45 @@ export function getDemoStatus(): Promise<DemoStatus> {
 export function getBenchmarkResults(): Promise<Record<string, unknown>> {
   return apiGet<Record<string, unknown>>('/api/benchmark/results')
 }
+
+// ── Explainability & Phase 3 APIs ────────────────────────────────────────── //
+
+export function getTraces(caseId: string): Promise<any[]> {
+  return apiGet(`/api/traces/${caseId}`)
+}
+
+export function getPrediction(caseId: string): Promise<any> {
+  return apiGet(`/api/cases/${caseId}/prediction`)
+}
+
+export function getCounterfactual(caseId: string): Promise<any> {
+  return apiGet(`/api/cases/${caseId}/counterfactual`)
+}
+
+export function getReport(caseId: string): Promise<{ report: string | null }> {
+  return apiGet(`/api/cases/${caseId}/report`)
+}
+
+export function generateReport(caseId: string): Promise<{ report: string }> {
+  return apiPost(`/api/cases/${caseId}/report/generate`, {})
+}
+
+export function getActions(caseId: string): Promise<{ pending: any[]; executed: any[] }> {
+  return apiGet(`/api/cases/${caseId}/actions`)
+}
+
+export function proposeAction(caseId: string, permitId: string, reason: string): Promise<any> {
+  return apiPost(`/api/cases/${caseId}/actions/propose?permit_id=${permitId}&reason=${reason}`, {})
+}
+
+export function resolveAction(actionId: string, approved: boolean): Promise<any> {
+  return apiPost(`/api/actions/${actionId}/resolve`, { approved })
+}
+
+export function getMemoryStats(): Promise<{ incidents_historical_count: number; lessons_learned_count: number }> {
+  return apiGet('/api/memory/stats')
+}
+
+export function getCurrentLearnings(): Promise<{ learnings: string }> {
+  return apiGet('/api/memory/current-learnings')
+}

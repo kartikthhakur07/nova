@@ -32,6 +32,8 @@ export function useSessionSocket(sessionId: string, onRawMessage?: (msg: any) =>
   const setUiPanel = useCaseStore((s) => s.setUiPanel)
   const setUiAnnouncement = useCaseStore((s) => s.setUiAnnouncement)
   const setUiProposedEdit = useCaseStore((s) => s.setUiProposedEdit)
+  const updateSensor = useCaseStore((s) => s.updateSensor)
+  const addTickerItem = useCaseStore((s) => s.addTickerItem)
 
   const socketRef = useRef<CaseWebSocket | null>(null)
 
@@ -96,7 +98,17 @@ export function useSessionSocket(sessionId: string, onRawMessage?: (msg: any) =>
         case 'ui.switch_screen':
           useCaseStore.getState().setNavTarget(msg.payload.screen)
           break
-        // Other message types (transcript.delta, audit.entry, etc.) will be
+        case 'raw.telemetry':
+          updateSensor(msg.payload)
+          addTickerItem({ type: 'telemetry', data: msg.payload, ts: Date.now() })
+          break
+        case 'action.proposed':
+        case 'action.resolved':
+        case 'report.generated':
+        case 'audit.entry':
+          addTickerItem({ type: msg.type, data: msg.payload, ts: Date.now() })
+          break
+        // Other message types (transcript.delta, etc.) will be
         // handled in future PRs by dedicated hooks
         default:
           break
@@ -111,12 +123,11 @@ export function useSessionSocket(sessionId: string, onRawMessage?: (msg: any) =>
 
     return () => {
       socket.disconnect()
-      socketRef.current = null
     }
   }, [
     sessionId, appendEvidence, setLatencyMark, updateCaseStage, markStageReached, 
     setWsStatus, setLessonWritten, setPendingAuth, setUiFocusZone, setUiPanel, 
-    setUiAnnouncement, setUiProposedEdit, onRawMessage
+    setUiAnnouncement, setUiProposedEdit, updateSensor, addTickerItem, onRawMessage
   ])
 
   return { status: connectionStatus }
