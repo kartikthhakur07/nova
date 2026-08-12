@@ -111,6 +111,52 @@ export default function NovaCoPilot() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const activeCase = useCaseStore(s => s.activeCase)
 
+  // Voice Interaction (Mixed Input) state
+  const [isListening, setIsListening] = useState(false)
+  const recognitionRef = useRef<any>(null)
+
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (SpeechRecognition) {
+      const rec = new SpeechRecognition()
+      rec.continuous = false
+      rec.interimResults = false
+      rec.lang = 'en-US'
+
+      rec.onstart = () => {
+        setIsListening(true)
+      }
+
+      rec.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript
+        setInput(prev => prev + (prev ? ' ' : '') + transcript)
+      }
+
+      rec.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error)
+        setIsListening(false)
+      }
+
+      rec.onend = () => {
+        setIsListening(false)
+      }
+
+      recognitionRef.current = rec
+    }
+  }, [])
+
+  const toggleListen = () => {
+    if (!recognitionRef.current) {
+      alert('Speech Recognition is not supported in this browser. Please try Chrome or Brave.')
+      return
+    }
+    if (isListening) {
+      recognitionRef.current.stop()
+    } else {
+      recognitionRef.current.start()
+    }
+  }
+
   // Boot message
   useEffect(() => {
     const boot: Message = {
@@ -225,6 +271,29 @@ export default function NovaCoPilot() {
             placeholder="Ask NOVA anything about the facility..."
             style={{ flex: 1, background: 'none', border: 'none', outline: 'none', color: TXT, fontSize: 14, fontFamily: FD }}
           />
+          <button
+            onClick={toggleListen}
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: 9,
+              background: isListening ? '#DC2626' : 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s',
+              boxShadow: isListening ? '0 0 12px #DC2626' : 'none',
+            }}
+            title={isListening ? 'Stop listening' : 'Start voice input'}
+          >
+            {isListening ? (
+              <MicOff size={16} color="#ffffff" className="animate-pulse" />
+            ) : (
+              <Mic2 size={16} color="#94A3B8" />
+            )}
+          </button>
           <button onClick={() => send(input)} disabled={!input.trim() || thinking} style={{ width: 38, height: 38, borderRadius: 9, background: input.trim() ? 'linear-gradient(135deg,#84ff00,#4a6741)' : '#1E293B', border: 'none', cursor: input.trim() ? 'pointer' : 'default', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
             <Send size={16} color={input.trim() ? '#0a0f0a' : '#475569'}/>
           </button>
