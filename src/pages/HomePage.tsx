@@ -731,7 +731,7 @@ function CTASection() {
           lineHeight: 1.55,
           marginBottom: '32px',
         }}>
-          Select Scripted Demo Mode to experience the full 6-phase detection-to-resolution sequence, or Enter Live Simulation to converse with Nova against an unscripted telemetry stream.
+          Launch the interactive control suite to experience the 6-stage compound-risk detection lifecycle, review Qdrant vector traces, and verify automated permit control tools.
         </p>
 
         <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
