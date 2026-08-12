@@ -149,7 +149,7 @@ export async function generateReActResponse(userQuery: string): Promise<{ spoken
   const store = useSimulationStore.getState()
 
   const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 1800)
+  const timeoutId = setTimeout(() => controller.abort(), 15000)
 
   const backendRes = await fetch('/api/voice/query', {
     method: 'POST',
