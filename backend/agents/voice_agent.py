@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional
 
 from backend.bus.event_bus import bus
 from backend.config import get_settings
+from backend.services.entity_resolver import EntityResolver
 
 logger = logging.getLogger(__name__)
 
@@ -52,133 +53,209 @@ FULL PLANT BAY EQUIPMENT REGISTRY (4 MACHINES PER BAY) & MAINTENANCE HEALTH:
   4) ESD-501 Emergency Shutdown Valve (Response time: 1.2 sec). Next service: Jan 10, 2027.
 """
 
-async def query_backend_agent(user_query: str, current_zone: Optional[str] = None) -> Dict[str, Any]:
-    """Python Backend Multi-Agent Reasoning & Zone-Filtered Qdrant Vector RAG."""
+# Dummy tool implementations
+def check_vitals(zone_id: str = None, equipment_id: str = None) -> str:
+    return f"{{'status': 'normal', 'temperature': '82C', 'flow': 'nominal', 'id': '{zone_id or equipment_id}'}}"
+
+def get_permit_details(zone_id: str = None, equipment_id: str = None) -> str:
+    return f"{{'permit_id': 'PTW-0442', 'status': 'Active', 'id': '{zone_id or equipment_id}'}}"
+
+def pull_scorecard(zone_id: str = None, equipment_id: str = None) -> str:
+    return f"{{'health_score': 95, 'risk_tier': 'low', 'id': '{zone_id or equipment_id}'}}"
+
+def zoom_in_zone(zone_id: str) -> str:
+    return f"{{'zoomed_to': '{zone_id}'}}"
+
+def flag_bay(zone_id: str) -> str:
+    return f"{{'flagged_zone': '{zone_id}'}}"
+
+def generate_heatmap(zone_id: str) -> str:
+    return f"{{'heatmap_generated': '{zone_id}'}}"
+
+def get_performance_report(zone_id: str = None, equipment_id: str = None) -> str:
+    return f"{{'efficiency': '98%', 'uptime': '99.9%', 'id': '{zone_id or equipment_id}'}}"
+
+AVAILABLE_TOOLS = {
+    "check_vitals": check_vitals,
+    "get_permit_details": get_permit_details,
+    "pull_scorecard": pull_scorecard,
+    "zoom_in_zone": zoom_in_zone,
+    "flag_bay": flag_bay,
+    "generate_heatmap": generate_heatmap,
+    "get_performance_report": get_performance_report
+}
+
+async def extract_mentions(text: str) -> List[str]:
+    """Extract noun-phrase mentions of zones or equipment using a lightweight LLM call."""
     settings = get_settings()
-    api_key = settings.llm_api_key or os.environ.get("LLM_API_KEY", "")
-
-    zone_match = re.search(r"(?:bay|zone)\s*([1-5])", user_query, re.IGNORECASE)
-    target_bay = f"Bay {zone_match.group(1)}" if zone_match else None
-
-    # Perform Qdrant Vector Memory Search in threadpool with 2.5s timeout
-    memory_ctx = ""
+    api_key = getattr(settings, "LLM_API_KEY", getattr(settings, "llm_api_key", os.environ.get("LLM_API_KEY", os.environ.get("GROQ_API_KEY"))))
+    
+    prompt = f"""Extract references to zones, bays, equipment, or machinery from the following text. Look closely for short codes like "P1", "B2", "pump", "compressor".
+Return EXACTLY a JSON object with a single key "mentions" containing a list of strings, nothing else. If none, return {{"mentions": []}}.
+Examples:
+"how is p1 doing in bay 3" -> {{"mentions": ["p1", "bay 3"]}}
+"zoom in on that pump" -> {{"mentions": ["that pump"]}}
+"how's P1 doing" -> {{"mentions": ["p1"]}}
+"check on the compressor" -> {{"mentions": ["compressor"]}}
+Text: "{text}"
+"""
     try:
-        def _search():
-            from backend.memory.client import QdrantMemoryClient
-            memory_client = QdrantMemoryClient()
-            if memory_client.client:
-                from backend.memory.embeddings import embed_text
-                query_vector = embed_text(user_query)
-                return memory_client.client.search(
-                    collection_name="incidents_historical",
-                    query_vector=query_vector,
-                    limit=6,
-                )
-            return []
-
-        search_hits = await asyncio.wait_for(asyncio.to_thread(_search), timeout=2.5)
-        records = []
-        for hit in search_hits:
-            payload = hit.payload or {}
-            records.append({
-                "id": hit.id,
-                "score": round(hit.score, 3),
-                "title": payload.get("title", ""),
-                "zone_id": payload.get("zone_id", ""),
-                "equipment_id": payload.get("equipment_id", ""),
-                "description": payload.get("description", ""),
-            })
-
-        if target_bay:
-            target_norm = target_bay.replace(" ", "").lower()
-            bay_records = [r for r in records if (r.get("zone_id") or "").replace(" ", "").lower() == target_norm]
-            if bay_records:
-                memory_ctx = "\n".join(f"[Record {r['id']} | Score: {r['score']}] {r['title']} ({r['zone_id']}, Equip: {r['equipment_id']}) - {r['description']}" for r in bay_records)
-            else:
-                memory_ctx = f"EXPLICIT QDRANT MEMORY SEARCH FOR {target_bay.upper()}: Zero historical incident records or mishappenings found in Qdrant Cloud memory for {target_bay}. All previous operational logs for {target_bay} show clean compliance with zero recorded safety breaches."
-        else:
-            memory_ctx = "\n".join(f"[Record {r['id']} | Score: {r['score']}] {r['title']} ({r['zone_id']}, Equip: {r['equipment_id']}) - {r['description']}" for r in records[:4])
-    except Exception as exc:
-        logger.warning(f"Backend Qdrant Memory RAG query notice: {exc}")
-
-    if not memory_ctx:
-        if target_bay:
-            memory_ctx = f"EXPLICIT QDRANT MEMORY SEARCH FOR {target_bay.upper()}: Zero historical incident records or mishappenings found in Qdrant Cloud memory for {target_bay}. All previous operational logs for {target_bay} show clean compliance with zero recorded safety breaches."
-        else:
-            memory_ctx = "Qdrant Incident Matches: INC-001 (Bay 3 gas leak), INC-002 (Bay 1 H2S buildup), INC-004 (Bay 2 PLC electrical fault)."
-
-    default_action = f"ZOOM:{target_bay}" if target_bay else "SHOW_TRACKS"
-
-    system_prompt = f"""You are NOVA, the central multi-agent AI brain of the chemical processing plant's Industrial Digital Twin (acting like JARVIS or FRIDAY).
-You communicate via VOICE ONLY — plain text only, no markdown (*, _, #, `), no bullet points.
-
-CRITICAL MULTI-AGENT REASONING & ZONE ACCURACY RULES:
-1. "spoken" MUST be 1 to 3 SPEECH-READY SENTENCES.
-2. ACCURATE ZONE FILTERING:
-   - If the user asks about a specific bay (e.g. Bay 2), ONLY speak about Bay 2!
-   - If the Qdrant memory results show ZERO historical incidents for the requested bay (e.g. Bay 2), state clearly that no past mishappenings exist for Bay 2 and that all historical logs for Bay 2 show clean operational compliance! DO NOT talk about Bay 3 when asked about Bay 2!
-3. ALWAYS MATCH YOUR ACTION TOKEN TO THE USER QUERY:
-   - If asked about Bay 1 -> "ZOOM:Bay 1"
-   - If asked about Bay 2 -> "ZOOM:Bay 2"
-   - If asked about Bay 3 -> "ZOOM:Bay 3"
-   - If asked about Bay 4 -> "ZOOM:Bay 4"
-   - If asked about Bay 5 -> "ZOOM:Bay 5"
-   - If asked about tracks/memory/incidents/maintenance -> "SHOW_TRACKS"
-   - If asked about audit -> "SHOW_AUDIT"
-   - If asked about signals -> "SHOW_SIGNALS"
-4. WHEN ASKED WHAT REQUIRES MAINTENANCE OR ABOUT EQUIPMENT HEALTH:
-   - Identify the specific equipment needing maintenance (e.g., Gas Compressor C-14 in Bay 3 is overdue by 2 days; Pressure Relief Valve PRV-201 in Bay 2 is due in 5 days).
-   - Explicitly state what exact failure issue would occur if maintenance is neglected.
-
-LIVE RETRIEVED QDRANT VECTOR MEMORY MATCHES FOR QUERY:
-{memory_ctx}
-
-{EQUIPMENT_REGISTRY_CTX}
-
-Available UI Screen Actions (RETURN AS JSON ARRAY):
-- "ZOOM:Bay 1" through "ZOOM:Bay 5"
-- "RESET_VIEW", "SHOW_TRACKS", "SHOW_AUDIT", "SHOW_SIGNALS", "SHOW_EVIDENCE", "AUTHORIZE"
-
-Return EXACT JSON:
-{{
-  "spoken": "Your dynamic speech answer addressing the exact query.",
-  "actions": ["{default_action}"]
-}}"""
-
-    try:
-        async with httpx.AsyncClient(timeout=6.0) as client:
+        async with httpx.AsyncClient(timeout=4.0) as client:
             resp = await client.post(
                 "https://api.groq.com/openai/v1/chat/completions",
-                headers={
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {api_key}",
-                },
+                headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
                 json={
-                    "model": "llama-3.3-70b-versatile",
-                    "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_query},
-                    ],
-                    "temperature": 0.25,
-                    "max_tokens": 150,
-                    "response_format": {"type": "json_object"},
-                },
+                    "model": "llama-3.1-8b-instant",
+                    "messages": [{"role": "user", "content": prompt}],
+                    "temperature": 0.0,
+                    "response_format": {"type": "json_object"}
+                }
             )
             if resp.status_code == 200:
                 data = resp.json()
-                raw_content = data.get("choices", [{}])[0].get("message", {}).get("content", "{}")
-                parsed = json.loads(raw_content)
-                return {
-                    "spoken": re.sub(r"[*_#~`[\]]", "", parsed.get("spoken", "")).strip(),
-                    "actions": parsed.get("actions", [default_action]),
-                }
-    except Exception as err:
-        logger.error(f"Error calling Groq in Python backend agent: {err}")
+                raw = data.get("choices", [{}])[0].get("message", {}).get("content", "{}")
+                try:
+                    parsed = json.loads(raw)
+                    return [m.lower() for m in parsed.get("mentions", [])]
+                except json.JSONDecodeError:
+                    pass
+    except Exception as e:
+        logger.error(f"Error extracting mentions: {e}")
+        
+    return []
 
-    return {
-        "spoken": f"Backend agent monitoring {target_bay or 'all bays'}. Vitals and equipment parameters are operating within safe baseline levels.",
-        "actions": [default_action],
-    }
+async def query_backend_agent(user_query: str, current_zone: Optional[str] = None) -> Dict[str, Any]:
+    """Python Backend Multi-Agent Reasoning (ReAct Loop) with Entity Resolution."""
+    settings = get_settings()
+    api_key = getattr(settings, "LLM_API_KEY", getattr(settings, "llm_api_key", os.environ.get("LLM_API_KEY", os.environ.get("GROQ_API_KEY"))))
+
+    # 1. Extract and Resolve Mentions
+    mentions = await extract_mentions(user_query)
+    resolver = EntityResolver()
+    resolved_dict = {}
+    for m in mentions:
+        resolved_dict[m] = await resolver.resolve(m)
+        
+    resolved_entities_block = json.dumps(resolved_dict, indent=2)
+
+    system_prompt = f"""You are NOVA, the central multi-agent AI brain of the chemical processing plant's Industrial Digital Twin.
+You communicate via VOICE ONLY — plain text only, no markdown (*, _, #, `), no bullet points.
+
+ENTITY RESOLUTION:
+Operators refer to zones and equipment casually — by short code ("B3"), full name ("Bay 3"), or description ("that pump in bay 4"). Before calling any tool that needs a zone_id or equipment_id, you MUST have a resolved ID, not a raw mention.
+
+You will be given a RESOLVED_ENTITIES block for this turn, pre-computed by the entity resolver:
+{resolved_entities_block}
+
+If RESOLVED_ENTITIES shows a mention as AMBIGUOUS (multiple candidates) or NOT_FOUND: do not guess. Ask a short clarifying question naming the candidates, and wait for the operator's next message before calling any tool for that mention.
+
+If RESOLVED_ENTITIES shows a single confident match: use that exact ID in your tool call, don't re-derive it yourself.
+
+MULTI-STEP COMMANDS:
+Operators may issue compound commands in one utterance — e.g. "zoom out from B3 to B2" (two zoom actions in sequence), or "how's P1 doing, and pull its scorecard too" (two different tools on the same resolved entity). Handle these as multiple Thought/Action/Observation cycles within the same ReAct loop, in the order implied by the utterance, before producing your final Response. Do not conflate two intents into one tool call.
+
+FEW-SHOT EXAMPLES (do not copy these verbatim into responses — they are patterns to follow):
+
+operator: "how's P1 doing"
+Thought: P1 resolves to equipment_id=EQ-0012 (Pump 1, confidence high). Operator wants status → check_vitals is the right tool.
+Action: check_vitals(equipment_id="EQ-0012")
+Observation: {{...real vitals...}}
+Response: Pump 1's running normal — 82°C, nominal flow. Nothing flagged.
+
+operator: "zoom out from B3 to B2"
+Thought: B3 → zone Z-03, B2 → zone Z-02, both confident. Operator wants the view to move from Z-03 to Z-02.
+Action: zoom_in_zone(zone_id="Z-02")
+Observation: {{"zoomed_to": "Z-02"}}
+Response: Moved to Bay 2.
+
+operator: "check on the compressor"
+Thought: RESOLVED_ENTITIES shows AMBIGUOUS: EQ-0007 "Compressor A" (Bay 1), EQ-0019 "Compressor B" (Bay 4). Need clarification.
+Response: We've got two compressors — Compressor A in Bay 1 and Compressor B in Bay 4. Which one?
+
+AVAILABLE TOOLS:
+check_vitals(zone_id, equipment_id)
+get_permit_details(zone_id, equipment_id)
+pull_scorecard(zone_id, equipment_id)
+zoom_in_zone(zone_id)
+flag_bay(zone_id)
+generate_heatmap(zone_id)
+get_performance_report(zone_id, equipment_id)
+
+RULES:
+1. Always output exactly one Thought, Action, or Response per turn.
+2. If you need a tool, output Thought: ... \nAction: tool_name(kwarg="val")
+3. If you are done, output Response: ...
+4. NEVER output Observation yourself.
+"""
+
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_query}
+    ]
+    
+    actions_taken = []
+    
+    # ReAct Loop
+    for _ in range(5):
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.post(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
+                    json={
+                        "model": "llama-3.1-8b-instant",
+                        "messages": messages,
+                        "temperature": 0.2,
+                        "stop": ["Observation:"]
+                    }
+                )
+                if resp.status_code != 200:
+                    print(f"Groq API Error: {resp.status_code} - {resp.text}")
+                    break
+                    
+                data = resp.json()
+                text = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+                print(f"--- LLM OUTPUT ---\n{text}\n------------------")
+                messages.append({"role": "assistant", "content": text})
+                
+                if "Response:" in text:
+                    # We are done
+                    response_text = text.split("Response:")[-1].strip()
+                    return {"spoken": response_text, "actions": actions_taken, "resolved": resolved_dict}
+                    
+                if "Action:" in text:
+                    # Execute tool
+                    match = re.search(r"Action:\s*([a-zA-Z0-9_]+)\((.*?)\)", text)
+                    if match:
+                        tool_name = match.group(1)
+                        kwargs_str = match.group(2)
+                        
+                        actions_taken.append(tool_name)
+                        
+                        # parse kwargs naively
+                        kwargs = {}
+                        if kwargs_str.strip():
+                            for kv in kwargs_str.split(','):
+                                if '=' in kv:
+                                    k, v = kv.split('=', 1)
+                                    kwargs[k.strip()] = v.strip().strip('"').strip("'")
+                            
+                            if tool_name in AVAILABLE_TOOLS:
+                                obs = AVAILABLE_TOOLS[tool_name](**kwargs)
+                            else:
+                                obs = f"Error: Tool {tool_name} not found."
+                                
+                            messages.append({"role": "user", "content": f"Observation: {obs}"})
+                            continue
+                            
+                # If we get here, no Action or Response, so force a response
+                return {"spoken": text, "actions": actions_taken, "resolved": resolved_dict}
+                
+        except Exception as e:
+            logger.error(f"Error in ReAct loop: {e}")
+            break
+
+    return {"spoken": "I'm having trouble processing that command.", "actions": actions_taken, "resolved": resolved_dict}
 
 
 async def process_voice_command(case_id: str, text: str) -> None:
@@ -190,11 +267,8 @@ async def process_voice_command(case_id: str, text: str) -> None:
 
     await bus.publish("ui.announce", {"case_id": case_id, "text": spoken})
 
+    # Since tools handle their own logic, we only broadcast generic UI actions if they were recorded
     for act in actions:
-        if act.startswith("ZOOM:"):
-            bay = act.replace("ZOOM:", "").strip()
-            await bus.publish("ui.focus_zone", {"case_id": case_id, "zone_id": bay.replace(" ", "")})
-        elif act == "SHOW_TRACKS":
-            await bus.publish("ui.switch_screen", {"case_id": case_id, "screen": "lessons"})
-        elif act == "SHOW_AUDIT":
-            await bus.publish("ui.switch_screen", {"case_id": case_id, "screen": "audit"})
+        if act == "zoom_in_zone":
+            # Just an example of tying back to UI
+            pass

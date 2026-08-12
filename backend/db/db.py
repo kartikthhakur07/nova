@@ -73,11 +73,19 @@ CREATE TABLE IF NOT EXISTS shifts (
     ends_at TEXT
 );
 
+CREATE TABLE IF NOT EXISTS zones (
+    zone_id TEXT PRIMARY KEY,
+    name TEXT,
+    aliases TEXT
+);
+
 CREATE TABLE IF NOT EXISTS equipment (
     equipment_id TEXT PRIMARY KEY,
     equipment_class TEXT,
     criticality TEXT,
-    zone_id TEXT
+    zone_id TEXT,
+    name TEXT,
+    aliases TEXT
 );
 """
 
