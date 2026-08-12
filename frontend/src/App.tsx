@@ -57,17 +57,15 @@ function CaseLayout() {
 }
 
 const router = createBrowserRouter([
-  // ── First screen is HomePage with the new design ──
+  // ── Primary Live System Simulation Route ──
   {
     path: '/',
-    element: <HomePage />,
+    element: <RealSystemSimulation />,
   },
-  // ── Demo mode ──
   {
     path: '/demo',
-    element: <DemoMode />,
+    element: <RealSystemSimulation />,
   },
-  // ── Real System Simulation Mode ──
   {
     path: '/simulation',
     element: <RealSystemSimulation />,
