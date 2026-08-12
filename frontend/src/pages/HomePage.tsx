@@ -4,6 +4,7 @@ import heroHandsImg from '../assets/hero-hands.png'
 import HeroSection from '../components/HeroSection'
 import LOGO from '../assets/LOGO.png'
 import { motion } from 'framer-motion'
+import BackA from '../assets/BackA.png'
 
 export default function HomePage() {
   return (
@@ -308,28 +309,28 @@ function ProblemSection() {
       reading: '+8% H₂S Above Baseline',
       verdict: 'Individually Unremarkable',
       desc: 'Not high enough to breach a single-sensor SCADA threshold alarm.',
-      tag: 'SENSOR SCADA',
+      tag: '01 / SENSOR SCADA',
     },
     {
       title: 'PERMIT TO WORK',
       reading: 'Hot-Work Welding Active',
       verdict: 'Routine Paperwork',
       desc: 'Authorized permit PTW-0441 active in Bay 3 compressor zone.',
-      tag: 'PERMIT SYSTEM',
+      tag: '02 / PERMIT SYSTEM',
     },
     {
       title: 'MAINTENANCE LOG',
       reading: 'Thermal Drift Flag',
       verdict: 'Logbook Footnote',
       desc: 'Compressor C-14 seal inspection logged two hours prior.',
-      tag: 'CMMS LOG',
+      tag: '03 / CMMS LOG',
     },
     {
       title: 'SHIFT ROSTER',
       reading: 'Handover in 20 Mins',
       verdict: 'Scheduling Event',
       desc: 'Supervisory shift changeover scheduled across facility.',
-      tag: 'SHIFT ROSTER',
+      tag: '04 / SHIFT ROSTER',
     },
   ]
 
@@ -337,14 +338,32 @@ function ProblemSection() {
     <section
       id="problem"
       style={{
-        background: '#F3F0E6',
-        padding: '110px 0',
-        color: '#4a6741',
+        position: 'relative',
+        padding: '120px 0',
+        color: '#F3F0E6',
         overflow: 'hidden',
+
+        /* BACKGROUND IMAGE */
+        backgroundImage: `
+          linear-gradient(
+            rgba(10, 17, 10, 0.82),
+            rgba(10, 17, 10, 0.92)
+          ),
+          url('${BackA}')
+        `,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
       }}
     >
+
+      {/* SUBTLE GRID OVERLAY */}
+
+
       <div
         style={{
+          position: 'relative',
+          zIndex: 1,
           maxWidth: '1280px',
           margin: '0 auto',
           padding: '0 40px',
@@ -370,30 +389,33 @@ function ProblemSection() {
             ease: [0.16, 1, 0.3, 1],
           }}
           style={{
-            marginBottom: '55px',
+            marginBottom: '70px',
           }}
         >
+
+          {/* EYEBROW */}
           <div
             style={{
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: '0.65rem',
               letterSpacing: '0.14em',
-              color: '#040703ff',
+              color: '#B7C9A8',
               fontWeight: 700,
               textTransform: 'uppercase',
-              marginBottom: '10px',
+              marginBottom: '12px',
             }}
           >
             THE SYSTEMIC INDUSTRIAL GAP
           </div>
 
+          {/* HEADING */}
           <h2
             style={{
               fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: 'clamp(2.8rem, 5vw, 4.5rem)',
-              color: '#050e03ff',
+              fontSize: 'clamp(3rem, 6vw, 5.5rem)',
+              color: '#F3F0E6',
               lineHeight: 0.9,
-              maxWidth: '720px',
+              maxWidth: '800px',
               margin: 0,
               letterSpacing: '0.01em',
             }}
@@ -402,18 +424,22 @@ function ProblemSection() {
             <br />
             Don't Start With
             <br />
-            Single Alarms
+            <span style={{ color: '#A8B89A' }}>
+              Single Alarms
+            </span>
           </h2>
 
+          {/* DESCRIPTION */}
           <p
             style={{
               fontFamily: "'Titillium Web', sans-serif",
               fontSize: '1rem',
               fontWeight: 400,
-              color: 'rgba(74,103,65,0.75)',
-              lineHeight: 1.6,
-              maxWidth: '780px',
-              marginTop: '20px',
+              color: 'rgba(243,240,230,0.72)',
+              lineHeight: 1.65,
+              maxWidth: '800px',
+              marginTop: '24px',
+              marginBottom: 0,
             }}
           >
             DGFASLI recorded over 6,500 fatal workplace accidents in India in
@@ -424,121 +450,156 @@ function ProblemSection() {
             that over 60 percent of industrial facilities rely on manual
             handoffs between isolated safety tools.
           </p>
+
         </motion.div>
 
-        {/* ISOLATED SIGNAL CARDS */}
+
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '18px',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '20px',
           }}
         >
           {isolatedSignals.map((sig, idx) => (
             <motion.div
               key={sig.title}
-
-              /* INITIAL STATE */
               initial={{
                 opacity: 0,
-                y: 70,
-                scale: 0.92,
+                y: 50,
               }}
-
-              /* SCROLL-IN STATE */
               whileInView={{
                 opacity: 1,
                 y: 0,
-                scale: 1,
               }}
-
               viewport={{
                 once: true,
                 amount: 0.2,
               }}
-
-              /* STAGGER */
               transition={{
-                duration: 0.65,
-                delay: idx * 0.12,
+                duration: 0.6,
+                delay: idx * 0.1,
                 ease: [0.16, 1, 0.3, 1],
               }}
-
-              /* HOVER */
               whileHover={{
-                y: -8,
-                scale: 1.02,
+                y: -6,
                 transition: {
                   duration: 0.25,
                   ease: 'easeOut',
                 },
               }}
-
               style={{
                 position: 'relative',
-                background: '#E8E5D8',
-                border: '1px solid rgba(74,103,65,0.25)',
-                borderLeft: '4px solid #4a6741',
-                borderRadius: '7px',
-                padding: '26px 22px',
-                minHeight: '205px',
-                boxShadow: '0 8px 25px rgba(74,103,65,0.07)',
-                cursor: 'default',
+
+                /* GLASS EFFECT */
+                background: 'rgba(255, 255, 255, 0.07)',
+                backdropFilter: 'blur(5px)',
+                WebkitBackdropFilter: 'blur(5px)',
+
+                /* VERY SUBTLE BORDER */
+                border: '1px solid rgba(255, 255, 255, 0.18)',
+
+                borderRadius: '14px',
+
+                padding: '30px',
+
+                minHeight: '190px',
+
+                /* SOFT GLASS SHADOW */
+                boxShadow: `
+          0 10px 35px rgba(0, 0, 0, 0.18),
+          inset 0 1px 0 rgba(255, 255, 255, 0.12)
+        `,
+
+                overflow: 'hidden',
               }}
             >
 
-              {/* SYSTEM TAG */}
+              {/* SUBTLE GREEN GLOW */}
               <div
                 style={{
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: '0.55rem',
-                  color: '#4a6741',
-                  fontWeight: 700,
-                  letterSpacing: '0.1em',
-                  marginBottom: '12px',
+                  position: 'absolute',
+                  top: '-80px',
+                  right: '-80px',
+                  width: '180px',
+                  height: '180px',
+                  borderRadius: '50%',
+                  background: 'rgba(145, 165, 131, 0.08)',
+                  filter: 'blur(45px)',
+                  pointerEvents: 'none',
+                }}
+              />
+
+              {/* TOP ROW */}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '18px',
                 }}
               >
-                {sig.tag}
+
+                {/* NUMBER / TAG */}
+                <div
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: '0.55rem',
+                    color: '#A8B89A',
+                    letterSpacing: '0.12em',
+                    fontWeight: 700,
+                  }}
+                >
+                  {sig.tag}
+                </div>
+
+
+
               </div>
+
 
               {/* TITLE */}
               <h3
                 style={{
                   fontFamily: "'Bebas Neue', sans-serif",
-                  fontSize: '1.45rem',
-                  color: '#4a6741',
+                  fontSize: '1.6rem',
+                  color: '#F3F0E6',
                   letterSpacing: '0.04em',
-                  margin: '0 0 8px 0',
+                  margin: '0 0 10px 0',
                   lineHeight: 1,
                 }}
               >
                 {sig.title}
               </h3>
 
+
               {/* READING */}
               <div
                 style={{
                   fontFamily: "'Titillium Web', sans-serif",
-                  fontSize: '0.82rem',
+                  fontSize: '1rem',
                   fontWeight: 700,
-                  color: '#8a5a16',
-                  marginBottom: '5px',
+                  color: '#D6C18A',
+                  marginBottom: '4px',
                 }}
               >
                 {sig.reading}
               </div>
 
+
               {/* VERDICT */}
               <div
                 style={{
                   fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: '0.58rem',
-                  color: 'rgba(74,103,65,0.55)',
+                  fontSize: '0.55rem',
+                  color: 'rgba(243, 240, 230, 0.55)',
+                  letterSpacing: '0.03em',
                   marginBottom: '12px',
                 }}
               >
-                Verdict: {sig.verdict}
+                VERDICT: {sig.verdict}
               </div>
+
 
               {/* DESCRIPTION */}
               <p
@@ -546,31 +607,67 @@ function ProblemSection() {
                   fontFamily: "'Titillium Web', sans-serif",
                   fontSize: '0.78rem',
                   fontWeight: 400,
-                  color: 'rgba(40,55,38,0.7)',
+                  color: 'rgba(243, 240, 230, 0.62)',
                   lineHeight: 1.5,
                   margin: 0,
+                  maxWidth: '500px',
                 }}
               >
                 {sig.desc}
               </p>
 
-              {/* CORNER DETAIL */}
-              <div
-                style={{
-                  position: 'absolute',
-                  right: 0,
-                  top: 0,
-                  width: '18px',
-                  height: '18px',
-                  borderTop: '3px solid #4a6741',
-                  borderRight: '3px solid #4a6741',
-                  borderRadius: '0 6px 0 0',
-                  opacity: 0.45,
-                }}
-              />
             </motion.div>
           ))}
         </div>
+
+
+        {/* BOTTOM STATEMENT */}
+        <motion.div
+          initial={{
+            opacity: 0,
+            y: 30,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+            amount: 0.3,
+          }}
+          transition={{
+            duration: 0.7,
+            delay: 0.2,
+          }}
+          style={{
+            marginTop: '55px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '18px',
+          }}
+        >
+
+          <div
+            style={{
+              width: '42px',
+              height: '2px',
+              background: '#A8B89A',
+            }}
+          />
+
+          <div
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: '0.65rem',
+              letterSpacing: '0.08em',
+              color: 'rgba(243,240,230,0.65)',
+              textTransform: 'uppercase',
+            }}
+          >
+            The signals exist. The connection doesn't.
+          </div>
+
+        </motion.div>
 
       </div>
     </section>
