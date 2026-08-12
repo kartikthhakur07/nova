@@ -100,3 +100,9 @@ class Settings(BaseSettings):
 
 # Module-level singleton — loaded once at import time.
 settings = Settings()
+
+
+def get_settings() -> Settings:
+    """Return the global Settings instance."""
+    return settings
+
