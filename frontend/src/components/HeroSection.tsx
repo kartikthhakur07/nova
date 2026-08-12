@@ -1,4 +1,12 @@
+import { Link } from 'react-router-dom'
+'use client';
+import { motion, useInView } from 'framer-motion';
+import * as React from 'react';
+
 export default function HeroSection() {
+  const ref = React.useRef(null);
+  const isInView = useInView(ref, { once: true });
+
   return (
     <section
       id="product"
@@ -92,21 +100,29 @@ export default function HeroSection() {
 
 
           {/* Main headline */}
-          <h1
-            style={{
-              fontFamily: 'var(--font-heading)',
-              fontSize: 'clamp(3.5rem, 6vw, 6rem)',
-              lineHeight: 0.95,
-              letterSpacing: '0.01em',
-              color: '#FFFFFF',
-              marginBottom: '1.5rem',
-              textShadow: '0 4px 32px rgba(0,0,0,0.85)',
-            }}
-          >
-            Compound Risk,{' '}
-            <span style={{ display: 'block' }}>Caught Before It</span>
-            <span style={{ display: 'block' }}>Compounds.</span>
-          </h1>
+          <div >
+            <motion.h1
+              style={{
+                fontFamily: 'Bebas Neue',
+                fontSize: 'clamp(3.5rem, 6vw, 6rem)',
+                lineHeight: 0.95,
+                letterSpacing: '0.01em',
+                color: '#FFFFFF',
+                marginBottom: '1.5rem',
+                textShadow: '0 4px 32px rgba(0,0,0,0.85)',
+                marginLeft: "40px",
+              }}
+              ref={ref}
+              initial={{ filter: 'blur(20px)', opacity: 0 }}
+              animate={isInView ? { filter: 'blur(0px)', opacity: 1 } : {}}
+              transition={{ duration: 1.2 }}
+              className="text-xl sm:text-4xl font-bold tracking-tighter md:text-6xl md:leading-[4rem]"
+            >
+              Compound Risk,{' '}
+              <span style={{ display: 'block' }}>Caught Before It</span>
+              <span style={{ display: 'block' }}>Compounds.</span>
+            </motion.h1>
+          </div>
 
           {/* Subline */}
           <p
@@ -115,10 +131,11 @@ export default function HeroSection() {
               fontSize: '1.05rem',
               fontWeight: 300,
               lineHeight: 1.7,
-              color: '#FFFFFF',
+              color: '#afafafff',
               maxWidth: '440px',
               marginBottom: '2.5rem',
               textShadow: '0 2px 16px rgba(0,0,0,0.8)',
+              marginLeft: "40px",
             }}
           >
             Detect unrelated signals across sensors and systems —
@@ -127,20 +144,70 @@ export default function HeroSection() {
           </p>
 
           {/* CTA buttons */}
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <button
-              className="btn-primary"
-              style={{ fontSize: '0.8rem', color: '#0A0F0A' }}
+          <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginLeft: "40px" }}>
+            <Link
+              to="/demo"
+              style={{
+                fontFamily: "'Titillium Web', sans-serif",
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                background: '#4a6741',
+                color: '#ffffff',
+                padding: '14px 32px',
+                borderRadius: '3px',
+                clipPath: 'polygon(0 0, 92% 0, 100% 100%, 0% 100%)',
+                textDecoration: 'none',
+                transition: 'all 0.25s ease',
+                display: 'inline-flex',
+                alignItems: 'center',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = '#587a4d'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = '#4a6741'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
             >
-              See It In Action
-            </button>
-            <button
-              className="btn-ghost"
-              style={{ fontSize: '0.8rem', color: '#FFFFFF', borderColor: '#FFFFFF' }}
+              SEE IT IN ACTION
+            </Link>
+
+            <a
+              href="/simulation"
+              style={{
+                fontFamily: "'Titillium Web', sans-serif",
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                background: '#73787c',
+                color: '#ffffff',
+                padding: '14px 32px',
+                borderRadius: '3px',
+                clipPath: 'polygon(0 0, 92% 0, 100% 100%, 0% 100%)',
+                textDecoration: 'none',
+                transition: 'all 0.25s ease',
+                display: 'inline-flex',
+                alignItems: 'center',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = '#858b90'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = '#73787c'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
             >
-              How NOVA Works
-            </button>
+              ENTER LIVE SIMULATION
+            </a>
           </div>
+
 
           {/* Small stats row */}
           <div
@@ -152,6 +219,7 @@ export default function HeroSection() {
               borderTop: '1px solid rgba(255,255,255,0.25)',
               flexWrap: 'wrap',
             }}
+
           >
             {[
               { value: '1,284', label: 'Live pipeline snapshots' },
@@ -166,6 +234,7 @@ export default function HeroSection() {
                     fontWeight: 700,
                     color: '#FFFFFF',
                     textShadow: '0 2px 12px rgba(0,0,0,0.8)',
+                    marginLeft: '20px'
                   }}
                 >
                   {s.value}
@@ -191,40 +260,6 @@ export default function HeroSection() {
 
 
 
-        {/* Scroll indicator */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '2rem',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '8px',
-            zIndex: 2,
-          }}
-        >
-          <span
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.6rem',
-              letterSpacing: '0.14em',
-              color: 'rgba(255,255,255,0.75)',
-              textTransform: 'uppercase',
-            }}
-          >
-            Scroll
-          </span>
-          <div
-            style={{
-              width: 1,
-              height: 40,
-              background: 'linear-gradient(to bottom, #FFFFFF, transparent)',
-              animation: 'scan-line 1.5s ease-in-out infinite',
-            }}
-          />
-        </div>
 
         {/* Responsive: stack floating cards under hero text on narrow viewports */}
         <style>{`

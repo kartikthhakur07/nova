@@ -29,7 +29,7 @@ export default function DemoOverlays() {
     >
       <div style={{
         display: 'flex',
-        justify: 'space-between',
+        justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: '28px',
         borderBottom: '1px solid rgba(255,255,255,0.12)',
@@ -109,7 +109,7 @@ function RecentTracksContent() {
             borderRadius: '12px',
             padding: '24px 28px',
             display: 'flex',
-            justify: 'space-between',
+            justifyContent: 'space-between',
             alignItems: 'center',
             backdropFilter: 'blur(10px)',
           }}>

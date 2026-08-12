@@ -76,7 +76,7 @@ export default function EventLog() {
           >
             <div style={{
               display: 'flex',
-              justify: 'space-between',
+              justifyContent: 'space-between',
               alignItems: 'center',
               marginBottom: '4px',
             }}>
