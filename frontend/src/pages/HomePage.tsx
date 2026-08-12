@@ -1087,10 +1087,43 @@ function CTASection() {
           fontWeight: 300,
           color: 'rgba(255,255,255,0.7)',
           lineHeight: 1.55,
-          marginBottom: '0',
+          marginBottom: '32px',
         }}>
           Launch the interactive control suite to experience the 6-stage compound-risk detection lifecycle, review Qdrant vector traces, and verify automated permit control tools.
         </p>
+
+        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
+          <Link
+            to="/simulation"
+            style={{
+              fontFamily: "'Titillium Web', sans-serif",
+              fontWeight: 700,
+              fontSize: '0.8rem',
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              background: '#4a6741',
+              color: '#ffffff',
+              padding: '14px 32px',
+              borderRadius: '3px',
+              clipPath: 'polygon(0 0, 92% 0, 100% 100%, 0% 100%)',
+              textDecoration: 'none',
+              transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+              boxShadow: '0 4px 16px rgba(74,103,65,0.4)',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = '#587a4d'
+              e.currentTarget.style.transform = 'scale(1.05) translateY(-4px)'
+              e.currentTarget.style.boxShadow = '0 8px 24px rgba(74,103,65,0.6)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = '#4a6741'
+              e.currentTarget.style.transform = 'scale(1) translateY(0)'
+              e.currentTarget.style.boxShadow = '0 4px 16px rgba(74,103,65,0.4)'
+            }}
+          >
+            ENTER LIVE SIMULATION
+          </Link>
+        </div>
       </div>
     </section>
   )
