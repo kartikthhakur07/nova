@@ -67,6 +67,17 @@ class CollectionRecords(BaseModel):
     records: list[dict]
 
 
+class CriticalIncidentRequest(BaseModel):
+    case_id: str = "CASE-LIVE"
+    zone_id: str
+    sensor_type: str
+    value: float
+    unit: str
+    threshold: float
+    summary: str = ""
+
+
+
 # ── helpers ──────────────────────────────────────────────────────────────── #
 
 def _get_qdrant_client():
@@ -259,3 +270,25 @@ async def get_collection(collection_name: str, limit: int = Query(20, ge=1, le=1
     except Exception as e:
         logger.error("Collection browse error: %s", e)
         return CollectionRecords(name=collection_name, records=[])
+
+
+@router.post("/critical")
+async def store_critical_incident(req: CriticalIncidentRequest) -> dict:
+    """Store critical telemetry breach event into Qdrant memory collection."""
+    try:
+        from backend.memory.collections import MemoryStore
+        store = MemoryStore()
+        record_id = store.write_critical_incident_memory(
+            case_id=req.case_id,
+            zone_id=req.zone_id,
+            sensor_type=req.sensor_type,
+            value=req.value,
+            unit=req.unit,
+            threshold=req.threshold,
+            summary=req.summary,
+        )
+        return {"status": "success", "record_id": record_id}
+    except Exception as e:
+        logger.warning("Qdrant critical incident store failed: %s", e)
+        return {"status": "stub_saved", "record_id": f"stub-{req.zone_id}-{req.sensor_type}"}
+

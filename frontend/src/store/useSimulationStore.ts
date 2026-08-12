@@ -73,16 +73,30 @@ interface SimulationStore {
 }
 
 const INITIAL_SENSORS: SensorReading[] = [
-  { id: 's1', zone: 'Bay 1', type: 'H₂S', value: 2.1, unit: 'ppm', threshold: 10, status: 'normal', timestamp: Date.now() },
-  { id: 's2', zone: 'Bay 1', type: 'CH₄', value: 0.8, unit: '%LEL', threshold: 20, status: 'normal', timestamp: Date.now() },
-  { id: 's3', zone: 'Bay 2', type: 'Pressure', value: 14.2, unit: 'bar', threshold: 18, status: 'normal', timestamp: Date.now() },
-  { id: 's4', zone: 'Bay 2', type: 'Temp', value: 78, unit: '°C', threshold: 120, status: 'normal', timestamp: Date.now() },
-  { id: 's5', zone: 'Bay 3', type: 'H₂S', value: 3.4, unit: 'ppm', threshold: 10, status: 'normal', timestamp: Date.now() },
-  { id: 's6', zone: 'Bay 3', type: 'O₂', value: 20.8, unit: '%', threshold: 19.5, status: 'normal', timestamp: Date.now() },
-  { id: 's7', zone: 'Bay 4', type: 'CH₄', value: 1.2, unit: '%LEL', threshold: 20, status: 'normal', timestamp: Date.now() },
-  { id: 's8', zone: 'Bay 4', type: 'Vibration', value: 2.1, unit: 'mm/s', threshold: 7, status: 'normal', timestamp: Date.now() },
-  { id: 's9', zone: 'Bay 5', type: 'Temp', value: 65, unit: '°C', threshold: 120, status: 'normal', timestamp: Date.now() },
-  { id: 's10', zone: 'Bay 5', type: 'Flow', value: 340, unit: 'L/min', threshold: 500, status: 'normal', timestamp: Date.now() },
+  // Bay 1 — Distillation & Feedstock
+  { id: 's1_1', zone: 'Bay 1', type: 'H₂S', value: 2.1, unit: 'ppm', threshold: 10, status: 'normal', timestamp: Date.now() },
+  { id: 's1_2', zone: 'Bay 1', type: 'CH₄', value: 0.8, unit: '%LEL', threshold: 20, status: 'normal', timestamp: Date.now() },
+  { id: 's1_3', zone: 'Bay 1', type: 'Temp', value: 85, unit: '°C', threshold: 120, status: 'normal', timestamp: Date.now() },
+
+  // Bay 2 — Heat Exchanger Loop
+  { id: 's2_1', zone: 'Bay 2', type: 'Pressure', value: 14.2, unit: 'bar', threshold: 18, status: 'normal', timestamp: Date.now() },
+  { id: 's2_2', zone: 'Bay 2', type: 'Temp', value: 78, unit: '°C', threshold: 120, status: 'normal', timestamp: Date.now() },
+  { id: 's2_3', zone: 'Bay 2', type: 'H₂S', value: 1.5, unit: 'ppm', threshold: 10, status: 'normal', timestamp: Date.now() },
+
+  // Bay 3 — Compressor & Refining
+  { id: 's3_1', zone: 'Bay 3', type: 'H₂S', value: 3.4, unit: 'ppm', threshold: 10, status: 'normal', timestamp: Date.now() },
+  { id: 's3_2', zone: 'Bay 3', type: 'CH₄', value: 1.1, unit: '%LEL', threshold: 20, status: 'normal', timestamp: Date.now() },
+  { id: 's3_3', zone: 'Bay 3', type: 'Pressure', value: 12.8, unit: 'bar', threshold: 18, status: 'normal', timestamp: Date.now() },
+
+  // Bay 4 — Storage Spheres & Recovery
+  { id: 's4_1', zone: 'Bay 4', type: 'CH₄', value: 1.2, unit: '%LEL', threshold: 20, status: 'normal', timestamp: Date.now() },
+  { id: 's4_2', zone: 'Bay 4', type: 'Pressure', value: 15.1, unit: 'bar', threshold: 18, status: 'normal', timestamp: Date.now() },
+  { id: 's4_3', zone: 'Bay 4', type: 'Temp', value: 55, unit: '°C', threshold: 120, status: 'normal', timestamp: Date.now() },
+
+  // Bay 5 — Loading Dock & Finishing
+  { id: 's5_1', zone: 'Bay 5', type: 'Temp', value: 65, unit: '°C', threshold: 120, status: 'normal', timestamp: Date.now() },
+  { id: 's5_2', zone: 'Bay 5', type: 'Flow', value: 340, unit: 'L/min', threshold: 500, status: 'normal', timestamp: Date.now() },
+  { id: 's5_3', zone: 'Bay 5', type: 'Pressure', value: 11.4, unit: 'bar', threshold: 18, status: 'normal', timestamp: Date.now() },
 ]
 
 export const useSimulationStore = create<SimulationStore>((set, get) => ({
@@ -149,12 +163,35 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   proposedAction: null,
   setAuthorizationPending: (pending, action) => set({ authorizationPending: pending, proposedAction: action || null }),
 
+  clearBayRisk: (targetZone) => {
+    const { sensors, addEvent } = get()
+    const resetSensors = sensors.map(s => {
+      if (!targetZone || s.zone === targetZone) {
+        return {
+          ...s,
+          status: 'normal' as const,
+          value: s.type === 'H₂S' ? 2.1 : s.type === 'CH₄' ? 0.8 : s.type === 'Pressure' ? 14.2 : s.type === 'Temp' ? 65 : s.type === 'Flow' ? 340 : 2.1
+        }
+      }
+      return s
+    })
+    set({
+      sensors: resetSensors,
+      compoundRiskScore: 0.12,
+      riskLevel: 'normal',
+      evidenceOpen: false,
+      authorizationPending: false,
+      proposedAction: null
+    })
+    addEvent({ type: 'permit', message: `Permit revoked & risks cleared for ${targetZone || 'all bays'}. Telemetry returned to normal.`, risk: 'normal' })
+  },
+
   authorizeAction: () => {
-    const { addEvent, proposedAction } = get()
-    addEvent({ type: 'authorization', message: `Action authorized by supervisor: ${proposedAction}`, risk: 'normal' })
-    set({ authorizationPending: false, proposedAction: null, evidenceOpen: false, compoundRiskScore: 0.22, riskLevel: 'normal' })
+    const { addEvent, proposedAction, clearBayRisk } = get()
+    addEvent({ type: 'authorization', message: `Action authorized by supervisor: ${proposedAction || 'Isolate line & revoke permit'}`, risk: 'normal' })
+    clearBayRisk()
     import('../engine/realSystemEngine').then(m => {
-      m.novaSpeakSimulation("Authorization confirmed. Executing emergency response protocol and isolating gas manifold line.")
+      m.novaSpeakSimulation("Authorization confirmed. Emergency isolation executed and hot work permit suspended. Telemetry risk cleared.")
     })
   },
 

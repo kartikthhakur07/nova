@@ -27,12 +27,13 @@ export default function RealSystemSimulation() {
   }, [stopSimulation])
 
   useEffect(() => {
+    handleStart()
     return () => {
       stopLiveTelemetryStream()
       stopRealVoiceListener()
       novaSilence()
     }
-  }, [])
+  }, [handleStart])
 
   if (!isRunning) {
     return <SimulationLanding onStart={handleStart} />

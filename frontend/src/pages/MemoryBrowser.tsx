@@ -14,13 +14,13 @@ const FM = "'JetBrains Mono', monospace"
 
 const COLLECTIONS = [
   { id: 'incidents_historical', label: 'Historical Incidents', color: PURPLE },
-  { id: 'equipment_maintenance', label: 'Equipment Maintenance', color: '#EA580C' },
-  { id: 'regulations_india', label: 'Indian Regulations', color: '#0D9488' },
-  { id: 'lessons_learned', label: 'Lessons Learned', color: '#16A34A' },
-  { id: 'risk_thresholds', label: 'Risk Thresholds', color: '#D97706' },
-  { id: 'sensor_baselines', label: 'Sensor Baselines', color: BLUE },
-  { id: 'permit_templates', label: 'Permit Templates', color: '#DC2626' },
-  { id: 'emergency_contacts', label: 'Emergency Contacts', color: '#5A6578' },
+  { id: 'near_misses', label: 'Near Misses', color: '#EA580C' },
+  { id: 'risk_patterns', label: 'Risk Patterns', color: '#D97706' },
+  { id: 'safety_procedures', label: 'Safety Procedures', color: '#0D9488' },
+  { id: 'maintenance_history', label: 'Maintenance History', color: BLUE },
+  { id: 'equipment_registry', label: 'Equipment Registry', color: '#16A34A' },
+  { id: 'lessons_learned', label: 'Lessons Learned', color: '#DC2626' },
+  { id: 'active_case_memory', label: 'Active Case Memory', color: '#5A6578' },
 ]
 
 export default function MemoryBrowser() {

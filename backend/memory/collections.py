@@ -254,3 +254,52 @@ class MemoryStore:
         self.client.upsert_points(collection_name="active_case_memory", points=[point])
         return record_id
 
+    def write_critical_incident_memory(
+        self,
+        case_id: str,
+        zone_id: str,
+        sensor_type: str,
+        value: float,
+        unit: str,
+        threshold: float,
+        summary: str = "",
+    ) -> str:
+        """Embed critical anomaly event details and push into Qdrant incidents_historical collection.
+
+        This teaches the AI agent by creating a searchable historical precedent for future RAG queries.
+        """
+        record_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"critical:{case_id}:{zone_id}:{sensor_type}:{value}"))
+        created_at = datetime.now(timezone.utc).isoformat()
+
+        description = (
+            f"Critical anomaly breach in {zone_id}: {sensor_type} reached {value} {unit} "
+            f"(threshold {threshold} {unit}). {summary}"
+        )
+
+        payload = {
+            "record_id": record_id,
+            "incident_id": case_id,
+            "title": f"Critical {sensor_type} breach in {zone_id}",
+            "zone_id": zone_id,
+            "sensor_type": sensor_type,
+            "value": value,
+            "unit": unit,
+            "threshold": threshold,
+            "contributing_factors": [f"{sensor_type}_elevation", f"zone_{zone_id.lower()}"],
+            "description": description,
+            "created_at": created_at,
+            "date": created_at,
+        }
+
+        vector = embed_text(description)
+        point = PointStruct(
+            id=record_id,
+            vector=vector,
+            payload=payload,
+        )
+
+        self.client.upsert_points(collection_name="incidents_historical", points=[point])
+        logger.info("Upserted critical incident memory record '%s' into Qdrant vector store.", record_id)
+        return record_id
+
+
