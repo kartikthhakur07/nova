@@ -146,12 +146,12 @@ export default function HeroSection() {
           {/* CTA buttons */}
           <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginLeft: "40px" }}>
             <Link
-              to="/demo"
+              to="/simulation"
               style={{
                 fontFamily: "'Titillium Web', sans-serif",
                 fontWeight: 700,
                 fontSize: '0.8rem',
-                letterSpacing: '0.1em',
+                letterSpacing: '0.12em',
                 textTransform: 'uppercase',
                 background: '#4a6741',
                 color: '#ffffff',
@@ -159,98 +159,80 @@ export default function HeroSection() {
                 borderRadius: '3px',
                 clipPath: 'polygon(0 0, 92% 0, 100% 100%, 0% 100%)',
                 textDecoration: 'none',
-                transition: 'all 0.25s ease',
+                transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
                 display: 'inline-flex',
                 alignItems: 'center',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+                boxShadow: '0 4px 16px rgba(74,103,65,0.4)',
               }}
               onMouseEnter={e => {
                 e.currentTarget.style.background = '#587a4d'
-                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.transform = 'scale(1.05) translateY(-4px)'
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(74,103,65,0.6)'
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.background = '#4a6741'
-                e.currentTarget.style.transform = 'translateY(0)'
-              }}
-            >
-              SEE IT IN ACTION
-            </Link>
-
-            <a
-              href="/simulation"
-              style={{
-                fontFamily: "'Titillium Web', sans-serif",
-                fontWeight: 700,
-                fontSize: '0.8rem',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                background: '#73787c',
-                color: '#ffffff',
-                padding: '14px 32px',
-                borderRadius: '3px',
-                clipPath: 'polygon(0 0, 92% 0, 100% 100%, 0% 100%)',
-                textDecoration: 'none',
-                transition: 'all 0.25s ease',
-                display: 'inline-flex',
-                alignItems: 'center',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = '#858b90'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = '#73787c'
-                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.transform = 'scale(1) translateY(0)'
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(74,103,65,0.4)'
               }}
             >
               ENTER LIVE SIMULATION
-            </a>
+            </Link>
           </div>
 
 
-          {/* Small stats row */}
+          {/* Small stats row using Golden Ratio split */}
           <div
             style={{
               display: 'flex',
-              gap: '2.5rem',
+              flexDirection: 'column',
+              gap: '1rem',
               marginTop: '3rem',
               paddingTop: '2rem',
               borderTop: '1px solid rgba(255,255,255,0.25)',
-              flexWrap: 'wrap',
+              maxWidth: '440px',
+              marginLeft: '40px',
             }}
-
           >
             {[
               { value: '1,284', label: 'Live pipeline snapshots' },
               { value: '1.8s', label: 'Avg. first-audio latency' },
               { value: '54', label: 'Cases resolved today' },
             ].map((s) => (
-              <div key={s.label}>
+              <div
+                key={s.label}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '8px 0',
+                  borderBottom: '1px solid rgba(255,255,255,0.05)',
+                }}
+              >
                 <div
                   style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '1.6rem',
-                    fontWeight: 700,
-                    color: '#FFFFFF',
-                    textShadow: '0 2px 12px rgba(0,0,0,0.8)',
-                    marginLeft: '20px'
-                  }}
-                >
-                  {s.value}
-                </div>
-                <div
-                  style={{
+                    width: '61.8%',
                     fontFamily: 'var(--font-body)',
-                    fontSize: '0.65rem',
-                    fontWeight: 300,
+                    fontSize: '0.75rem',
+                    fontWeight: 400,
                     letterSpacing: '0.08em',
                     textTransform: 'uppercase',
-                    color: 'rgba(255,255,255,0.75)',
-                    marginTop: '4px',
+                    color: 'rgba(255,255,255,0.7)',
                   }}
                 >
                   {s.label}
+                </div>
+                <div
+                  style={{
+                    width: '38.2%',
+                    textAlign: 'right',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '1.5rem',
+                    fontWeight: 700,
+                    color: '#c8f542',
+                    textShadow: '0 0 10px rgba(200,245,66,0.3)',
+                  }}
+                >
+                  {s.value}
                 </div>
               </div>
             ))}
