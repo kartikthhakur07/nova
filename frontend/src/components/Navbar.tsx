@@ -30,7 +30,7 @@ export default function Navbar() {
     >
       <div className="container flex items-center h-16 gap-8" style={{ marginBottom: '8px' }}>
         <a href="/" className="flex items-center gap-2 no-underline shrink-0">
-          <img src={LOGO} alt="Logo" className='w-50 h-20 mt-10 ml-10' />
+          <img src={LOGO} alt="Logo" className='w-20 h-20 mt-10 ml-10' />
         </a>
 
         <div className="hidden md:flex items-center gap-8 ml-auto">

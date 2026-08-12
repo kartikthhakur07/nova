@@ -20,6 +20,14 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+import sys
+from pathlib import Path
+
+# Ensure repository root is on sys.path regardless of execution directory
+_repo_root = str(Path(__file__).resolve().parent.parent)
+if _repo_root not in sys.path:
+    sys.path.insert(0, _repo_root)
+
 load_dotenv()  # noqa: E402 — must run before any os.environ reads
 
 from backend.api import routes_cases, routes_demo, routes_memory, routes_retrieval, routes_risk, routes_voice, routes_voice_command

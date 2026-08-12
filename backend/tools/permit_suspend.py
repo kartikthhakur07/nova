@@ -44,7 +44,7 @@ async def handle(
         with get_connection() as conn:
             _execute_update(conn)
 
-    return {\"permit_id\": permit_id, \"new_status\": \"suspended\"}
+    return {"permit_id": permit_id, "new_status": "suspended"}
 
 
 async def suspend_permit(case_id: str, reason: str = "") -> dict:
