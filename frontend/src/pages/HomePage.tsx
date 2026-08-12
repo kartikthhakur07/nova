@@ -262,12 +262,12 @@ function HeroBlock() {
 
           <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
             <Link
-              to="/demo"
+              to="/simulation"
               style={{
                 fontFamily: "'Titillium Web', sans-serif",
                 fontWeight: 700,
                 fontSize: '0.8rem',
-                letterSpacing: '0.1em',
+                letterSpacing: '0.12em',
                 textTransform: 'uppercase',
                 background: '#4a6741',
                 color: '#ffffff',
@@ -275,53 +275,24 @@ function HeroBlock() {
                 borderRadius: '3px',
                 clipPath: 'polygon(0 0, 92% 0, 100% 100%, 0% 100%)',
                 textDecoration: 'none',
-                transition: 'all 0.25s ease',
+                transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
                 display: 'inline-flex',
                 alignItems: 'center',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+                boxShadow: '0 4px 16px rgba(74,103,65,0.4)',
               }}
               onMouseEnter={e => {
                 e.currentTarget.style.background = '#587a4d'
-                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.transform = 'scale(1.05) translateY(-4px)'
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(74,103,65,0.6)'
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.background = '#4a6741'
-                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.transform = 'scale(1) translateY(0)'
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(74,103,65,0.4)'
               }}
             >
-              SEE IT IN ACTION
+              ENTER LIVE SIMULATION
             </Link>
-
-            <a
-              href="#approach"
-              style={{
-                fontFamily: "'Titillium Web', sans-serif",
-                fontWeight: 700,
-                fontSize: '0.8rem',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                background: '#73787c',
-                color: '#ffffff',
-                padding: '14px 32px',
-                borderRadius: '3px',
-                clipPath: 'polygon(0 0, 92% 0, 100% 100%, 0% 100%)',
-                textDecoration: 'none',
-                transition: 'all 0.25s ease',
-                display: 'inline-flex',
-                alignItems: 'center',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = '#858b90'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = '#73787c'
-                e.currentTarget.style.transform = 'translateY(0)'
-              }}
-            >
-              HOW NOVA WORKS
-            </a>
           </div>
         </div>
       </div>
@@ -1151,33 +1122,7 @@ function CTASection() {
             SEE IT IN ACTION
           </Link>
 
-          <Link
-            to="/simulation"
-            style={{
-              fontFamily: "'Titillium Web', sans-serif",
-              fontWeight: 700,
-              fontSize: '0.8rem',
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              background: '#73787c',
-              color: '#ffffff',
-              padding: '14px 32px',
-              borderRadius: '3px',
-              clipPath: 'polygon(0 0, 92% 0, 100% 100%, 0% 100%)',
-              textDecoration: 'none',
-              transition: 'all 0.25s ease',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = '#858b90'
-              e.currentTarget.style.transform = 'translateY(-2px)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = '#73787c'
-              e.currentTarget.style.transform = 'translateY(0)'
-            }}
-          >
-            ENTER LIVE SIMULATION
-          </Link>
+
         </div>
       </div>
     </section>
