@@ -61,10 +61,10 @@ function CaseLayout() {
 }
 
 const router = createBrowserRouter([
-  // ── Primary Live System Simulation Route ──
+  // ── Primary Landing Page Route ──
   {
     path: '/',
-    element: <RealSystemSimulation />,
+    element: <HomePage />,
   },
   {
     path: '/demo',

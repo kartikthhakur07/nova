@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion';
 import * as React from 'react';
 
+import heroHandsImg from '../assets/hero-hands.png'
+
 export default function HeroSection() {
   const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true });
@@ -21,7 +23,7 @@ export default function HeroSection() {
     >
       {/* Full-bleed background image */}
       <img
-        src="/assets/hero-hands.png"
+        src={heroHandsImg}
         alt="Robot and human hands reaching — VIGIL AI-human collaboration"
         style={{
           position: 'absolute',
