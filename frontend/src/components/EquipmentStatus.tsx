@@ -6,10 +6,10 @@ import React, { useEffect, useState } from 'react'
 import { getEquipmentStatus } from '../services/api'
 import { AlertTriangle, CheckCircle, Clock, Wifi, WifiOff, Zap } from 'lucide-react'
 
-const P = '#0F1729', S = '#5A6578', M = '#9CA3B4', BD = '#E4E8EF'
+const P = '#0E0D1F', S = '#62636A', M = '#8E9096', BD = '#C8C9C6'
 const CARD = '#FFFFFF'
-const GREEN = '#16A34A', AMBER = '#D97706', ORANGE = '#EA580C', RED = '#DC2626'
-const BLUE = '#2563EB'
+const GREEN = '#72856C', AMBER = '#D98A3A', ORANGE = '#D98A3A', RED = '#C84B42'
+const BLUE = '#0D9488'
 
 type Equipment = {
   equipment_id: string

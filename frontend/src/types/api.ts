@@ -108,6 +108,7 @@ export interface VoiceStatus {
 export interface CollectionRecords {
   name: string
   records: Record<string, unknown>[]
+  total?: number
 }
 
 // ── Demo ─────────────────────────────────────────────────────────────────── //
@@ -171,6 +172,16 @@ export type WsEnvelope =
   | {
       type: 'ui.focus_zone'
       payload: { zone_id: string }
+      ts: string
+    }
+  | {
+      type: 'ui.focus_permit'
+      payload: { permit_id: string }
+      ts: string
+    }
+  | {
+      type: 'permit.updated'
+      payload: any
       ts: string
     }
   | {

@@ -15,7 +15,7 @@ export default function ShiftBriefingOverlay({ onAcknowledge, onReplayVoice }: S
         position: 'fixed',
         inset: 0,
         zIndex: 9999,
-        background: 'rgba(5,9,5,0.92)',
+        background: 'rgba(247,246,242,0.92)',
         backdropFilter: 'blur(16px)',
         display: 'flex',
         flexDirection: 'column',
@@ -27,24 +27,25 @@ export default function ShiftBriefingOverlay({ onAcknowledge, onReplayVoice }: S
           width: 60,
           height: 60,
           borderRadius: '50%',
-          border: '3px solid rgba(132,255,0,0.15)',
-          borderTopColor: '#84ff00',
+          border: '3px solid rgba(13,148,136,0.15)',
+          borderTopColor: '#0D9488',
           animation: 'spin 1s linear infinite',
-          boxShadow: '0 0 30px rgba(132,255,0,0.3)',
+          boxShadow: '0 0 30px rgba(13,148,136,0.2)',
         }} />
         <div style={{
           fontFamily: "'JetBrains Mono', monospace",
           fontSize: '0.85rem',
-          color: '#84ff00',
+          color: '#0D9488',
           letterSpacing: '0.15em',
           textTransform: 'uppercase',
+          fontWeight: 700,
         }}>
           Generating Groq LLM Shift Handover Briefing...
         </div>
         <div style={{
           fontFamily: "'Titillium Web', sans-serif",
           fontSize: '0.75rem',
-          color: 'rgba(255,255,255,0.5)',
+          color: '#62636A',
         }}>
           Analyzing 142 continuous telemetry sensors & active permits across 5 bays
         </div>
@@ -65,8 +66,8 @@ export default function ShiftBriefingOverlay({ onAcknowledge, onReplayVoice }: S
       position: 'fixed',
       inset: 0,
       zIndex: 9999,
-      background: 'rgba(4,8,4,0.94)',
-      backdropFilter: 'blur(20px)',
+      background: 'rgba(14,13,31,0.4)',
+      backdropFilter: 'blur(16px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -77,7 +78,7 @@ export default function ShiftBriefingOverlay({ onAcknowledge, onReplayVoice }: S
       <div style={{
         position: 'absolute',
         inset: 0,
-        backgroundImage: 'linear-gradient(rgba(132,255,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(132,255,0,0.03) 1px, transparent 1px)',
+        backgroundImage: 'linear-gradient(rgba(200,201,198,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(200,201,198,0.2) 1px, transparent 1px)',
         backgroundSize: '40px 40px',
         pointerEvents: 'none',
       }} />
@@ -86,20 +87,20 @@ export default function ShiftBriefingOverlay({ onAcknowledge, onReplayVoice }: S
       <div style={{
         width: '100%',
         maxWidth: '720px',
-        background: 'rgba(10,16,10,0.96)',
-        border: '1px solid rgba(132,255,0,0.35)',
+        background: '#FFFFFF',
+        border: '1px solid #C8C9C6',
         borderRadius: '16px',
-        boxShadow: '0 0 60px rgba(132,255,0,0.15), 0 20px 50px rgba(0,0,0,0.8)',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.1)',
         padding: '36px',
         position: 'relative',
         zIndex: 2,
         overflow: 'hidden',
       }}>
-        {/* Neon corner accents */}
-        <div style={{ position: 'absolute', top: 0, left: 0, width: 24, height: 24, borderTop: '2px solid #84ff00', borderLeft: '2px solid #84ff00' }} />
-        <div style={{ position: 'absolute', top: 0, right: 0, width: 24, height: 24, borderTop: '2px solid #84ff00', borderRight: '2px solid #84ff00' }} />
-        <div style={{ position: 'absolute', bottom: 0, left: 0, width: 24, height: 24, borderBottom: '2px solid #84ff00', borderLeft: '2px solid #84ff00' }} />
-        <div style={{ position: 'absolute', bottom: 0, right: 0, width: 24, height: 24, borderBottom: '2px solid #84ff00', borderRight: '2px solid #84ff00' }} />
+        {/* Corner accents */}
+        <div style={{ position: 'absolute', top: 0, left: 0, width: 24, height: 24, borderTop: '2px solid #0D9488', borderLeft: '2px solid #0D9488' }} />
+        <div style={{ position: 'absolute', top: 0, right: 0, width: 24, height: 24, borderTop: '2px solid #0D9488', borderRight: '2px solid #0D9488' }} />
+        <div style={{ position: 'absolute', bottom: 0, left: 0, width: 24, height: 24, borderBottom: '2px solid #0D9488', borderLeft: '2px solid #0D9488' }} />
+        <div style={{ position: 'absolute', bottom: 0, right: 0, width: 24, height: 24, borderBottom: '2px solid #0D9488', borderRight: '2px solid #0D9488' }} />
 
         {/* Top Header Badge */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
@@ -108,14 +109,14 @@ export default function ShiftBriefingOverlay({ onAcknowledge, onReplayVoice }: S
               width: 12,
               height: 12,
               borderRadius: '50%',
-              background: '#84ff00',
-              boxShadow: '0 0 12px #84ff00',
+              background: '#0D9488',
+              boxShadow: '0 0 12px #0D9488',
               animation: 'pulse-glow 2s infinite',
             }} />
             <div style={{
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: '0.65rem',
-              color: '#84ff00',
+              color: '#0D9488',
               letterSpacing: '0.2em',
               fontWeight: 700,
               textTransform: 'uppercase',
@@ -127,15 +128,16 @@ export default function ShiftBriefingOverlay({ onAcknowledge, onReplayVoice }: S
           <div style={{
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: '0.55rem',
-            color: '#84ff00',
-            background: 'rgba(132,255,0,0.1)',
-            border: '1px solid rgba(132,255,0,0.3)',
+            color: '#D98A3A',
+            background: '#F3DFC0',
+            border: '1px solid #D98A3A',
             padding: '4px 10px',
             borderRadius: '4px',
             letterSpacing: '0.1em',
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
+            fontWeight: 600,
           }}>
             <span style={{ fontSize: '0.7rem' }}>⚡</span> ORCHESTRATED VIA GROQ LLM
           </div>
@@ -145,7 +147,7 @@ export default function ShiftBriefingOverlay({ onAcknowledge, onReplayVoice }: S
         <h2 style={{
           fontFamily: "'Bebas Neue', sans-serif",
           fontSize: '2.4rem',
-          color: '#ffffff',
+          color: '#0E0D1F',
           letterSpacing: '0.08em',
           margin: '0 0 12px 0',
           lineHeight: 1.0,
@@ -155,14 +157,14 @@ export default function ShiftBriefingOverlay({ onAcknowledge, onReplayVoice }: S
 
         {/* Summary Card */}
         <div style={{
-          background: 'rgba(132,255,0,0.04)',
-          border: '1px solid rgba(132,255,0,0.15)',
+          background: '#F7F6F2',
+          border: '1px solid #C8C9C6',
           borderRadius: '10px',
           padding: '16px 20px',
           marginBottom: '24px',
           fontFamily: "'Titillium Web', sans-serif",
           fontSize: '0.95rem',
-          color: 'rgba(255,255,255,0.85)',
+          color: '#0E0D1F',
           lineHeight: 1.6,
         }}>
           {briefingData.summary}
@@ -173,10 +175,11 @@ export default function ShiftBriefingOverlay({ onAcknowledge, onReplayVoice }: S
           <div style={{
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: '0.6rem',
-            color: 'rgba(132,255,0,0.7)',
+            color: '#62636A',
             letterSpacing: '0.15em',
             textTransform: 'uppercase',
             marginBottom: '12px',
+            fontWeight: 600,
           }}>
             Key Plant Highlights While Away:
           </div>
@@ -188,19 +191,19 @@ export default function ShiftBriefingOverlay({ onAcknowledge, onReplayVoice }: S
           }}>
             {briefingData.highlights.map((h, i) => (
               <div key={i} style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(255,255,255,0.08)',
+                background: '#F7F6F2',
+                border: '1px solid #E9E9E5',
                 borderRadius: '8px',
                 padding: '12px 14px',
                 display: 'flex',
                 alignItems: 'flex-start',
                 gap: '10px',
               }}>
-                <span style={{ color: '#84ff00', fontSize: '0.85rem' }}>✓</span>
+                <span style={{ color: '#0D9488', fontSize: '0.85rem', fontWeight: 'bold' }}>✓</span>
                 <span style={{
                   fontFamily: "'Titillium Web', sans-serif",
                   fontSize: '0.8rem',
-                  color: 'rgba(255,255,255,0.8)',
+                  color: '#0E0D1F',
                   lineHeight: 1.4,
                 }}>
                   {h}
@@ -216,7 +219,7 @@ export default function ShiftBriefingOverlay({ onAcknowledge, onReplayVoice }: S
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingTop: '20px',
-          borderTop: '1px solid rgba(255,255,255,0.1)',
+          borderTop: '1px solid #C8C9C6',
         }}>
           {/* Speaking Indicator */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -229,7 +232,7 @@ export default function ShiftBriefingOverlay({ onAcknowledge, onReplayVoice }: S
               {[0, 1, 2, 3, 4].map(i => (
                 <div key={i} style={{
                   width: 3,
-                  background: novaState === 'speaking' ? '#3b82f6' : '#84ff00',
+                  background: novaState === 'speaking' ? '#2563EB' : '#0D9488',
                   borderRadius: 2,
                   animation: novaState === 'speaking'
                     ? `wave-bar ${0.5 + i * 0.1}s ease-in-out infinite alternate`
@@ -241,8 +244,9 @@ export default function ShiftBriefingOverlay({ onAcknowledge, onReplayVoice }: S
             <span style={{
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: '0.65rem',
-              color: novaState === 'speaking' ? '#60a5fa' : 'rgba(132,255,0,0.8)',
+              color: novaState === 'speaking' ? '#2563EB' : '#0D9488',
               letterSpacing: '0.1em',
+              fontWeight: 600,
             }}>
               {novaState === 'speaking' ? 'NOVA SPEAKING BRIEFING...' : 'VOICE BRIEFING COMPLETED'}
             </span>
@@ -256,16 +260,16 @@ export default function ShiftBriefingOverlay({ onAcknowledge, onReplayVoice }: S
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: '0.65rem',
                 letterSpacing: '0.08em',
-                color: 'rgba(255,255,255,0.7)',
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.15)',
+                color: '#0E0D1F',
+                background: '#F7F6F2',
+                border: '1px solid #C8C9C6',
                 padding: '10px 16px',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
               }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+              onMouseEnter={e => e.currentTarget.style.background = '#E9E9E5'}
+              onMouseLeave={e => e.currentTarget.style.background = '#F7F6F2'}
             >
               🔊 Replay Voice
             </button>
@@ -278,22 +282,22 @@ export default function ShiftBriefingOverlay({ onAcknowledge, onReplayVoice }: S
                 fontSize: '0.85rem',
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
-                background: '#84ff00',
-                color: '#080c08',
+                background: '#0D9488',
+                color: '#FFFFFF',
                 border: 'none',
                 padding: '12px 28px',
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                boxShadow: '0 0 25px rgba(132,255,0,0.3)',
+                boxShadow: '0 4px 14px rgba(13,148,136,0.3)',
               }}
               onMouseEnter={e => {
                 e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 6px 30px rgba(132,255,0,0.5)'
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(13,148,136,0.4)'
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 0 25px rgba(132,255,0,0.3)'
+                e.currentTarget.style.boxShadow = '0 4px 14px rgba(13,148,136,0.3)'
               }}
             >
               ACKNOWLEDGE & START LIVE PIPELINE →

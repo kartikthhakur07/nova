@@ -4,9 +4,9 @@ import { Link } from 'react-router-dom'
 /* ═══════════════════════════════════════════════════════════════════════════
    NOVA MISSION CONTROL — Premium Light Theme
    ═══════════════════════════════════════════════════════════════════════════ */
-const P = '#0F1729', S = '#5A6578', M = '#9CA3B4', BG = '#F8F9FB'
-const CARD = '#FFFFFF', CARD2 = '#F1F3F7', BD = '#E4E8EF'
-const GREEN = '#16A34A', AMBER = '#D97706', ORANGE = '#EA580C', RED = '#DC2626'
+const P = '#0E0D1F', S = '#62636A', M = '#8E9096', BG = '#F7F6F2'
+const CARD = '#FFFFFF', CARD2 = '#E9E9E5', BD = '#C8C9C6'
+const GREEN = '#72856C', AMBER = '#D98A3A', ORANGE = '#D98A3A', RED = '#C84B42'
 const TEAL = '#0D9488', PURPLE = '#7C3AED', BLUE = '#2563EB'
 const FD = "'Plus Jakarta Sans', sans-serif"
 const FM = "'JetBrains Mono', monospace"

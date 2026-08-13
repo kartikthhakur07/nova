@@ -17,8 +17,7 @@ export default function DemoOverlays() {
         left: 0,
         width: '100vw',
         height: '100vh',
-        background: 'rgba(6,10,6,0.97)',
-        backdropFilter: 'blur(24px)',
+        background: '#F7F6F2',
         zIndex: 200,
         display: 'flex',
         flexDirection: 'column',
@@ -32,7 +31,7 @@ export default function DemoOverlays() {
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: '28px',
-        borderBottom: '1px solid rgba(255,255,255,0.12)',
+        borderBottom: '1px solid #C8C9C6',
         paddingBottom: '18px',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -40,9 +39,9 @@ export default function DemoOverlays() {
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: '0.7rem',
             letterSpacing: '0.16em',
-            color: '#84ff00',
-            background: 'rgba(132,255,0,0.12)',
-            border: '1px solid rgba(132,255,0,0.4)',
+            color: '#D98A3A',
+            background: '#F3DFC0',
+            border: '1px solid #D98A3A',
             padding: '6px 16px',
             borderRadius: '4px',
             textTransform: 'uppercase',
@@ -59,13 +58,13 @@ export default function DemoOverlays() {
             fontWeight: 700,
             fontSize: '0.85rem',
             letterSpacing: '0.08em',
-            color: '#1a1a1a',
-            background: '#84ff00',
+            color: '#FFFFFF',
+            background: '#0D9488',
             border: 'none',
             padding: '10px 24px',
             borderRadius: '6px',
             cursor: 'pointer',
-            boxShadow: '0 0 20px rgba(132,255,0,0.3)',
+            boxShadow: '0 4px 12px rgba(13,148,136,0.3)',
             transition: 'all 0.2s ease',
           }}
           onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.04)'}
@@ -94,39 +93,39 @@ function RecentTracksContent() {
 
   return (
     <div style={{ animation: 'fade-up 0.4s ease both' }}>
-      <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.8rem', color: '#fff', marginBottom: '8px', letterSpacing: '0.04em' }}>
+      <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.8rem', color: '#0E0D1F', marginBottom: '8px', letterSpacing: '0.04em' }}>
         Recent Retrieval Tracks (Qdrant Memory)
       </h2>
-      <p style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '1rem', color: 'rgba(255,255,255,0.6)', marginBottom: '32px', fontWeight: 300 }}>
+      <p style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '1rem', color: '#62636A', marginBottom: '32px', fontWeight: 400 }}>
         Full-screen vector retrieval trace logs matching active plant telemetry against 9,200+ historical incident records.
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {tracks.map(t => (
           <div key={t.id} style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(132,255,0,0.25)',
+            background: '#FFFFFF',
+            border: '1px solid #C8C9C6',
             borderRadius: '12px',
             padding: '24px 28px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            backdropFilter: 'blur(10px)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
           }}>
             <div style={{ width: '61.8%' }}>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '6px' }}>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.8rem', color: '#84ff00', fontWeight: 700 }}>{t.id}</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)' }}>{t.ts}</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', color: '#fbbf24', background: 'rgba(251,191,36,0.12)', padding: '2px 8px', borderRadius: '4px' }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.8rem', color: '#72856C', fontWeight: 700 }}>{t.id}</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', color: '#62636A' }}>{t.ts}</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.65rem', color: '#D98A3A', background: '#F3DFC0', padding: '2px 8px', borderRadius: '4px' }}>
                   {t.case}
                 </span>
               </div>
-              <div style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '1.1rem', color: '#fff', fontWeight: 600, marginBottom: '4px' }}>{t.vector}</div>
-              <div style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)' }}>{t.details}</div>
+              <div style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '1.1rem', color: '#0E0D1F', fontWeight: 600, marginBottom: '4px' }}>{t.vector}</div>
+              <div style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '0.85rem', color: '#62636A' }}>{t.details}</div>
             </div>
             <div style={{ width: '38.2%', textAlign: 'right' }}>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em' }}>SIMILARITY SCORE</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '2.2rem', fontWeight: 700, color: '#84ff00' }}>{t.score.toFixed(2)}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.6rem', color: '#62636A', letterSpacing: '0.1em' }}>SIMILARITY SCORE</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '2.2rem', fontWeight: 700, color: '#72856C' }}>{t.score.toFixed(2)}</div>
             </div>
           </div>
         ))}
@@ -147,28 +146,28 @@ function AuditTrailContent() {
 
   return (
     <div style={{ animation: 'fade-up 0.4s ease both' }}>
-      <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.8rem', color: '#fff', marginBottom: '8px', letterSpacing: '0.04em' }}>
+      <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.8rem', color: '#0E0D1F', marginBottom: '8px', letterSpacing: '0.04em' }}>
         Immutable Audit Trail Log
       </h2>
-      <p style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '1rem', color: 'rgba(255,255,255,0.6)', marginBottom: '32px', fontWeight: 300 }}>
+      <p style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '1rem', color: '#62636A', marginBottom: '32px', fontWeight: 400 }}>
         Cryptographically sealed audit log recording every sensor reading, risk score, voice prompt, and human decision.
       </p>
 
-      <div style={{ border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', overflow: 'hidden', background: 'rgba(255,255,255,0.02)' }}>
+      <div style={{ border: '1px solid #C8C9C6', borderRadius: '12px', overflow: 'hidden', background: '#FFFFFF' }}>
         {entries.map((e, i) => (
           <div key={i} style={{
             padding: '18px 24px',
-            borderBottom: i < entries.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+            borderBottom: i < entries.length - 1 ? '1px solid #E9E9E5' : 'none',
             display: 'flex',
             gap: '20px',
             alignItems: 'center',
-            background: i % 2 === 0 ? 'rgba(255,255,255,0.015)' : 'transparent',
+            background: i % 2 === 0 ? '#F7F6F2' : '#FFFFFF',
           }}>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', width: '80px' }}>{e.ts}</span>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.55rem', color: '#84ff00', background: 'rgba(132,255,0,0.12)', border: '1px solid rgba(132,255,0,0.3)', padding: '3px 10px', borderRadius: '4px', width: '95px', textAlign: 'center', fontWeight: 700 }}>{e.type}</span>
-            <span style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '0.95rem', color: '#fff', flex: 1, fontWeight: 400 }}>{e.event}</span>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.6rem', color: 'rgba(255,255,255,0.4)' }}>{e.actor}</span>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.55rem', color: '#fbbf24', opacity: 0.6 }}>{e.hash}</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.7rem', color: '#62636A', width: '80px' }}>{e.ts}</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.55rem', color: '#72856C', background: 'rgba(114,133,108,0.1)', border: '1px solid rgba(114,133,108,0.3)', padding: '3px 10px', borderRadius: '4px', width: '95px', textAlign: 'center', fontWeight: 700 }}>{e.type}</span>
+            <span style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '0.95rem', color: '#0E0D1F', flex: 1, fontWeight: 400 }}>{e.event}</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.6rem', color: '#62636A' }}>{e.actor}</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.55rem', color: '#D98A3A', opacity: 0.8 }}>{e.hash}</span>
           </div>
         ))}
       </div>
@@ -183,10 +182,10 @@ function SignalsContent() {
 
   return (
     <div style={{ animation: 'fade-up 0.4s ease both' }}>
-      <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.8rem', color: '#fff', marginBottom: '8px', letterSpacing: '0.04em' }}>
+      <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2.8rem', color: '#0E0D1F', marginBottom: '8px', letterSpacing: '0.04em' }}>
         Converging Telemetry Signals
       </h2>
-      <p style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '1rem', color: 'rgba(255,255,255,0.6)', marginBottom: '32px', fontWeight: 300 }}>
+      <p style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '1rem', color: '#62636A', marginBottom: '32px', fontWeight: 400 }}>
         Full-screen multi-system correlation view evaluating gas sensors, SCADA pressure, thermal imaging, and active permits.
       </p>
 
@@ -194,22 +193,22 @@ function SignalsContent() {
         {sensors.map((s: any, i: number) => {
           const isCrit = s.status === 'critical'
           const isWarn = s.status === 'warning'
-          const col = isCrit ? '#ff4444' : isWarn ? '#fbbf24' : '#84ff00'
+          const col = isCrit ? '#C84B42' : isWarn ? '#D98A3A' : '#72856C'
 
           return (
             <div key={i} style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: `1px solid ${col}40`,
+              background: '#FFFFFF',
+              border: `1px solid ${col}60`,
               borderRadius: '12px',
               padding: '22px 26px',
-              backdropFilter: 'blur(10px)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.75rem', color: col, fontWeight: 700 }}>{s.zone} · {s.type}</span>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.6rem', color: col, background: `${col}15`, border: `1px solid ${col}30`, padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>{s.status.toUpperCase()}</span>
               </div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '2rem', color: '#fff', fontWeight: 700, marginBottom: '4px' }}>{s.value} {s.unit}</div>
-              <div style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>Threshold limit: {s.threshold} {s.unit}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '2rem', color: '#0E0D1F', fontWeight: 700, marginBottom: '4px' }}>{s.value} {s.unit}</div>
+              <div style={{ fontFamily: "'Titillium Web', sans-serif", fontSize: '0.8rem', color: '#62636A' }}>Threshold limit: {s.threshold} {s.unit}</div>
             </div>
           )
         })}

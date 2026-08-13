@@ -8,10 +8,10 @@ export default function NovaPresenceIndicator() {
   const { novaState, novaCaption } = store as any
 
   const stateColors: Record<string, string> = {
-    speaking: '#3b82f6',
-    processing: '#fbbf24',
-    listening: '#84ff00',
-    idle: 'rgba(132,255,0,0.4)',
+    speaking: '#2563EB',
+    processing: '#D98A3A',
+    listening: '#0D9488',
+    idle: '#62636A',
   }
 
   const stateLabels: Record<string, string> = {
@@ -21,7 +21,7 @@ export default function NovaPresenceIndicator() {
     idle: 'NOVA · IDLE',
   }
 
-  const dotColor = stateColors[novaState] || '#84ff00'
+  const dotColor = stateColors[novaState] || '#0D9488'
   const isInterim = novaCaption?.startsWith('🎙')
 
   return (
@@ -39,17 +39,16 @@ export default function NovaPresenceIndicator() {
       {/* Caption / transcript bubble */}
       {novaCaption && (
         <div style={{
-          background: isInterim ? 'rgba(8,12,8,0.88)' : 'rgba(8,12,8,0.95)',
-          border: `1px solid ${isInterim ? 'rgba(132,255,0,0.2)' : 'rgba(132,255,0,0.4)'}`,
+          background: '#FFFFFF',
+          border: `1px solid ${isInterim ? '#C8C9C6' : '#0D9488'}`,
           borderRadius: '10px',
           padding: '14px 20px',
           maxWidth: '440px',
-          color: isInterim ? 'rgba(255,255,255,0.6)' : '#ffffff',
+          color: isInterim ? '#62636A' : '#0E0D1F',
           fontFamily: "'Titillium Web', sans-serif",
           fontSize: isInterim ? '0.8rem' : '0.9rem',
           lineHeight: 1.5,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
-          backdropFilter: 'blur(16px)',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
           animation: 'fade-up 0.3s ease both',
           transition: 'all 0.2s ease',
           fontStyle: isInterim ? 'italic' : 'normal',
@@ -57,7 +56,7 @@ export default function NovaPresenceIndicator() {
           <div style={{
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: '0.55rem',
-            color: isInterim ? 'rgba(132,255,0,0.5)' : '#84ff00',
+            color: isInterim ? '#62636A' : '#0D9488',
             letterSpacing: '0.12em',
             marginBottom: '6px',
             fontWeight: 700,
@@ -73,12 +72,11 @@ export default function NovaPresenceIndicator() {
         display: 'flex',
         alignItems: 'center',
         gap: '10px',
-        background: 'rgba(8,12,8,0.9)',
-        border: `1px solid ${novaState === 'speaking' ? 'rgba(59,130,246,0.3)' : novaState === 'processing' ? 'rgba(251,191,36,0.3)' : 'rgba(132,255,0,0.2)'}`,
+        background: '#FFFFFF',
+        border: `1px solid ${novaState === 'speaking' ? 'rgba(37,99,235,0.4)' : novaState === 'processing' ? 'rgba(217,138,58,0.4)' : 'rgba(13,148,136,0.4)'}`,
         borderRadius: '30px',
         padding: '8px 18px',
-        backdropFilter: 'blur(12px)',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
       }}>
         {/* Animated bars for listening/speaking */}
         {(novaState === 'listening' || novaState === 'speaking') ? (
@@ -90,7 +88,6 @@ export default function NovaPresenceIndicator() {
                 borderRadius: 2,
                 animation: `waveform-bar ${0.6 + i * 0.15}s ease-in-out infinite alternate`,
                 height: '100%',
-                boxShadow: `0 0 4px ${dotColor}`,
               }} />
             ))}
           </div>
@@ -98,7 +95,6 @@ export default function NovaPresenceIndicator() {
           <div style={{
             width: 10, height: 10, borderRadius: '50%',
             background: dotColor,
-            boxShadow: `0 0 10px ${dotColor}`,
           }} />
         )}
 
@@ -116,9 +112,9 @@ export default function NovaPresenceIndicator() {
         <span style={{
           fontFamily: "'JetBrains Mono', monospace",
           fontSize: '0.45rem',
-          color: 'rgba(132,255,0,0.35)',
+          color: '#8E9096',
           letterSpacing: '0.05em',
-          borderLeft: '1px solid rgba(132,255,0,0.15)',
+          borderLeft: '1px solid #C8C9C6',
           paddingLeft: 8,
         }}>
           DEEPGRAM

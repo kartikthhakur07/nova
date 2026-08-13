@@ -21,9 +21,9 @@ import {
   Wifi, WifiOff, Brain, Database, FileText, XCircle
 } from 'lucide-react'
 
-const P = '#0F1729', S = '#5A6578', M = '#9CA3B4', BD = '#E4E8EF'
-const CARD = '#FFFFFF', BG = '#F8F9FB'
-const GREEN = '#16A34A', AMBER = '#D97706', ORANGE = '#EA580C', RED = '#DC2626'
+const P = '#0E0D1F', S = '#62636A', M = '#8E9096', BD = '#C8C9C6'
+const CARD = '#FFFFFF', BG = '#F7F6F2'
+const GREEN = '#72856C', AMBER = '#D98A3A', ORANGE = '#D98A3A', RED = '#C84B42'
 const BLUE = '#2563EB', TEAL = '#0D9488', PURPLE = '#7C3AED'
 const FD = "'Plus Jakarta Sans', sans-serif"
 const FM = "'JetBrains Mono', monospace"
@@ -44,7 +44,7 @@ function RiskGauge({ score, tier }: { score: number; tier?: string }) {
   return (
     <div style={{ position: 'relative', width: 110, height: 110, flexShrink: 0 }}>
       <svg viewBox="0 0 100 100" style={{ transform: 'rotate(-90deg)' }}>
-        <circle cx={50} cy={50} r={40} fill="none" stroke="#F1F3F7" strokeWidth={10} />
+        <circle cx={50} cy={50} r={40} fill="none" stroke="#E9E9E5" strokeWidth={10} />
         <circle
           cx={50} cy={50} r={40} fill="none"
           stroke={color} strokeWidth={10}
