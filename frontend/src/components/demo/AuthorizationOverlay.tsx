@@ -18,12 +18,11 @@ export default function AuthorizationOverlay() {
       zIndex: 100,
       width: '90%',
       maxWidth: '540px',
-      background: 'rgba(10,14,10,0.98)',
-      border: '2px solid #ff4444',
+      background: '#FFFFFF',
+      border: '2px solid #C84B42',
       borderRadius: '12px',
       padding: '28px 32px',
-      boxShadow: '0 0 60px rgba(220,38,38,0.4)',
-      backdropFilter: 'blur(20px)',
+      boxShadow: '0 8px 32px rgba(200,75,66,0.2)',
       animation: 'fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both',
     }}>
       <div style={{
@@ -36,15 +35,15 @@ export default function AuthorizationOverlay() {
           width: 12,
           height: 12,
           borderRadius: '50%',
-          background: '#ff4444',
-          boxShadow: '0 0 12px #ff4444',
+          background: '#C84B42',
+          boxShadow: '0 0 12px rgba(200,75,66,0.6)',
           animation: 'pulse-ring 1.5s ease-in-out infinite',
         }} />
         <span style={{
           fontFamily: "'JetBrains Mono', monospace",
           fontSize: '0.7rem',
           letterSpacing: '0.16em',
-          color: '#ff4444',
+          color: '#C84B42',
           fontWeight: 700,
         }}>
           HUMAN-IN-THE-LOOP AUTHORIZATION REQUIRED
@@ -54,7 +53,7 @@ export default function AuthorizationOverlay() {
       <div style={{
         fontFamily: "'Bebas Neue', sans-serif",
         fontSize: '2.2rem',
-        color: '#ffffff',
+        color: '#0E0D1F',
         lineHeight: 1,
         marginBottom: '12px',
         letterSpacing: '0.04em',
@@ -63,14 +62,14 @@ export default function AuthorizationOverlay() {
       </div>
 
       <div style={{
-        background: 'rgba(220,38,38,0.1)',
-        border: '1px solid rgba(220,38,38,0.3)',
+        background: 'rgba(200,75,66,0.08)',
+        border: '1px solid rgba(200,75,66,0.3)',
         borderRadius: '8px',
         padding: '16px 20px',
         marginBottom: '24px',
         fontFamily: "'Titillium Web', sans-serif",
         fontSize: '1rem',
-        color: '#ffffff',
+        color: '#0E0D1F',
         fontWeight: 600,
         lineHeight: 1.4,
       }}>
@@ -80,11 +79,11 @@ export default function AuthorizationOverlay() {
       <div style={{
         fontFamily: "'Titillium Web', sans-serif",
         fontSize: '0.8rem',
-        color: 'rgba(255,255,255,0.6)',
+        color: '#62636A',
         marginBottom: '28px',
-        fontWeight: 300,
+        fontWeight: 400,
       }}>
-        Say <strong style={{ color: '#84ff00' }}>"Authorize"</strong> or <strong style={{ color: '#ff4444' }}>"Reject"</strong> into your microphone, or tap below to execute.
+        Say <strong style={{ color: '#0D9488' }}>"Authorize"</strong> or <strong style={{ color: '#C84B42' }}>"Reject"</strong> into your microphone, or tap below to execute.
       </div>
 
       <div style={{ display: 'flex', gap: '16px' }}>
@@ -96,13 +95,13 @@ export default function AuthorizationOverlay() {
             fontWeight: 700,
             fontSize: '0.85rem',
             letterSpacing: '0.08em',
-            color: '#0a0f0a',
-            background: '#84ff00',
+            color: '#FFFFFF',
+            background: '#0D9488',
             border: 'none',
             padding: '14px 20px',
             borderRadius: '6px',
             cursor: 'pointer',
-            boxShadow: '0 0 20px rgba(132,255,0,0.3)',
+            boxShadow: '0 4px 12px rgba(13,148,136,0.3)',
             transition: 'all 0.2s ease',
           }}
           onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
@@ -119,9 +118,9 @@ export default function AuthorizationOverlay() {
             fontWeight: 700,
             fontSize: '0.85rem',
             letterSpacing: '0.08em',
-            color: '#ff4444',
-            background: 'rgba(220,38,38,0.15)',
-            border: '1px solid rgba(220,38,38,0.4)',
+            color: '#C84B42',
+            background: 'rgba(200,75,66,0.08)',
+            border: '1px solid #C84B42',
             padding: '14px 20px',
             borderRadius: '6px',
             cursor: 'pointer',

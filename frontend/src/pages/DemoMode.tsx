@@ -46,14 +46,14 @@ export default function DemoMode() {
     <div style={{
       width: '100vw',
       height: '100vh',
-      background: '#080c08',
+      background: '#F7F6F2',
       position: 'relative',
       overflow: 'hidden',
     }}>
       <div style={{
         position: 'absolute',
         inset: 0,
-        backgroundImage: 'linear-gradient(rgba(132,255,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(132,255,0,0.03) 1px, transparent 1px)',
+        backgroundImage: 'linear-gradient(rgba(200,201,198,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(200,201,198,0.2) 1px, transparent 1px)',
         backgroundSize: '60px 60px',
         pointerEvents: 'none',
       }} />
@@ -64,21 +64,21 @@ export default function DemoMode() {
         left: 0,
         right: 0,
         height: '48px',
-        background: 'rgba(8,12,8,0.95)',
-        borderBottom: '1px solid rgba(132,255,0,0.1)',
+        background: '#FFFFFF',
+        borderBottom: '1px solid #C8C9C6',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 20px',
         zIndex: 50,
-        backdropFilter: 'blur(12px)',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <NovaLogoSmall />
           <div style={{
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: '0.55rem',
-            color: 'rgba(255,255,255,0.3)',
+            color: '#62636A',
             letterSpacing: '0.1em',
           }}>
             AGENT-PILOTED CONTROL ROOM
@@ -99,9 +99,9 @@ export default function DemoMode() {
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: '0.55rem',
                 letterSpacing: '0.08em',
-                color: activeOverlayView === view.id ? '#84ff00' : 'rgba(255,255,255,0.5)',
-                background: activeOverlayView === view.id ? 'rgba(132,255,0,0.12)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${activeOverlayView === view.id ? 'rgba(132,255,0,0.4)' : 'rgba(255,255,255,0.1)'}`,
+                color: activeOverlayView === view.id ? '#D98A3A' : '#62636A',
+                background: activeOverlayView === view.id ? '#F3DFC0' : '#F7F6F2',
+                border: `1px solid ${activeOverlayView === view.id ? '#D98A3A' : '#C8C9C6'}`,
                 padding: '4px 10px',
                 borderRadius: '4px',
                 cursor: 'pointer',
@@ -117,9 +117,9 @@ export default function DemoMode() {
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: '0.55rem',
               letterSpacing: '0.08em',
-              color: evidenceOpen ? '#fbbf24' : 'rgba(255,255,255,0.5)',
-              background: evidenceOpen ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.04)',
-              border: `1px solid ${evidenceOpen ? 'rgba(251,191,36,0.4)' : 'rgba(255,255,255,0.1)'}`,
+              color: evidenceOpen ? '#D98A3A' : '#62636A',
+              background: evidenceOpen ? '#F3DFC0' : '#F7F6F2',
+              border: `1px solid ${evidenceOpen ? '#D98A3A' : '#C8C9C6'}`,
               padding: '4px 10px',
               borderRadius: '4px',
               cursor: 'pointer',
@@ -134,7 +134,7 @@ export default function DemoMode() {
           <div style={{
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: '0.5rem',
-            color: 'rgba(255,255,255,0.3)',
+            color: '#62636A',
           }}>
             {new Date().toLocaleTimeString('en-GB')}
           </div>
@@ -144,9 +144,9 @@ export default function DemoMode() {
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: '0.55rem',
               letterSpacing: '0.1em',
-              color: '#ff4444',
-              background: 'rgba(220,38,38,0.1)',
-              border: '1px solid rgba(220,38,38,0.3)',
+              color: '#C84B42',
+              background: 'rgba(200,75,66,0.08)',
+              border: '1px solid #C84B42',
               padding: '4px 12px',
               borderRadius: '4px',
               cursor: 'pointer',

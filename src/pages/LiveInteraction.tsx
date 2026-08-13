@@ -3,15 +3,15 @@ import { Mic, AlertTriangle } from 'lucide-react';
 import Footer from '../components/Footer'
 
 const COLORS = {
-    bg: '#F0F0DC',
-    card: '#E4E4D0',
-    border: '#C8C8B0',
-    dark: '#2D4A34',
-    text: '#5A5A48',
-    high: '#D97A3D',
-    medium: '#D9B54D',
+    bg: '#FFFFFF',
+    card: '#FAFAF8',
+    border: '#E5E5E0',
+    dark: '#1A1A1A',
+    text: '#6B6B63',
+    high: '#E8752C',
+    medium: '#D9A23D',
     low: '#8A9A7E',
-    live: '#3FA98A',
+    live: '#E8752C',
 };
 
 const TRANSCRIPT = [

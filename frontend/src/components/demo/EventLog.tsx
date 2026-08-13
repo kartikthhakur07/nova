@@ -19,16 +19,16 @@ export default function EventLog() {
     <div style={{
       width: '280px',
       height: '100%',
-      background: 'rgba(6,9,6,0.95)',
-      borderRight: '1px solid rgba(132,255,0,0.12)',
+      background: '#FFFFFF',
+      borderRight: '1px solid #C8C9C6',
       display: 'flex',
       flexDirection: 'column',
-      backdropFilter: 'blur(12px)',
+      boxShadow: '2px 0 6px rgba(0,0,0,0.02)',
       zIndex: 20,
     }}>
       <div style={{
         padding: '16px 20px',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
+        borderBottom: '1px solid #E9E9E5',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -37,7 +37,7 @@ export default function EventLog() {
           fontFamily: "'JetBrains Mono', monospace",
           fontSize: '0.65rem',
           letterSpacing: '0.12em',
-          color: '#84ff00',
+          color: '#0E0D1F',
           fontWeight: 700,
         }}>
           REAL-TIME AUDIT LOG
@@ -46,8 +46,8 @@ export default function EventLog() {
           width: 6,
           height: 6,
           borderRadius: '50%',
-          background: '#84ff00',
-          boxShadow: '0 0 8px rgba(132,255,0,0.8)',
+          background: '#72856C',
+          boxShadow: '0 0 8px rgba(114,133,108,0.6)',
           animation: 'pulse-ring 2s ease-in-out infinite',
         }} />
       </div>
@@ -64,7 +64,7 @@ export default function EventLog() {
           <div style={{
             fontFamily: "'Titillium Web', sans-serif",
             fontSize: '0.75rem',
-            color: 'rgba(255,255,255,0.3)',
+            color: '#8E9096',
             textAlign: 'center',
             marginTop: '40px',
           }}>
@@ -76,11 +76,12 @@ export default function EventLog() {
           <div
             key={evt.id}
             style={{
-              background: evt.risk === 'critical' ? 'rgba(220,38,38,0.12)' : evt.risk === 'high' ? 'rgba(249,115,22,0.1)' : 'rgba(255,255,255,0.03)',
-              borderLeft: `3px solid ${evt.risk === 'critical' ? '#ff4444' : evt.risk === 'high' ? '#ff8c00' : evt.risk === 'elevated' ? '#fbbf24' : '#84ff00'}`,
+              background: evt.risk === 'critical' ? 'rgba(200,75,66,0.08)' : evt.risk === 'high' ? 'rgba(217,138,58,0.08)' : '#F7F6F2',
+              borderLeft: `3px solid ${evt.risk === 'critical' ? '#C84B42' : evt.risk === 'high' ? '#D98A3A' : evt.risk === 'elevated' ? '#D98A3A' : '#72856C'}`,
               borderRadius: '0 6px 6px 0',
               padding: '10px 12px',
               animation: 'fade-up 0.3s ease both',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
             }}
           >
             <div style={{
@@ -92,14 +93,14 @@ export default function EventLog() {
               <span style={{
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: '0.55rem',
-                color: 'rgba(255,255,255,0.4)',
+                color: '#62636A',
               }}>
                 {new Date(evt.timestamp).toLocaleTimeString()}
               </span>
               <span style={{
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: '0.5rem',
-                color: evt.risk === 'critical' ? '#ff4444' : '#84ff00',
+                color: evt.risk === 'critical' ? '#C84B42' : '#72856C',
                 textTransform: 'uppercase',
                 fontWeight: 700,
               }}>
@@ -110,7 +111,7 @@ export default function EventLog() {
             <div style={{
               fontFamily: "'Titillium Web', sans-serif",
               fontSize: '0.75rem',
-              color: '#ffffff',
+              color: '#0E0D1F',
               lineHeight: 1.35,
               fontWeight: 400,
             }}>
@@ -122,14 +123,14 @@ export default function EventLog() {
 
       <div style={{
         padding: '12px 16px',
-        borderTop: '1px solid rgba(255,255,255,0.08)',
-        background: 'rgba(0,0,0,0.2)',
+        borderTop: '1px solid #E9E9E5',
+        background: '#F7F6F2',
       }}>
         <div style={{
           fontFamily: "'JetBrains Mono', monospace",
           fontSize: '0.55rem',
           letterSpacing: '0.12em',
-          color: 'rgba(255,255,255,0.4)',
+          color: '#62636A',
           marginBottom: '10px',
         }}>
           PHASE 5 VIEWS
@@ -144,24 +145,24 @@ export default function EventLog() {
                 style={{
                   display: 'flex', alignItems: 'center', gap: '10px',
                   padding: '8px 12px',
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.05)',
+                  background: '#FFFFFF',
+                  border: '1px solid #C8C9C6',
                   borderRadius: '6px',
-                  color: 'rgba(255,255,255,0.7)',
+                  color: '#62636A',
                   textDecoration: 'none',
                   transition: 'all 0.2s',
                   fontFamily: "'Titillium Web', sans-serif",
                   fontSize: '0.8rem',
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(132,255,0,0.1)'
-                  e.currentTarget.style.color = '#84ff00'
-                  e.currentTarget.style.borderColor = 'rgba(132,255,0,0.3)'
+                  e.currentTarget.style.background = '#F3DFC0'
+                  e.currentTarget.style.color = '#D98A3A'
+                  e.currentTarget.style.borderColor = '#D98A3A'
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
-                  e.currentTarget.style.color = 'rgba(255,255,255,0.7)'
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'
+                  e.currentTarget.style.background = '#FFFFFF'
+                  e.currentTarget.style.color = '#62636A'
+                  e.currentTarget.style.borderColor = '#C8C9C6'
                 }}
               >
                 <Icon size={14} style={{ flexShrink: 0 }} />

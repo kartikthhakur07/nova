@@ -88,7 +88,7 @@ export default function LessonsLearned() {
           ['Total Lessons', lessons.length, BLUE, BookOpen],
           ['Verified', lessons.filter(l => l.verified).length, GREEN, CheckCircle],
           ['This Week', lessons.filter(l => l.ts && Date.now() - new Date(l.ts).getTime() < 7*86400000).length, PURPLE, Clock],
-        ].map(([label, count, color, Icon]) => (
+        ].map(([label, count, color, Icon]: [string, number, string, any]) => (
           <div key={label as string} style={{
             background: CARD, borderRadius: 12, border: `1px solid ${BD}`,
             padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10,
