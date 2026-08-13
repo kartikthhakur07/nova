@@ -1,15 +1,13 @@
 import { useEffect, useCallback } from 'react'
-import { useSimulationStore, BriefingPayload } from '../store/useSimulationStore'
+import { useSimulationStore } from '../store/useSimulationStore'
 import { requestMicPermission, novaSilence } from '../engine/novaSpeech'
-import { startLiveTelemetryStream, stopLiveTelemetryStream, startRealVoiceListener, stopRealVoiceListener, novaSpeakSimulation } from '../engine/realSystemEngine'
-import { stopCurrentTTS } from '../engine/deepgramVoice'
+import { startLiveTelemetryStream, stopLiveTelemetryStream, startRealVoiceListener, stopRealVoiceListener } from '../engine/realSystemEngine'
 import PlantTwin from '../components/demo/PlantTwin'
 import NovaPresenceIndicator from '../components/demo/NovaPresenceIndicator'
 import EvidencePanel from '../components/demo/EvidencePanel'
 import AuthorizationOverlay from '../components/demo/AuthorizationOverlay'
 import EventLog from '../components/demo/EventLog'
 import DemoOverlays from '../components/demo/DemoOverlays'
-import ShiftBriefingOverlay from '../components/demo/ShiftBriefingOverlay'
 
 export default function RealSystemSimulation() {
   const {
@@ -22,76 +20,14 @@ export default function RealSystemSimulation() {
     setEvidenceOpen,
     triggerAnomaly,
     resetTelemetry,
-    briefingActive,
-    briefingData,
-    setBriefingActive,
-    setBriefingData,
-    setIsFetchingBriefing,
-    addEvent,
   } = useSimulationStore()
-
-  const fetchBriefingAndSalutate = useCallback(async () => {
-    setIsFetchingBriefing(true)
-    setBriefingActive(true)
-    startSimulation() // Displays plant twin UI in background
-
-    try {
-      const res = await fetch('/api/voice/briefing', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ operator_name: 'Supervisor', case_id: 'case-live' }),
-      })
-      if (res.ok) {
-        const data: BriefingPayload = await res.json()
-        setBriefingData(data)
-        novaSpeakSimulation(data.spoken_text)
-      } else {
-        throw new Error('Briefing API returned error')
-      }
-    } catch (err) {
-      console.warn('[Briefing] Error fetching Groq LLM briefing, using fallback:', err)
-      const fallback: BriefingPayload = {
-        salutation: 'Welcome back to Mission Control, Supervisor.',
-        summary: 'During your absence, 142 continuous telemetry parameters across all 5 plant bays were monitored. All core systems are stable with 1 active hot-work permit under surveillance.',
-        highlights: [
-          'Bay 1 (Distillation): DC-101 feed rate nominal at 450 L/min',
-          'Bay 2 (Heat Exchanger): PRV-201 valve service window active',
-          'Bay 3 (Compressor): C-14 seal pressure stable; PTW-0441 active permit',
-          'Overall Plant Health: 98.4% Nominal',
-        ],
-        spoken_text: 'Good shift, Supervisor. Welcome back to NOVA Mission Control. While you were away, 142 telemetry parameters were continuously monitored across all five bays. All systems are stable, and active permits remain under continuous surveillance. Regular live operations are ready to begin.',
-      }
-      setBriefingData(fallback)
-      novaSpeakSimulation(fallback.spoken_text)
-    } finally {
-      setIsFetchingBriefing(false)
-    }
-  }, [setBriefingData, setBriefingActive, setIsFetchingBriefing, startSimulation])
 
   const handleStart = useCallback(async () => {
     await requestMicPermission()
-    await fetchBriefingAndSalutate()
-  }, [fetchBriefingAndSalutate])
-
-  const handleAcknowledgeBriefing = useCallback(() => {
-    stopCurrentTTS()
-    setBriefingActive(false)
-    addEvent({
-      type: 'nova-action',
-      message: 'Shift Handover Briefing completed via Groq LLM. Regular telemetry & voice pipeline activated.',
-      risk: 'normal',
-    })
+    startSimulation()
     startLiveTelemetryStream()
     startRealVoiceListener()
-    novaSpeakSimulation('Shift handover acknowledged. Live telemetry stream and voice control room interface active.')
-  }, [setBriefingActive, addEvent])
-
-  const handleReplayVoice = useCallback(() => {
-    if (briefingData?.spoken_text) {
-      stopCurrentTTS()
-      novaSpeakSimulation(briefingData.spoken_text)
-    }
-  }, [briefingData])
+  }, [startSimulation])
 
   const handleStop = useCallback(() => {
     stopLiveTelemetryStream()
@@ -121,14 +57,16 @@ export default function RealSystemSimulation() {
       position: 'relative',
       overflow: 'hidden',
     }}>
+      {/* Background Subtle Grid Accent */}
       <div style={{
         position: 'absolute',
         inset: 0,
-        backgroundImage: 'linear-gradient(rgba(200,201,198,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(200,201,198,0.3) 1px, transparent 1px)',
+        backgroundImage: 'linear-gradient(rgba(200,201,198,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(200,201,198,0.2) 1px, transparent 1px)',
         backgroundSize: '60px 60px',
         pointerEvents: 'none',
       }} />
 
+      {/* Top Navigation Bar */}
       <div style={{
         position: 'absolute',
         top: 0,
@@ -142,7 +80,7 @@ export default function RealSystemSimulation() {
         justifyContent: 'space-between',
         padding: '0 20px',
         zIndex: 50,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <NovaLogoSmall />
@@ -150,11 +88,12 @@ export default function RealSystemSimulation() {
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: '0.55rem',
             color: '#0D9488',
-            letterSpacing: '0.1em',
-            background: 'rgba(13,148,136,0.08)',
-            padding: '2px 8px',
-            borderRadius: '3px',
+            background: 'rgba(13,148,136,0.1)',
             border: '1px solid rgba(13,148,136,0.3)',
+            padding: '2px 8px',
+            borderRadius: '4px',
+            letterSpacing: '0.1em',
+            fontWeight: 600,
           }}>
             LIVE AGENT SIMULATION (NON-SCRIPTED)
           </div>
@@ -174,9 +113,9 @@ export default function RealSystemSimulation() {
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: '0.55rem',
                 letterSpacing: '0.08em',
-                color: activeOverlayView === view.id ? '#0E0D1F' : '#62636A',
-                background: activeOverlayView === view.id ? '#E9E9E5' : '#FFFFFF',
-                border: `1px solid ${activeOverlayView === view.id ? '#0E0D1F' : '#C8C9C6'}`,
+                color: activeOverlayView === view.id ? '#D98A3A' : '#62636A',
+                background: activeOverlayView === view.id ? '#F3DFC0' : '#F7F6F2',
+                border: `1px solid ${activeOverlayView === view.id ? '#D98A3A' : '#C8C9C6'}`,
                 padding: '4px 10px',
                 borderRadius: '4px',
                 cursor: 'pointer',
@@ -193,28 +132,31 @@ export default function RealSystemSimulation() {
               fontSize: '0.55rem',
               letterSpacing: '0.08em',
               color: evidenceOpen ? '#D98A3A' : '#62636A',
-              background: evidenceOpen ? '#F3DFC0' : '#FFFFFF',
+              background: evidenceOpen ? '#F3DFC0' : '#F7F6F2',
               border: `1px solid ${evidenceOpen ? '#D98A3A' : '#C8C9C6'}`,
               padding: '4px 10px',
               borderRadius: '4px',
               cursor: 'pointer',
+              transition: 'all 0.2s ease',
             }}
           >
             Evidence Drawer
           </button>
         </div>
 
-        <div style={{ display: 'flex', gap: '6px' }}>
+        {/* Anomaly Controls & Exit */}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <button
             onClick={() => triggerAnomaly('Bay 3', 'gas')}
             style={{
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: '0.5rem',
+              fontSize: '0.55rem',
+              letterSpacing: '0.05em',
               color: '#C84B42',
               background: 'rgba(200,75,66,0.08)',
-              border: '1px solid rgba(200,75,66,0.3)',
-              padding: '3px 8px',
-              borderRadius: '3px',
+              border: '1px solid #C84B42',
+              padding: '4px 10px',
+              borderRadius: '4px',
               cursor: 'pointer',
             }}
           >
@@ -224,12 +166,13 @@ export default function RealSystemSimulation() {
             onClick={() => triggerAnomaly('Bay 2', 'pressure')}
             style={{
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: '0.5rem',
+              fontSize: '0.55rem',
+              letterSpacing: '0.05em',
               color: '#D98A3A',
-              background: 'rgba(217,138,58,0.08)',
-              border: '1px solid rgba(217,138,58,0.3)',
-              padding: '3px 8px',
-              borderRadius: '3px',
+              background: '#F3DFC0',
+              border: '1px solid #D98A3A',
+              padding: '4px 10px',
+              borderRadius: '4px',
               cursor: 'pointer',
             }}
           >
@@ -239,12 +182,13 @@ export default function RealSystemSimulation() {
             onClick={resetTelemetry}
             style={{
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: '0.5rem',
+              fontSize: '0.55rem',
+              letterSpacing: '0.05em',
               color: '#72856C',
-              background: 'rgba(114,133,108,0.08)',
-              border: '1px solid rgba(114,133,108,0.3)',
-              padding: '3px 8px',
-              borderRadius: '3px',
+              background: 'rgba(114,133,108,0.1)',
+              border: '1px solid #72856C',
+              padding: '4px 10px',
+              borderRadius: '4px',
               cursor: 'pointer',
             }}
           >
@@ -258,11 +202,10 @@ export default function RealSystemSimulation() {
               letterSpacing: '0.1em',
               color: '#C84B42',
               background: 'rgba(200,75,66,0.08)',
-              border: '1px solid rgba(200,75,66,0.3)',
+              border: '1px solid #C84B42',
               padding: '4px 12px',
               borderRadius: '4px',
               cursor: 'pointer',
-              textTransform: 'uppercase',
             }}
           >
             EXIT SIMULATION
@@ -270,23 +213,28 @@ export default function RealSystemSimulation() {
         </div>
       </div>
 
+      {/* Main Split Layout */}
       <div style={{
         position: 'absolute',
-        top: 48,
+        top: '48px',
+        bottom: 0,
         left: 0,
         right: 0,
-        bottom: 0,
+        display: 'flex',
       }}>
-        <EventLog />
-
+        {/* Real-time Audit Log Panel */}
         <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 280,
-          right: 0,
-          bottom: 0,
-          overflow: 'hidden',
+          width: '420px',
+          height: '100%',
+          borderRight: '1px solid #C8C9C6',
+          background: '#FFFFFF',
+          zIndex: 10,
         }}>
+          <EventLog />
+        </div>
+
+        {/* Live Canvas Area */}
+        <div style={{ flex: 1, height: '100%', position: 'relative', background: '#F7F6F2' }}>
           <div style={{
             position: 'absolute',
             top: 0,
@@ -305,12 +253,6 @@ export default function RealSystemSimulation() {
       </div>
 
       <NovaPresenceIndicator />
-      {briefingActive && (
-        <ShiftBriefingOverlay
-          onAcknowledge={handleAcknowledgeBriefing}
-          onReplayVoice={handleReplayVoice}
-        />
-      )}
     </div>
   )
 }
