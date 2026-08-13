@@ -12,13 +12,28 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 const WS_BASE = (import.meta.env.VITE_WS_URL as string | undefined)
   ?? 'ws://localhost:8000'
 
-interface UseRimeAudioReturn {
+export interface UseRimeAudioOptions {
+  caseId?: string | null
+  onCaption?: (text: string) => void
+  onAudioEnd?: () => void
+}
+
+export interface UseRimeAudioReturn {
   isPlaying: boolean
+  isSpeaking: boolean
+  caption: string
   bargeIn: () => Promise<void>
 }
 
-export function useRimeAudio(caseId: string | null): UseRimeAudioReturn {
+export function useRimeAudio(
+  optsOrId: string | UseRimeAudioOptions | null
+): UseRimeAudioReturn {
+  const caseId = typeof optsOrId === 'string' || optsOrId === null ? optsOrId : optsOrId?.caseId ?? null
+  const onCaption = typeof optsOrId === 'object' && optsOrId !== null ? optsOrId.onCaption : undefined
+  const onAudioEnd = typeof optsOrId === 'object' && optsOrId !== null ? optsOrId.onAudioEnd : undefined
+
   const [isPlaying, setIsPlaying] = useState(false)
+  const [caption, setCaption] = useState('')
   const wsRef = useRef<WebSocket | null>(null)
   const audioCtxRef = useRef<AudioContext | null>(null)
   const sourceQueueRef = useRef<AudioBuffer[]>([])
@@ -63,6 +78,7 @@ export function useRimeAudio(caseId: string | null): UseRimeAudioReturn {
           setIsPlaying(false)
           playingRef.current = false
           ;(window as any)._isRimeSpeaking = false
+          onAudioEnd?.()
         }
       }
 
@@ -74,12 +90,13 @@ export function useRimeAudio(caseId: string | null): UseRimeAudioReturn {
         setIsPlaying(false)
         playingRef.current = false
         ;(window as any)._isRimeSpeaking = false
+        onAudioEnd?.()
       }, dur + 500)
     } catch (err) {
       console.warn('[useRimeAudio] Decode error:', err)
       ;(window as any)._isRimeSpeaking = false
     }
-  }, [getAudioCtx])
+  }, [getAudioCtx, onAudioEnd])
 
   // Connect WS audio socket
   useEffect(() => {
@@ -99,8 +116,13 @@ export function useRimeAudio(caseId: string | null): UseRimeAudioReturn {
       } else if (typeof event.data === 'string') {
         try {
           const msg = JSON.parse(event.data)
+          if (msg.type === 'caption' || msg.caption || msg.text) {
+            const text = msg.caption || msg.text || ''
+            setCaption(text)
+            onCaption?.(text)
+          }
           if (msg.type === 'audio.stream_end') {
-            // Stream complete — will naturally finish
+            // Stream complete
           } else if (msg.type === 'audio.cancelled') {
             // Cancel all pending audio
             scheduledAtRef.current = getAudioCtx().currentTime
@@ -123,7 +145,7 @@ export function useRimeAudio(caseId: string | null): UseRimeAudioReturn {
       ws.close()
       wsRef.current = null
     }
-  }, [caseId, scheduleChunk, getAudioCtx])
+  }, [caseId, scheduleChunk, getAudioCtx, onCaption])
 
   // Barge-in handler
   const bargeIn = useCallback(async () => {
@@ -145,5 +167,5 @@ export function useRimeAudio(caseId: string | null): UseRimeAudioReturn {
     }
   }, [caseId, getAudioCtx])
 
-  return { isPlaying, bargeIn }
+  return { isPlaying, isSpeaking: isPlaying, caption, bargeIn }
 }

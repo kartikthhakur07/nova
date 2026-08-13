@@ -5,15 +5,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        'nova-bg': '#0A0D10',
-        'nova-surface': '#12171C',
-        'nova-surface-2': '#1A2028',
-        'nova-border': '#2A3340',
-        'tier-low': '#22C55E',
-        'tier-medium': '#F59E0B',
-        'tier-high': '#F97316',
-        'tier-critical': '#EF4444',
-        'voice-active': '#14B8A6',
+        'nova-bg': '#F7F6F2',
+        'nova-surface': '#FFFFFF',
+        'nova-surface-2': '#E9E9E5',
+        'nova-border': '#C8C9C6',
+        'tier-low': '#72856C',
+        'tier-medium': '#D98A3A',
+        'tier-high': '#D98A3A',
+        'tier-critical': '#C84B42',
+        'voice-active': '#0D9488',
       },
       fontFamily: {
         display: ['Space Grotesk', 'sans-serif'],

@@ -12,10 +12,10 @@ import { getFactoryState, getProductionKPIs } from '../services/api'
 import { useCaseStore } from '../store/useCaseStore'
 
 const TIER_COLORS: Record<string, { fill: string; stroke: string; glow: string }> = {
-  low:      { fill: '#F0FDF4', stroke: '#16A34A', glow: 'rgba(22,163,74,0)' },
-  medium:   { fill: '#FFFBEB', stroke: '#D97706', glow: 'rgba(217,119,6,0.15)' },
-  high:     { fill: '#FFF7ED', stroke: '#EA580C', glow: 'rgba(234,88,12,0.2)' },
-  critical: { fill: '#FEF2F2', stroke: '#DC2626', glow: 'rgba(220,38,38,0.3)' },
+  low:      { fill: 'rgba(114,133,108,0.08)', stroke: '#72856C', glow: 'rgba(114,133,108,0)' },
+  medium:   { fill: 'rgba(217,138,58,0.08)',  stroke: '#D98A3A', glow: 'rgba(217,138,58,0.15)' },
+  high:     { fill: 'rgba(217,138,58,0.12)',  stroke: '#D98A3A', glow: 'rgba(217,138,58,0.2)' },
+  critical: { fill: 'rgba(200,75,66,0.12)',   stroke: '#C84B42', glow: 'rgba(200,75,66,0.3)' },
 }
 
 const ZONE_LAYOUT = [

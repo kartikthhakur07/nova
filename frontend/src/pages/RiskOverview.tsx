@@ -17,50 +17,50 @@ import SENSOR  from '../assets/sensor_node.png'
 /* ─── Modern Refined Color Palette ─────────────────────────────────────── */
 const C = {
   canvas:       '#FFFFFF',
-  canvasSubtle: '#F8FAFC',
-  canvasMuted:  '#F1F5F9',
+  canvasSubtle: '#F7F6F2',
+  canvasMuted:  '#E9E9E5',
   
   // Typography
-  textHero:     '#0B0F19',
-  textBody:     '#475467',
-  textMuted:    '#64748B',
-  textLight:    '#94A3B8',
+  textHero:     '#0E0D1F',
+  textBody:     '#62636A',
+  textMuted:    '#8E9096',
+  textLight:    '#B0B2AF',
   
   // Borders & Dividers
-  border:       '#E2E8F0',
-  borderLight:  '#EDF2F7',
-  borderStrong: '#CBD5E1',
+  border:       '#C8C9C6',
+  borderLight:  '#E9E9E5',
+  borderStrong: '#B0B2AF',
   
-  // Primary Signature Colors (Deep Cobalt & Royal Slate)
-  primary:      '#0284C7', // Sky-Blue High Contrast
-  primaryHover: '#0369A1',
-  primaryBg:    '#F0F9FF',
-  primaryBorder:'rgba(2, 132, 199, 0.25)',
+  // Primary Signature Colors
+  primary:      '#0D9488',
+  primaryHover: '#0B7A70',
+  primaryBg:    '#F3DFC0',
+  primaryBorder:'rgba(217, 138, 58, 0.25)',
   
-  navy:         '#0F172A',
-  navyMid:      '#1E293B',
-  navyLight:    '#334155',
+  navy:         '#0E0D1F',
+  navyMid:      '#1B2433',
+  navyLight:    '#2E3A4E',
   
   // Risk Tiers (Curated, Non-Neon Industrial)
-  safe:         '#059669',
-  safeBg:       '#ECFDF5',
-  safeBorder:   '#A7F3D0',
+  safe:         '#72856C',
+  safeBg:       'rgba(114, 133, 108, 0.1)',
+  safeBorder:   '#72856C',
   
-  watch:        '#D97706',
-  watchBg:      '#FFFBEB',
-  watchBorder:  '#FDE68A',
+  watch:        '#D98A3A',
+  watchBg:      'rgba(217, 138, 58, 0.1)',
+  watchBorder:  '#D98A3A',
   
-  high:         '#EA580C',
-  highBg:       '#FFF7ED',
-  highBorder:   '#FFEDD5',
+  high:         '#D98A3A',
+  highBg:       'rgba(217, 138, 58, 0.1)',
+  highBorder:   '#D98A3A',
   
-  critical:     '#DC2626',
-  criticalBg:   '#FEF2F2',
-  criticalBorder:'#FECACA',
+  critical:     '#C84B42',
+  criticalBg:   'rgba(200, 75, 66, 0.1)',
+  criticalBorder:'#C84B42',
 
   voice:        '#0D9488',
-  voiceBg:      '#F0FDFA',
-  voiceBorder:  '#99F6E4',
+  voiceBg:      'rgba(13, 148, 136, 0.1)',
+  voiceBorder:  '#0D9488',
 }
 
 const FONTS = {
