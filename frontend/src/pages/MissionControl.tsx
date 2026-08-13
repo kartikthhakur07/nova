@@ -340,10 +340,16 @@ export default function MissionControl() {
   const [activeTab, setActiveTab] = useState<'overview' | 'equipment' | 'permits'>('overview')
 
   const activeCase = useCaseStore(s => s.activeCase)
-  const { announcement, activePanel, proposedEdit } = useCaseStore(s => s.uiState)
+  const { announcement, activePanel, proposedEdit, navTarget, focusedPermitId } = useCaseStore(s => s.uiState)
   const setUiAnnouncement = useCaseStore(s => s.setUiAnnouncement)
   const connectionStatus = useCaseStore(s => s.connectionStatus)
   const evidenceList = useCaseStore(s => s.evidenceList)
+
+  useEffect(() => {
+    if (navTarget === 'permits' || focusedPermitId) {
+      setActiveTab('permits')
+    }
+  }, [navTarget, focusedPermitId])
 
   const caseId = activeCase?.case_id ?? 'demo'
   const score = activeCase ? Math.round(activeCase.compound_score * 100) : 0
@@ -695,43 +701,80 @@ export default function MissionControl() {
 
 function PermitsPanel() {
   const [permits, setPermits] = useState<any[]>([])
-  useEffect(() => {
+  const focusedPermitId = useCaseStore(s => s.uiState?.focusedPermitId)
+
+  const fetchPermits = () => {
     import('../services/api').then(({ getActivePermits }) =>
       getActivePermits().then(setPermits).catch(() => {})
     )
+  }
+
+  useEffect(() => {
+    fetchPermits()
+    const handleUpdate = () => fetchPermits()
+    window.addEventListener('permit:updated', handleUpdate)
+    const interval = setInterval(fetchPermits, 3000)
+    return () => {
+      window.removeEventListener('permit:updated', handleUpdate)
+      clearInterval(interval)
+    }
   }, [])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {permits.map(p => (
-        <div key={p.permit_id} style={{
-          background: CARD, borderRadius: 12, border: `1px solid ${BD}`, padding: 14,
-          borderLeft: `3px solid ${p.status === 'active' ? ORANGE : GREEN}`,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <span style={{ fontFamily: FM, fontSize: 11, fontWeight: 700, color: P }}>{p.permit_id}</span>
-            <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 4,
-              background: p.status === 'active' ? '#FFF7ED' : '#F0FDF4',
-              color: p.status === 'active' ? ORANGE : GREEN, fontWeight: 700, border: `1px solid ${p.status === 'active' ? ORANGE : GREEN}22` }}>
-              {p.status.toUpperCase()}
-            </span>
-          </div>
-          {[
-            ['Type', p.permit_type?.replace(/_/g, ' ')],
-            ['Zone', p.zone_id],
-            ['Issued to', p.issued_to],
-            ['Equipment', p.equipment],
-          ].map(([k, v]) => (
-            <div key={k} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-              <span style={{ fontSize: 11, color: M }}>{k}</span>
-              <span style={{ fontSize: 11, fontWeight: 600, color: P }}>{v}</span>
+      {permits.map(p => {
+        const isFocused = focusedPermitId && p.permit_id === focusedPermitId
+        const isSuspended = p.status === 'suspended'
+        return (
+          <div key={p.permit_id} id={`permit-${p.permit_id}`} style={{
+            background: isFocused ? '#FFF7ED' : CARD,
+            borderRadius: 12,
+            border: isFocused ? `2px solid ${ORANGE}` : `1px solid ${BD}`,
+            boxShadow: isFocused ? '0 0 12px rgba(234, 88, 12, 0.3)' : 'none',
+            padding: 14,
+            borderLeft: `4px solid ${isSuspended ? RED : (p.status === 'active' ? ORANGE : GREEN)}`,
+            transition: 'all 0.3s ease',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontFamily: FM, fontSize: 12, fontWeight: 700, color: P }}>{p.permit_id}</span>
+                <span style={{
+                  fontSize: 9, padding: '2px 6px', borderRadius: 4,
+                  background: isSuspended ? '#FEF2F2' : (p.status === 'active' ? '#FFF7ED' : '#F0FDF4'),
+                  color: isSuspended ? RED : (p.status === 'active' ? ORANGE : GREEN),
+                  fontWeight: 700,
+                  border: `1px solid ${isSuspended ? RED : (p.status === 'active' ? ORANGE : GREEN)}44`
+                }}>
+                  {p.status.toUpperCase()}
+                </span>
+              </div>
+              {isFocused && p.status === 'active' && (
+                <span style={{
+                  fontSize: 9, padding: '2px 6px', borderRadius: 4,
+                  background: '#FEF2F2', color: RED, fontWeight: 800,
+                  border: `1px solid ${RED}66`, animation: 'pulse 1.5s infinite'
+                }}>
+                  RECOMMENDED SUSPENSION
+                </span>
+              )}
             </div>
-          ))}
-        </div>
-      ))}
+            {[
+              ['Type', p.permit_type?.replace(/_/g, ' ')],
+              ['Zone', p.zone_id],
+              ['Issued to', p.issued_to],
+              ['Window Start', p.issued_at],
+            ].map(([k, v]) => (
+              <div key={k} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                <span style={{ fontSize: 11, color: M }}>{k}</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: P }}>{v ?? '—'}</span>
+              </div>
+            ))}
+          </div>
+        )
+      })}
       {permits.length === 0 && (
         <div style={{ textAlign: 'center' as const, color: M, padding: 24, fontSize: 13 }}>
-          No active permits
+          No permits found
         </div>
       )}
     </div>

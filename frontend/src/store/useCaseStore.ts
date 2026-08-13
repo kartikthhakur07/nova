@@ -183,6 +183,7 @@ export const useCaseStore = create<CaseState & any>((set) => ({
 
   uiState: {
     focusedZone: null,
+    focusedPermitId: null,
     activePanel: null,
     panelContext: null,
     announcement: null,
@@ -190,6 +191,7 @@ export const useCaseStore = create<CaseState & any>((set) => ({
     navTarget: null,
   },
   setUiFocusZone: (zoneId) => set((prev: any) => ({ uiState: { ...prev.uiState, focusedZone: zoneId } })),
+  setUiFocusPermit: (permitId) => set((prev: any) => ({ uiState: { ...prev.uiState, focusedPermitId: permitId } })),
   setUiPanel: (panel, context) => set((prev: any) => ({ uiState: { ...prev.uiState, activePanel: panel, panelContext: context } })),
   setUiAnnouncement: (text) => set((prev: any) => ({ uiState: { ...prev.uiState, announcement: text } })),
   setUiProposedEdit: (edit) => set((prev: any) => ({ uiState: { ...prev.uiState, proposedEdit: edit } })),

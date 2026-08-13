@@ -285,6 +285,15 @@ async def resolve_case(case_id: str, body: ResolveBody) -> ResolveResult:
             (entry_id, case_id, json.dumps({"debrief": body.debrief_text[:200]}), now),
         )
 
+    try:
+        from backend.bus.event_bus import bus
+        await bus.publish("ui.directive", {
+            "type": "ui.reset_view",
+            "payload": {"case_id": case_id, "reason": "case_resolved"}
+        })
+    except Exception as exc:
+        logger.warning("Failed to publish ui.reset_view on case resolution: %s", exc)
+
     # Write lesson to Qdrant
     try:
         from backend.memory.collections import MemoryStore

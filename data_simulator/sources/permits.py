@@ -90,10 +90,10 @@ class PermitSimulator:
                 await db.execute(
                     """
                     INSERT INTO permits
-                        (permit_id, zone_id, permit_type, issued_to, issued_at, expires_at, status)
+                        (permit_id, zone_id, permit_type, holder, window_start, window_end, status)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(permit_id) DO UPDATE SET
-                        status     = excluded.status
+                        status = excluded.status
                     """,
                     (
                         permit_id,
@@ -102,7 +102,7 @@ class PermitSimulator:
                         holder,
                         issued_at,
                         expires_at,
-                        "active" if action == "activated" else "suspended",
+                        "active" if action == "activated" else ("suspended" if action == "suspended" else "closed"),
                     ),
                 )
                 await db.commit()

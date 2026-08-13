@@ -77,6 +77,17 @@ export function useSessionSocket(sessionId: string, onRawMessage?: (msg: any) =>
         case 'ui.focus_zone':
           setUiFocusZone(msg.payload.zone_id)
           break
+        case 'ui.focus_permit': {
+          const store = useCaseStore.getState()
+          if (store.setUiFocusPermit) {
+            store.setUiFocusPermit(msg.payload.permit_id)
+          }
+          store.setNavTarget('permits')
+          break
+        }
+        case 'permit.updated':
+          window.dispatchEvent(new CustomEvent('permit:updated', { detail: msg.payload }))
+          break
         case 'ui.reset_view':
           setUiFocusZone(null)
           break

@@ -58,9 +58,43 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await bus.start()
     await start_ws_bridge(bus)
 
+    # Pre-warm embedding model in background so first voice query doesn't time out
+    try:
+        import asyncio
+        from backend.memory.embeddings import embed_text
+        asyncio.create_task(asyncio.to_thread(embed_text, "init"))
+    except Exception as exc:
+        logger.warning("Failed to pre-warm embeddings: %s", exc)
+
     # Wire factory state updates from raw telemetry events
     async def _update_factory_state(event: dict) -> None:
         get_factory_state().apply_event(event)
+        if event.get("source") == "permit":
+            meta = event.get("metadata", {})
+            permit_id = meta.get("permit_id")
+            action = meta.get("action")
+            permit_type = meta.get("permit_type", "hot_work")
+            holder = meta.get("holder", "Operator")
+            zone_id = event.get("zone_id", "Bay3")
+            if permit_id and action:
+                status = "active" if action == "activated" else ("suspended" if action == "suspended" else "closed")
+                now_iso = datetime.now(timezone.utc).isoformat()
+                try:
+                    async with get_db(db_path) as db:
+                        await db.execute(
+                            """
+                            INSERT INTO permits (permit_id, permit_type, zone_id, holder, status, window_start, window_end)
+                            VALUES (?, ?, ?, ?, ?, ?, '2030-01-01T00:00:00Z')
+                            ON CONFLICT(permit_id) DO UPDATE SET status = excluded.status
+                            """,
+                            (permit_id, permit_type, zone_id, holder, status, now_iso),
+                        )
+                    await bus.publish("ui.directive", {
+                        "type": "permit.updated",
+                        "payload": {"permit_id": permit_id, "status": status, "zone_id": zone_id}
+                    })
+                except Exception as exc:
+                    logger.warning("Failed to persist live permit telemetry event: %s", exc)
 
     await bus.subscribe("raw.telemetry", _update_factory_state)
 

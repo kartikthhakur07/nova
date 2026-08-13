@@ -39,6 +39,7 @@ async def handle_agent_query(req: AgentQueryRequest):
 @router.post("/command", response_model=CommandResponse)
 async def handle_voice_command(
     case_id: str = Form(...),
+    current_zone: Optional[str] = Form(None),
     audio: UploadFile = File(...)
 ):
     """
@@ -48,7 +49,7 @@ async def handle_voice_command(
     import tempfile
     import os
     
-    logger.info(f"Received voice command for case {case_id}")
+    logger.info(f"Received voice command for case {case_id} (zone={current_zone})")
     audio_bytes = await audio.read()
     
     with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as tmp:
@@ -60,7 +61,7 @@ async def handle_voice_command(
         logger.info(f"Transcribed command: {transcript}")
         
         if transcript:
-            await process_voice_command(case_id, transcript)
+            await process_voice_command(case_id, transcript, current_zone)
     finally:
         if os.path.exists(tmp_path):
             os.remove(tmp_path)

@@ -29,6 +29,9 @@ from backend.bus.event_bus import bus
 logger = logging.getLogger(__name__)
 
 
+_last_announced_tier: dict[str, str] = {}
+
+
 class ResponseOrchestratorAgent:
     """Agent responsible for proposing actions and orchestrating authorized responses."""
 
@@ -54,6 +57,9 @@ class ResponseOrchestratorAgent:
             resolved_at=case.resolved_at,
         )
 
+        prev_tier = _last_announced_tier.get(case.case_id)
+        current_tier = assessment.tier
+
         # 1. State machine transitions DETECTED -> INVESTIGATING -> NOTIFYING
         if current_case.state == "DETECTED":
             current_case, audit = transition(current_case, "INVESTIGATING")
@@ -66,15 +72,21 @@ class ResponseOrchestratorAgent:
         # 2. Check required authorization
         required = required_authorization(assessment.tier)
 
-        # 3. Low tier / no authorization required
-        if required == "none":
+        # 3. Low tier / no authorization required -> reset view to plant overview
+        if required == "none" or current_tier == "low":
+            if prev_tier and prev_tier != "low":
+                await bus.publish("ui.directive", {
+                    "type": "ui.reset_view",
+                    "payload": {"zone_id": assessment.zone_id, "reason": "risk_low"}
+                })
+            _last_announced_tier[case.case_id] = "low"
             persist_case(current_case)
             return current_case, None
 
         # 4. Medium / High / Critical tier -> notify and transition to AWAITING_RESPONSE
         msg = (
             f"VIGIL Risk Alert [{assessment.tier.upper()}]: Zone {assessment.zone_id} "
-            f"score {assessment.compound_score:.2f}."
+            f"compound score {assessment.compound_score:.2f}."
         )
         notify_for_tier(current_case, assessment.tier, msg, self.notifier)
 
@@ -84,8 +96,11 @@ class ResponseOrchestratorAgent:
         # Propose tool call if warranted by tier + evidence pattern
         tool_call = propose_tool_call(assessment)
 
-        # Emit UI directives to set the scene on the frontend
-        if tool_call:
+        tier_changed = (prev_tier != current_tier)
+        _last_announced_tier[case.case_id] = current_tier
+
+        # Only emit UI panel opens, voice speaking, and announcements ONCE per tier transition
+        if tier_changed:
             await bus.publish("ui.directive", {
                 "type": "ui.focus_zone",
                 "payload": {"zone_id": assessment.zone_id}
@@ -93,9 +108,9 @@ class ResponseOrchestratorAgent:
             await bus.publish("ui.directive", {
                 "type": "ui.open_panel",
                 "payload": {
-                    "panel": "authorization" if tool_call.tool_name == "UpdateControlParameter" else "evidence",
+                    "panel": "authorization" if (tool_call and tool_call.tool_name == "UpdateControlParameter") else "evidence",
                     "context": {
-                        "title": "Authorization Required" if tool_call.tool_name == "UpdateControlParameter" else "Context & Evidence",
+                        "title": "Authorization Required" if (tool_call and tool_call.tool_name == "UpdateControlParameter") else "Context & Evidence",
                         "subtitle": f"Correlated signals for {assessment.zone_id}"
                     }
                 }
@@ -108,7 +123,33 @@ class ResponseOrchestratorAgent:
                 "case_id": case.case_id,
                 "text": msg
             })
-            if tool_call.tool_name == "UpdateControlParameter":
+
+        if tool_call:
+            if tool_call.tool_name == "permit_suspend":
+                permit_id = tool_call.parameters.get("permit_id")
+                if not permit_id or permit_id == "UNKNOWN_PERMIT":
+                    import sqlite3, os
+                    db_path = os.environ.get("SQLITE_PATH", "./vigil.db")
+                    try:
+                        conn = sqlite3.connect(db_path)
+                        conn.row_factory = sqlite3.Row
+                        cur = conn.execute("SELECT permit_id FROM permits WHERE status='active' AND (zone_id=? OR zone_id IS NULL) LIMIT 1", (assessment.zone_id,))
+                        row = cur.fetchone()
+                        if row:
+                            permit_id = row["permit_id"]
+                            tool_call.parameters["permit_id"] = permit_id
+                        conn.close()
+                    except Exception:
+                        permit_id = "P-2291"
+                
+                await bus.publish("ui.directive", {
+                    "type": "ui.focus_permit",
+                    "payload": {
+                        "permit_id": permit_id,
+                        "zone_id": assessment.zone_id
+                    }
+                })
+            elif tool_call.tool_name == "UpdateControlParameter":
                 await bus.publish("ui.directive", {
                     "type": "ui.propose_edit",
                     "payload": {

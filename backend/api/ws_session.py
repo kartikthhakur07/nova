@@ -175,15 +175,29 @@ async def start_ws_bridge(bus: "EventBus") -> None:
         await manager.broadcast_all(
             {"type": "raw.telemetry", "payload": event, "ts": _ts()}
         )
-        # Fallback baseline risk assessment for simulation telemetry if agents not active
+        # Trigger risk assessment for telemetry events to update live risk state and zoom
         hint = event.get("severity_hint", "normal")
         val = event.get("value")
-        if hint in ("elevated", "critical") or (isinstance(val, (int, float)) and val >= 210):
-            zone_id = event.get("zone_id", "unknown_zone")
+        zone_id = event.get("zone_id", "unknown_zone")
+        
+        is_high_signal = (hint in ("elevated", "critical")) or (isinstance(val, (int, float)) and val >= 210)
+
+        # Check existing case tier in DB to detect if we need to transition/normalize
+        need_assessment = is_high_signal
+        if not is_high_signal and zone_id:
+            case_id = f"case-{zone_id.lower()}"
+            from backend.api.routes_cases import _db_path
+            try:
+                async with get_db(_db_path()) as db:
+                    cur = await db.execute("SELECT tier FROM cases WHERE case_id=?", (case_id,))
+                    row = await cur.fetchone()
+                    if row and row["tier"] != "low":
+                        need_assessment = True
+            except Exception:
+                pass
+
+        if need_assessment and zone_id:
             now_iso = _ts()
-            
-            # Generate a reproducible case ID for this zone
-            # For the demo, we map the zone to a specific case_id (e.g. Bay3 -> case-bay3)
             case_id = f"case-{zone_id.lower()}"
             
             from backend.models.case import OperationalContext, ShiftState

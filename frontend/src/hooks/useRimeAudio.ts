@@ -24,6 +24,8 @@ export function useRimeAudio(caseId: string | null): UseRimeAudioReturn {
   const sourceQueueRef = useRef<AudioBuffer[]>([])
   const playingRef = useRef(false)
   const scheduledAtRef = useRef(0)
+  const activeSourcesRef = useRef(0)
+  const rimeTimeoutRef = useRef<any>(null)
 
   // Get/init AudioContext
   const getAudioCtx = useCallback(() => {
@@ -51,15 +53,31 @@ export function useRimeAudio(caseId: string | null): UseRimeAudioReturn {
       scheduledAtRef.current = startAt + buffer.duration
       setIsPlaying(true)
       playingRef.current = true
+      ;(window as any)._isRimeSpeaking = true
+
+      activeSourcesRef.current = (activeSourcesRef.current || 0) + 1
 
       source.onended = () => {
-        if (scheduledAtRef.current <= ctx.currentTime + 0.05) {
+        activeSourcesRef.current = Math.max(0, (activeSourcesRef.current || 1) - 1)
+        if (activeSourcesRef.current === 0) {
           setIsPlaying(false)
           playingRef.current = false
+          ;(window as any)._isRimeSpeaking = false
         }
       }
+
+      // Safety fallback timer to guarantee _isRimeSpeaking is cleared
+      if (rimeTimeoutRef.current) clearTimeout(rimeTimeoutRef.current)
+      const dur = Math.max(1, (scheduledAtRef.current - ctx.currentTime) * 1000)
+      rimeTimeoutRef.current = setTimeout(() => {
+        activeSourcesRef.current = 0
+        setIsPlaying(false)
+        playingRef.current = false
+        ;(window as any)._isRimeSpeaking = false
+      }, dur + 500)
     } catch (err) {
       console.warn('[useRimeAudio] Decode error:', err)
+      ;(window as any)._isRimeSpeaking = false
     }
   }, [getAudioCtx])
 

@@ -317,7 +317,7 @@ async def get_production_kpis() -> dict:
         "plant_efficiency_pct": efficiency,
         "power_draw_kw": power_kw,
         "active_alarms": active_alarms,
-        "active_permits": 2,
+        "active_permits": await _get_active_permits_count(),
         "personnel_onsite": sum(personnel.values()),
         "personnel_by_zone": personnel,
         "mtbi_hours": 2847,  # mean time between incidents (from audit log eventually)
@@ -330,31 +330,37 @@ async def get_production_kpis() -> dict:
     }
 
 
+async def _get_active_permits_count() -> int:
+    import os
+    from backend.db.db import get_db
+    db_path = os.environ.get("SQLITE_PATH", "./vigil.db")
+    try:
+        async with get_db(db_path) as db:
+            cursor = await db.execute("SELECT COUNT(*) as cnt FROM permits WHERE status = 'active'")
+            row = await cursor.fetchone()
+            return row["cnt"] if row else 0
+    except Exception:
+        return 0
+
+
 @router.get("/permits")
 async def get_active_permits() -> list[dict]:
-    """Active permits-to-work."""
-    return [
-        {
-            "permit_id": "PTW-2026-0421",
-            "permit_type": "hot_work",
-            "zone_id": "Bay3",
-            "issued_to": "Suresh Patel",
-            "issued_at": datetime.now(timezone.utc).replace(hour=6, minute=0).isoformat(),
-            "expires_at": datetime.now(timezone.utc).replace(hour=14, minute=0).isoformat(),
-            "status": "active",
-            "equipment": "C-14",
-            "gas_test_required": True,
-            "gas_tested_at": datetime.now(timezone.utc).replace(hour=6, minute=15).isoformat(),
-        },
-        {
-            "permit_id": "PTW-2026-0422",
-            "permit_type": "instrumentation_maintenance",
-            "zone_id": "Bay4",
-            "issued_to": "Ankit Sharma",
-            "issued_at": datetime.now(timezone.utc).replace(hour=7, minute=30).isoformat(),
-            "expires_at": datetime.now(timezone.utc).replace(hour=12, minute=0).isoformat(),
-            "status": "active",
-            "equipment": "PRV-22",
-            "gas_test_required": False,
-        },
-    ]
+    """Return all persisted permits-to-work from the SQLite database."""
+    import os
+    from backend.db.db import get_db
+    db_path = os.environ.get("SQLITE_PATH", "./vigil.db")
+    try:
+        async with get_db(db_path) as db:
+            cursor = await db.execute(
+                """
+                SELECT permit_id, permit_type, zone_id, holder as issued_to, status,
+                       window_start as issued_at, window_end as expires_at
+                  FROM permits
+                ORDER BY CASE WHEN status = 'active' THEN 0 ELSE 1 END, permit_id
+                """
+            )
+            rows = await cursor.fetchall()
+            return [dict(r) for r in rows]
+    except Exception:
+        return []
+
