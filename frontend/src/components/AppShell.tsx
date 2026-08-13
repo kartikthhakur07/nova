@@ -24,13 +24,6 @@ const TOPBAR_METRICS = [
   { label: 'Rime Audio',  value: '388ms', color: '#0D9488' },
 ]
 
-const PHASE_5_NAV_ITEMS = [
-  { label: 'Live Plant',         icon: Activity,        to: '/dashboard/live-plant' },
-  { label: 'Active Case',        icon: ShieldCheck,     to: '/dashboard/active-case' },
-  { label: 'Counterfactual',     icon: Cpu,             to: '/dashboard/counterfactual' },
-  { label: 'Memory & Reports',   icon: Database,        to: '/dashboard/reports' },
-]
-
 export default function AppShell() {
   const location = useLocation()
   const isActive = (to: string) =>
@@ -156,39 +149,6 @@ export default function AppShell() {
                     {item.badge}
                   </span>
                 )}
-              </Link>
-            )
-          })}
-        </div>
-
-        <div style={{ padding: '12px 12px 8px', borderTop: '1px solid #E9E9E5' }}>
-          <div style={{
-            fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', color: '#8E9096',
-            textTransform: 'uppercase', marginBottom: 8, paddingLeft: 8,
-          }}>
-            Phase 5 Tabs
-          </div>
-          {PHASE_5_NAV_ITEMS.map(item => {
-            const active = isActive(item.to)
-            const Icon = item.icon
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '9px 12px', borderRadius: 8, marginBottom: 2,
-                  background: active ? '#F3DFC0' : 'transparent',
-                  color: active ? '#D98A3A' : '#62636A',
-                  textDecoration: 'none', fontSize: 13.5,
-                  fontWeight: active ? 600 : 500,
-                  transition: 'all 0.15s',
-                }}
-                onMouseEnter={e => { if (!active) { e.currentTarget.style.background = '#F7F6F2'; e.currentTarget.style.color = '#0E0D1F' } }}
-                onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#62636A' } }}
-              >
-                <Icon size={15} color={active ? '#D98A3A' : '#8E9096'} style={{ flexShrink: 0 }} />
-                <span style={{ flex: 1 }}>{item.label}</span>
               </Link>
             )
           })}

@@ -1,14 +1,5 @@
 import { useDemoStore } from '../../store/useDemoStore'
 import { useSimulationStore } from '../../store/useSimulationStore'
-import { Link } from 'react-router-dom'
-import { Activity, ShieldCheck, Cpu, Database } from 'lucide-react'
-
-const PHASE_5_NAV_ITEMS = [
-  { label: 'Live Plant',         icon: Activity,        to: '/dashboard/live-plant' },
-  { label: 'Active Case',        icon: ShieldCheck,     to: '/dashboard/active-case' },
-  { label: 'Counterfactual',     icon: Cpu,             to: '/dashboard/counterfactual' },
-  { label: 'Memory & Reports',   icon: Database,        to: '/dashboard/reports' },
-]
 
 export default function EventLog() {
   const isSim = useSimulationStore(s => s.isRunning)
@@ -119,58 +110,6 @@ export default function EventLog() {
             </div>
           </div>
         ))}
-      </div>
-
-      <div style={{
-        padding: '12px 16px',
-        borderTop: '1px solid #E9E9E5',
-        background: '#F7F6F2',
-      }}>
-        <div style={{
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: '0.55rem',
-          letterSpacing: '0.12em',
-          color: '#62636A',
-          marginBottom: '10px',
-        }}>
-          PHASE 5 VIEWS
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          {PHASE_5_NAV_ITEMS.map(item => {
-            const Icon = item.icon
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '10px',
-                  padding: '8px 12px',
-                  background: '#FFFFFF',
-                  border: '1px solid #C8C9C6',
-                  borderRadius: '6px',
-                  color: '#62636A',
-                  textDecoration: 'none',
-                  transition: 'all 0.2s',
-                  fontFamily: "'Titillium Web', sans-serif",
-                  fontSize: '0.8rem',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = '#F3DFC0'
-                  e.currentTarget.style.color = '#D98A3A'
-                  e.currentTarget.style.borderColor = '#D98A3A'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = '#FFFFFF'
-                  e.currentTarget.style.color = '#62636A'
-                  e.currentTarget.style.borderColor = '#C8C9C6'
-                }}
-              >
-                <Icon size={14} style={{ flexShrink: 0 }} />
-                <span>{item.label}</span>
-              </Link>
-            )
-          })}
-        </div>
       </div>
     </div>
   )
