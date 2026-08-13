@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import heroHandsImg from '../assets/hero-hands.png'
 import HeroSection from '../components/HeroSection'
 import LOGO from '../assets/LOGO.png'
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import BackA from '../assets/BackA.png'
 
 export default function HomePage() {
@@ -258,7 +258,7 @@ function HeroBlock() {
             maxWidth: '520px',
             textShadow: '0 2px 12px rgba(0,0,0,0.9), 0 1px 3px rgba(0,0,0,0.95)',
           }}>
-            Detect unrelated signals across sensors and systems — permitting, operations, CCTV, behaviour — and fuse them into actionable compound risk in real time.
+            Detect unrelated signals across sensors and systems — permitting, operations, behaviour — and fuse them into actionable compound risk in real time.
           </p>
 
           <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
@@ -673,51 +673,79 @@ function ProblemSection() {
     </section>
   )
 }
-
 function ApproachSection() {
+  const sectionRef = useRef(null)
+
   const steps = [
     {
       num: '01',
       title: 'DETECT & CONTEXTUALIZE',
       desc: 'Continuous stream ingestion across SCADA, permits, CCTV, and maintenance logs inside a rolling time window per bay.',
+      position: 'left',
     },
     {
       num: '02',
       title: 'RETRIEVE MEMORY',
       desc: 'Searching Qdrant vector memory for matching historical near-misses and organizational precedents.',
+      position: 'right',
     },
     {
       num: '03',
       title: 'REASON & EXPLAIN',
       desc: 'Computing compound risk via auditable, deterministic arithmetic and structuring transparent evidence chains.',
+      position: 'left',
     },
     {
       num: '04',
       title: 'PROACTIVE VOICE RECOMMENDATION',
       desc: 'Initiating hands-free voice calls to safety officers structured as state → evidence → ask.',
+      position: 'right',
     },
     {
       num: '05',
       title: 'AUTHORIZE & ACT',
       desc: 'Single human confirmation gate before executing typed safety tools with immutable audit logging.',
+      position: 'left',
     },
     {
       num: '06',
       title: 'COMPOUNDING MEMORY',
       desc: 'Embedding resolved incidents back into Qdrant memory so the next incident is caught faster.',
+      position: 'right',
     },
   ]
 
+  /* --------------------------------
+     SCROLL PROGRESS
+  -------------------------------- */
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start 70%', 'end 35%'],
+  })
+
+  /*
+    Controls the drawing of the dotted path.
+  */
+  const pathProgress = useTransform(
+    scrollYProgress,
+    [0, 0.9],
+    [0, 1]
+  )
+
   return (
     <section
+      ref={sectionRef}
       id="approach"
       style={{
+        position: 'relative',
         background: '#F3F0E6',
-        padding: '110px 0',
-        color: '#4a6741',
+        padding: '110px 0 170px',
+        color: '#050505ff',
         overflow: 'hidden',
       }}
     >
+
       <div
         style={{
           maxWidth: '1280px',
@@ -726,10 +754,19 @@ function ApproachSection() {
         }}
       >
 
-        {/* SECTION HEADER */}
+        {/* =====================================================
+            HEADER
+        ====================================================== */}
+
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{
+            opacity: 0,
+            y: 40,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
           viewport={{
             once: true,
             amount: 0.25,
@@ -739,15 +776,16 @@ function ApproachSection() {
             ease: [0.16, 1, 0.3, 1],
           }}
           style={{
-            marginBottom: '55px',
+            marginBottom: '70px',
           }}
         >
+
           <div
             style={{
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: '0.65rem',
               letterSpacing: '0.14em',
-              color: '#4a6741',
+              color: '#030303ff',
               fontWeight: 700,
               textTransform: 'uppercase',
               marginBottom: '10px',
@@ -759,9 +797,10 @@ function ApproachSection() {
           <h2
             style={{
               fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: 'clamp(2.8rem, 5vw, 4.5rem)',
-              color: '#0b0f0aff',
+              fontSize: 'clamp(2.8rem, 5vw, 4.8rem)',
+              color: '#0b0f0a',
               lineHeight: 0.9,
+              maxWidth: '720px',
               margin: 0,
               letterSpacing: '0.01em',
             }}
@@ -774,9 +813,9 @@ function ApproachSection() {
           <p
             style={{
               fontFamily: "'Titillium Web', sans-serif",
-              fontSize: '1rem',
+              fontSize: '1.5rem',
               fontWeight: 400,
-              color: 'rgba(74,103,65,0.75)',
+              color: 'rgba(12, 12, 12, 0.75)',
               maxWidth: '640px',
               marginTop: '18px',
               lineHeight: 1.6,
@@ -786,131 +825,395 @@ function ApproachSection() {
             It speaks up the moment an otherwise invisible combination of facts
             becomes dangerous.
           </p>
+
         </motion.div>
 
-        {/* 6 CARDS */}
+
+        {/* =====================================================
+            ROADMAP
+        ====================================================== */}
+
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '20px',
+            position: 'relative',
+            height: '1250px',
+            width: '100%',
           }}
         >
-          {steps.map((step, idx) => (
-            <motion.div
-              key={step.num}
 
-              /* POP-UP START STATE */
-              initial={{
-                opacity: 0,
-                y: 70,
-                scale: 0.94,
-              }}
+          {/* =================================================
+              SVG DOTTED ROADMAP
+          ================================================== */}
 
-              /* WHEN USER SCROLLS TO IT */
-              whileInView={{
-                opacity: 1,
-                y: 0,
-                scale: 1,
-              }}
+          <svg
+            viewBox="0 0 1000 1250"
+            preserveAspectRatio="none"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              pointerEvents: 'none',
+              zIndex: 0,
+              overflow: 'visible',
+            }}
+          >
 
-              viewport={{
-                once: true,
-                amount: 0.2,
-              }}
+            {/* Faint complete route */}
 
-              transition={{
-                duration: 0.65,
-                delay: idx * 0.1,
-                ease: [0.16, 1, 0.3, 1],
-              }}
+            <path
+              d="
+                M 120 80
 
-              whileHover={{
-                y: -8,
-                scale: 1.015,
-                transition: {
-                  duration: 0.25,
-                  ease: 'easeOut',
-                },
-              }}
+                C 300 80,
+                  350 170,
+                  500 190
 
+                C 680 215,
+                  820 300,
+                  720 370
+
+                C 620 440,
+                  300 400,
+                  280 540
+
+                C 250 680,
+                  600 650,
+                  700 750
+
+                C 800 850,
+                  650 920,
+                  480 940
+
+                C 300 960,
+                  250 1080,
+                  420 1140
+
+                C 560 1190,
+                  720 1160,
+                  850 1210
+              "
+              fill="none"
+              stroke="rgba(74,103,65,0.14)"
+              strokeWidth="1"
+              strokeDasharray="4 8"
+              strokeLinecap="round"
+            />
+
+            {/* Animated route */}
+
+            <motion.path
+              d="
+                M 120 80
+
+                C 300 80,
+                  350 170,
+                  500 190
+
+                C 680 215,
+                  820 300,
+                  720 370
+
+                C 620 440,
+                  300 400,
+                  280 540
+
+                C 250 680,
+                  600 650,
+                  700 750
+
+                C 800 850,
+                  650 920,
+                  480 940
+
+                C 300 960,
+                  250 1080,
+                  420 1140
+
+                C 560 1190,
+                  720 1160,
+                  850 1210
+              "
+              fill="none"
+              stroke="#838583ff"
+              strokeWidth="3"
+              strokeDasharray="2 11"
+              strokeLinecap="round"
+              pathLength="1"
               style={{
-                position: 'relative',
-                background: '#E8E5D8',
-                border: '1px solid rgba(74,103,65,0.28)',
-                borderTop: '3px solid #4a6741',
-                borderRadius: '8px',
-                padding: '28px 24px',
-                minHeight: '185px',
-                boxShadow: '0 8px 25px rgba(74,103,65,0.08)',
-                cursor: 'default',
-                transition: 'box-shadow 0.3s ease',
+                pathLength: pathProgress,
               }}
-            >
+            />
 
-              {/* STEP NUMBER */}
-              <div
-                style={{
-                  fontFamily: "'Bebas Neue', sans-serif",
-                  fontSize: '2.8rem',
-                  color: '#4a6741',
-                  lineHeight: 1,
-                  marginBottom: '8px',
-                }}
-              >
-                {step.num}
-              </div>
+          </svg>
 
-              {/* TITLE */}
-              <h3
-                style={{
-                  fontFamily: "'Bebas Neue', sans-serif",
-                  fontSize: '1.35rem',
-                  color: '#4a6741',
-                  letterSpacing: '0.04em',
-                  margin: '0 0 10px 0',
-                  lineHeight: 1,
-                }}
-              >
-                {step.title}
-              </h3>
 
-              {/* DESCRIPTION */}
-              <p
-                style={{
-                  fontFamily: "'Titillium Web', sans-serif",
-                  fontSize: '0.82rem',
-                  fontWeight: 400,
-                  color: 'rgba(40,55,38,0.72)',
-                  lineHeight: 1.55,
-                  margin: 0,
-                }}
-              >
-                {step.desc}
-              </p>
+          {/* =================================================
+              ROADMAP NODES
+          ================================================== */}
 
-              {/* LITTLE GREEN CORNER */}
-              <div
+          {steps.map((step, idx) => {
+
+            /*
+              Each card gets its own portion of the scroll.
+            */
+
+            const start = 0.08 + idx * 0.13
+            const end = start + 0.12
+
+            const opacity = useTransform(
+              scrollYProgress,
+              [start, end],
+              [0, 1]
+            )
+
+            const y = useTransform(
+              scrollYProgress,
+              [start, end],
+              [45, 0]
+            )
+
+            const scale = useTransform(
+              scrollYProgress,
+              [start, end],
+              [0.88, 1]
+            )
+
+            const nodeScale = useTransform(
+              scrollYProgress,
+              [start, end],
+              [0, 1]
+            )
+
+            return (
+              <motion.div
+                key={step.num}
                 style={{
                   position: 'absolute',
-                  right: 0,
-                  top: 0,
-                  width: '18px',
-                  height: '18px',
-                  borderTop: '3px solid #4a6741',
-                  borderRight: '3px solid #4a6741',
-                  borderRadius: '0 6px 0 0',
-                  opacity: 0.5,
+
+                  /*
+                    Alternate left/right.
+                  */
+
+                  ...(step.position === 'left'
+                    ? {
+                      left: '2%',
+                    }
+                    : {
+                      right: '2%',
+                    }),
+
+                  /*
+                    Vertical placement.
+                  */
+
+                  top: `${idx * 205 + 20}px`,
+
+                  width: 'min(420px, 38%)',
+
+                  opacity,
+                  y,
+                  scale,
+
+                  zIndex: 2,
                 }}
-              />
-            </motion.div>
-          ))}
+              >
+
+                {/* ============================
+                    NODE
+                ============================= */}
+
+                <motion.div
+                  style={{
+                    position: 'absolute',
+
+                    /*
+                      Point toward center.
+                    */
+
+                    ...(step.position === 'left'
+                      ? {
+                        right: '-55px',
+                      }
+                      : {
+                        left: '-55px',
+                      }),
+
+                    top: '30px',
+
+                    width: '18px',
+                    height: '18px',
+
+                    borderRadius: '50%',
+
+                    background: '#F3F0E6',
+
+                    border: '3px solid #0c0c0cff',
+
+                    boxShadow:
+                      '0 0 0 7px rgba(74,103,65,0.08)',
+
+                    zIndex: 4,
+
+                    scale: nodeScale,
+                  }}
+                />
+
+                {/* ============================
+                    CARD
+                ============================= */}
+
+                <div
+                  style={{
+                    position: 'relative',
+
+                    background: 'rgba(255,255,255,0.48)',
+
+                    backdropFilter: 'blur(14px)',
+                    WebkitBackdropFilter: 'blur(14px)',
+
+                    border: '1px solid rgba(74,103,65,0.22)',
+
+                    borderRadius: '14px',
+
+                    padding: '28px 26px',
+
+                    minHeight: '190px',
+
+                    boxShadow: `
+                      0 18px 45px rgba(74,103,65,0.08),
+                      inset 0 1px 0 rgba(255,255,255,0.7)
+                    `,
+                  }}
+                >
+
+                  {/* NUMBER */}
+
+                  <div
+                    style={{
+                      fontFamily: "'Bebas Neue', sans-serif",
+                      fontSize: '3rem',
+                      color: '#4a6741',
+                      lineHeight: 1,
+                      marginBottom: '10px',
+                    }}
+                  >
+                    {step.num}
+                  </div>
+
+
+                  {/* TITLE */}
+
+                  <h3
+                    style={{
+                      fontFamily: "'Bebas Neue', sans-serif",
+                      fontSize: '1.3rem',
+                      color: '#010600ff',
+                      letterSpacing: '0.04em',
+                      margin: '0 0 10px',
+                      lineHeight: 1,
+                    }}
+                  >
+                    {step.title}
+                  </h3>
+
+
+                  {/* DESCRIPTION */}
+
+                  <p
+                    style={{
+                      fontFamily: "'Titillium Web', sans-serif",
+                      fontSize: '0.82rem',
+                      fontWeight: 600,
+                      color: 'rgba(10, 11, 9, 0.72)',
+                      lineHeight: 1.55,
+                      margin: 0,
+                    }}
+                  >
+                    {step.desc}
+                  </p>
+
+
+                  {/* CORNER DETAIL */}
+
+                  <div
+                    style={{
+                      position: 'absolute',
+                      right: 0,
+                      top: 0,
+                      width: '20px',
+                      height: '20px',
+                      borderTop: '3px solid #4a6741',
+                      borderRight: '3px solid #4a6741',
+                      borderRadius: '0 8px 0 0',
+                      opacity: 0.45,
+                    }}
+                  />
+
+                </div>
+
+              </motion.div>
+            )
+          })}
+
         </div>
+
+
+        {/* =====================================================
+            END OF PIPELINE
+        ====================================================== */}
+
+        <motion.div
+          initial={{
+            opacity: 0,
+            y: 30,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+            amount: 0.4,
+          }}
+          transition={{
+            duration: 0.6,
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '15px',
+            marginTop: '-40px',
+          }}
+        >
+
+          <div
+            style={{
+              width: '42px',
+              height: '2px',
+              background: '#4a6741',
+            }}
+          />
+
+          <span
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: '0.62rem',
+              letterSpacing: '0.1em',
+              color: '#4a6741',
+              textTransform: 'uppercase',
+            }}
+          >
+            CONTINUOUS LOOP · HUMAN IN THE LOOP · AUDITABLE
+          </span>
+
+        </motion.div>
+
       </div>
+
     </section>
   )
 }
-
 
 
 function CapabilitiesSection() {
@@ -1016,7 +1319,7 @@ function CapabilitiesSection() {
               fontFamily: "'Titillium Web', sans-serif",
               fontSize: '1rem',
               fontWeight: 400,
-              color: 'rgba(74,103,65,0.75)',
+              color: '#000000',
               lineHeight: 1.6,
               maxWidth: '680px',
               marginTop: '20px',
@@ -1079,12 +1382,12 @@ function CapabilitiesSection() {
               style={{
                 position: 'relative',
                 background: '#E8E5D8',
-                border: '1px solid rgba(74,103,65,0.25)',
-                borderTop: '3px solid #4a6741',
+                border: '1px solid rgba(0,0,0,0.2)',
+                borderTop: '3px solid #000000',
                 borderRadius: '8px',
                 padding: '28px 24px',
                 minHeight: '155px',
-                boxShadow: '0 8px 25px rgba(74,103,65,0.07)',
+                boxShadow: '0 8px 25px rgba(0,0,0,0.08)',
                 cursor: 'default',
               }}
             >
@@ -1094,7 +1397,7 @@ function CapabilitiesSection() {
                 style={{
                   fontFamily: "'Bebas Neue', sans-serif",
                   fontSize: '1.4rem',
-                  color: '#4a6741',
+                  color: '#000000',
                   letterSpacing: '0.04em',
                   lineHeight: 1,
                   margin: '0 0 12px 0',
@@ -1108,8 +1411,8 @@ function CapabilitiesSection() {
                 style={{
                   fontFamily: "'Titillium Web', sans-serif",
                   fontSize: '0.82rem',
-                  fontWeight: 400,
-                  color: 'rgba(40,55,38,0.72)',
+                  fontWeight: 500,
+                  color: '#000000',
                   lineHeight: 1.55,
                   margin: 0,
                 }}
@@ -1125,8 +1428,8 @@ function CapabilitiesSection() {
                   top: 0,
                   width: '18px',
                   height: '18px',
-                  borderTop: '3px solid #4a6741',
-                  borderRight: '3px solid #4a6741',
+                  borderTop: '3px solid #000000',
+                  borderRight: '3px solid #000000',
                   borderRadius: '0 6px 0 0',
                   opacity: 0.45,
                 }}
