@@ -66,13 +66,16 @@ export function useVAD({ enabled, threshold = 0.02, silenceDurationMs = 1500 }: 
           const blob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType })
           audioChunksRef.current = []
           
-          const caseId = useCaseStore.getState().activeCase?.case_id || 'demo'
+          const state = useCaseStore.getState()
+          const caseId = state.activeCase?.case_id || 'demo'
+          const currentZone = state.uiState.focusedZone || state.activeCase?.zone_id || 'Bay3'
           
           // Only send if it has some duration
           if (blob.size > 1000) {
             const formData = new FormData()
             formData.append('audio', blob, 'voice.webm')
             formData.append('case_id', caseId)
+            formData.append('current_zone', currentZone)
             
             fetch(`${API_BASE}/voice/command`, {
               method: 'POST',
@@ -105,7 +108,7 @@ export function useVAD({ enabled, threshold = 0.02, silenceDurationMs = 1500 }: 
           }
           const rms = Math.sqrt(sumSquares / dataArray.length)
 
-          const isCurrentlySpeaking = rms > threshold
+          const isCurrentlySpeaking = rms > threshold && !(window as any)._isRimeSpeaking
           
           if (isCurrentlySpeaking) {
              setListening(true)

@@ -73,11 +73,48 @@ CREATE TABLE IF NOT EXISTS shifts (
     ends_at TEXT
 );
 
+CREATE TABLE IF NOT EXISTS zones (
+    zone_id TEXT PRIMARY KEY,
+    name TEXT,
+    aliases TEXT
+);
+
 CREATE TABLE IF NOT EXISTS equipment (
     equipment_id TEXT PRIMARY KEY,
     equipment_class TEXT,
     criticality TEXT,
-    zone_id TEXT
+    zone_id TEXT,
+    name TEXT,
+    aliases TEXT
+);
+CREATE TABLE IF NOT EXISTS decision_traces (
+    trace_id TEXT PRIMARY KEY,
+    case_id TEXT REFERENCES cases(case_id),
+    raw_reading TEXT,
+    threshold_checks TEXT,
+    rag_matches TEXT,
+    learnings_snapshot TEXT,
+    gemini_raw_response TEXT,
+    latency_ms REAL,
+    created_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS actions (
+    action_id TEXT PRIMARY KEY,
+    case_id TEXT REFERENCES cases(case_id),
+    action_type TEXT,
+    details TEXT,
+    status TEXT,
+    created_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS pending_actions (
+    action_id TEXT PRIMARY KEY,
+    case_id TEXT REFERENCES cases(case_id),
+    action_type TEXT,
+    details TEXT,
+    status TEXT,
+    created_at TEXT
 );
 """
 
@@ -152,7 +189,25 @@ async def seed_demo_cases(db_path: str | None = None) -> None:
              "2026-08-09T06:30:00Z", "2026-08-09T06:30:00Z"),
         )
 
-    logger.info("VIGIL: seeded demo cases into %s", resolved_path)
+        # Seed initial permits for all bays
+        initial_permits = [
+            ("P-2291", "hot_work", "Bay3", "Officer-Singh", "active", "2026-08-01T00:00:00Z", "2030-01-01T00:00:00Z"),
+            ("PTW-0439", "electrical_isolation", "Bay1", "Ramesh Kumar", "active", "2026-08-01T00:00:00Z", "2030-01-01T00:00:00Z"),
+            ("PTW-0442", "line_break", "Bay2", "Suresh Patel", "active", "2026-08-01T00:00:00Z", "2030-01-01T00:00:00Z"),
+            ("PTW-0445", "instrumentation_maintenance", "Bay4", "Ankit Sharma", "active", "2026-08-01T00:00:00Z", "2030-01-01T00:00:00Z"),
+            ("PTW-0448", "offloading", "Bay5", "Vikram Singh", "active", "2026-08-01T00:00:00Z", "2030-01-01T00:00:00Z"),
+        ]
+        for pid, ptype, zid, holder, status, wstart, wend in initial_permits:
+            await db.execute(
+                """
+                INSERT OR IGNORE INTO permits
+                    (permit_id, permit_type, zone_id, holder, status, window_start, window_end)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (pid, ptype, zid, holder, status, wstart, wend),
+            )
+
+    logger.info("VIGIL: seeded demo cases and permits into %s", resolved_path)
 
 
 

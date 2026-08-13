@@ -87,7 +87,7 @@ export default function ProductionKPIs() {
     return (
       <div style={{ display: 'flex', gap: 10 }}>
         {[1,2,3,4,5].map(i => (
-          <div key={i} style={{ flex: 1, height: 90, background: CARD, borderRadius: 12, border: `1px solid ${BD}`,
+          <div key={i} style={{ flex: 1, height: 90, borderRadius: 12, border: `1px solid ${BD}`,
             background: 'linear-gradient(90deg, #F8F9FB 25%, #F1F3F7 50%, #F8F9FB 75%)',
             backgroundSize: '200% 100%', animation: 'nova-shimmer 1.5s infinite' }} />
         ))}

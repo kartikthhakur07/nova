@@ -213,7 +213,17 @@ export default function RealSystemSimulation() {
           bottom: 0,
           overflow: 'hidden',
         }}>
-          <PlantTwin />
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: evidenceOpen ? 380 : 0,
+            transition: 'right 0.4s ease',
+            overflow: 'hidden'
+          }}>
+            <PlantTwin />
+          </div>
           <EvidencePanel />
           <AuthorizationOverlay />
           <DemoOverlays />

@@ -148,73 +148,36 @@ export async function novaSpeakSimulation(text: string): Promise<void> {
 export async function generateReActResponse(userQuery: string): Promise<{ spoken: string; actions: string[] }> {
   const store = useSimulationStore.getState()
 
-  try {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 1800)
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 15000)
 
-    const backendRes = await fetch('/api/voice/query', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: userQuery,
-        current_zone: store.focusedZone || undefined,
-      }),
-      signal: controller.signal,
-    })
-    clearTimeout(timeoutId)
+  const backendRes = await fetch('/api/voice/query', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      text: userQuery,
+      case_id: 'case-live', // Hardcoded for simulation
+    }),
+    signal: controller.signal,
+  })
+  clearTimeout(timeoutId)
 
-    if (backendRes.ok) {
-      const data = await backendRes.json()
-      if (data?.spoken) {
-        return {
-          spoken: data.spoken,
-          actions: Array.isArray(data.actions) && data.actions.length > 0 ? data.actions : [inferScreenAction(userQuery)],
-        }
-      }
-    }
-  } catch (err) {
-    console.warn('[Frontend Engine] Backend agent timeout or offline, executing ultra-fast fallback:', err)
+  if (!backendRes.ok) {
+    throw new Error(`Backend returned ${backendRes.status}`)
   }
 
-  return fallbackReAct(userQuery, store)
-}
-
-function inferScreenAction(query: string): string {
-  const lower = query.toLowerCase()
-  if (lower.includes('bay 1') || lower.includes('zone 1')) return 'ZOOM:Bay 1'
-  if (lower.includes('bay 2') || lower.includes('zone 2')) return 'ZOOM:Bay 2'
-  if (lower.includes('bay 3') || lower.includes('zone 3')) return 'ZOOM:Bay 3'
-  if (lower.includes('bay 4') || lower.includes('zone 4')) return 'ZOOM:Bay 4'
-  if (lower.includes('bay 5') || lower.includes('zone 5')) return 'ZOOM:Bay 5'
-  if (lower.includes('track') || lower.includes('memory') || lower.includes('qdrant') || lower.includes('incident') || lower.includes('past') || lower.includes('maintenance') || lower.includes('equipment')) return 'SHOW_TRACKS'
-  if (lower.includes('audit') || lower.includes('log') || lower.includes('history')) return 'SHOW_AUDIT'
-  if (lower.includes('signal') || lower.includes('scada') || lower.includes('sensor') || lower.includes('telemetry')) return 'SHOW_SIGNALS'
-  if (lower.includes('evidence') || lower.includes('why') || lower.includes('permit') || lower.includes('reason')) return 'SHOW_EVIDENCE'
-  return 'RESET_VIEW'
-}
-
-function fallbackReAct(query: string, store: any): { spoken: string; actions: string[] } {
-  const lower = query.toLowerCase()
-  const action = inferScreenAction(query)
-  let spoken = ''
-
-  if (action === 'SHOW_TRACKS') {
-    spoken = `Displaying Qdrant memory tracks. Compressor C-14 in Bay 3 is overdue for maintenance by 2 days, which risks seal oil pressure drop and toxic H2S release.`
-  } else if (action === 'SHOW_AUDIT') {
-    spoken = `Displaying immutable audit log trail.`
-  } else if (action === 'SHOW_SIGNALS') {
-    spoken = `Opening SCADA sensor signal dashboard.`
-  } else if (action === 'SHOW_EVIDENCE') {
-    spoken = `Opening evidence panel for current risk assessment.`
-  } else if (action.startsWith('ZOOM:')) {
-    const bay = action.replace('ZOOM:', '').trim()
-    spoken = `Zooming screen to ${bay}. Monitoring live machinery vitals and equipment parameters.`
-  } else {
-    spoken = `Displaying plant 3D twin overview. All five operational bays are being monitored.`
+  const data = await backendRes.json()
+  if (!data?.response) {
+    throw new Error('Invalid backend response format')
   }
 
-  return { spoken, actions: [action] }
+  return {
+    spoken: data.response,
+    actions: Array.isArray(data.tool_calls) ? data.tool_calls : [],
+  }
 }
+
+
 
 // ─── Action Executor — Switches UI Screens Instantly ────────────────────── //
 

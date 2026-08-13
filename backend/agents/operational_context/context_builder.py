@@ -84,28 +84,37 @@ def _query_active_permits(
     cursor = conn.execute(
         """
         SELECT permit_id, permit_type, zone_id, holder, status,
-               window_start, window_end
+               COALESCE(window_start, '2026-01-01T00:00:00Z') as window_start,
+               COALESCE(window_end, '2030-01-01T00:00:00Z') as window_end
           FROM permits
          WHERE status = ?
-           AND zone_id = ?
-           AND window_start <= ?
-           AND window_end   >= ?
+           AND (zone_id = ? OR zone_id IS NULL)
+           AND COALESCE(window_start, '2026-01-01T00:00:00Z') <= ?
+           AND COALESCE(window_end, '2030-01-01T00:00:00Z') >= ?
         """,
         ("active", zone_id, now_iso, now_iso),
     )
     rows = cursor.fetchall()
-    return [
-        PermitRecord(
-            permit_id=r["permit_id"],
-            permit_type=r["permit_type"],
-            zone_id=r["zone_id"],
-            holder=r["holder"],
-            status=r["status"],
-            window_start=datetime.fromisoformat(r["window_start"]),
-            window_end=datetime.fromisoformat(r["window_end"]),
+    results = []
+    for r in rows:
+        try:
+            ws = datetime.fromisoformat(r["window_start"].replace("Z", "+00:00"))
+            we = datetime.fromisoformat(r["window_end"].replace("Z", "+00:00"))
+        except Exception:
+            ws = now
+            we = now
+        results.append(
+            PermitRecord(
+                permit_id=r["permit_id"],
+                permit_type=r["permit_type"] or "hot_work",
+                zone_id=r["zone_id"] or zone_id,
+                holder=r["holder"] or "Operator",
+                status=r["status"] or "active",
+                window_start=ws,
+                window_end=we,
+            )
         )
-        for r in rows
-    ]
+    return results
 
 
 def _query_recent_maintenance(

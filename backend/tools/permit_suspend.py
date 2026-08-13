@@ -44,6 +44,16 @@ async def handle(
         with get_connection() as conn:
             _execute_update(conn)
 
+    try:
+        from backend.bus.event_bus import bus
+        import asyncio
+        asyncio.create_task(bus.publish("ui.directive", {
+            "type": "permit.updated",
+            "payload": {"permit_id": permit_id, "status": "suspended"}
+        }))
+    except Exception:
+        pass
+
     return {"permit_id": permit_id, "new_status": "suspended"}
 
 
@@ -52,21 +62,31 @@ async def suspend_permit(case_id: str, reason: str = "") -> dict:
     import logging
     import os
     from backend.db.db import get_db as _get_db
+    from backend.bus.event_bus import bus
     logger = logging.getLogger(__name__)
     db_path = os.environ.get("SQLITE_PATH", "./vigil.db")
     try:
         async with _get_db(db_path) as db:
             cursor = await db.execute(
-                "SELECT permit_id FROM permits WHERE status='active' LIMIT 1"
+                "SELECT permit_id, zone_id FROM permits WHERE status='active' LIMIT 1"
             )
             row = await cursor.fetchone()
             if row:
+                permit_id = row["permit_id"]
+                zone_id = row["zone_id"]
                 await db.execute(
                     "UPDATE permits SET status='suspended' WHERE permit_id=?",
-                    (row["permit_id"],)
+                    (permit_id,)
                 )
-                logger.info("Suspended permit %s for case %s", row["permit_id"], case_id)
-                return {"permit_id": row["permit_id"], "new_status": "suspended"}
+                logger.info("Suspended permit %s for case %s", permit_id, case_id)
+                try:
+                    await bus.publish("ui.directive", {
+                        "type": "permit.updated",
+                        "payload": {"permit_id": permit_id, "status": "suspended", "zone_id": zone_id}
+                    })
+                except Exception:
+                    pass
+                return {"permit_id": permit_id, "new_status": "suspended"}
     except Exception as e:
         logger.warning("suspend_permit failed: %s", e)
     return {"permit_id": None, "new_status": "no_active_permit"}

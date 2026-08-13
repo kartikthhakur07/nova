@@ -14,12 +14,13 @@ class CommandResponse(BaseModel):
     transcript: str
 
 class AgentQueryRequest(BaseModel):
-    query: str
-    current_zone: Optional[str] = None
+    text: str
+    case_id: Optional[str] = None
 
 class AgentQueryResponse(BaseModel):
-    spoken: str
-    actions: List[str]
+    response: str
+    tool_calls: List[str]
+    case_id: str
 
 @router.post("/query", response_model=AgentQueryResponse)
 async def handle_agent_query(req: AgentQueryRequest):
@@ -27,13 +28,18 @@ async def handle_agent_query(req: AgentQueryRequest):
     Routes query directly to the Python Backend Multi-Agent Brain
     for zone-filtered Qdrant memory RAG, equipment risk synthesis, and Groq LLM reasoning.
     """
-    logger.info(f"[Backend Multi-Agent Brain] Query received: {req.query}")
-    res = await query_backend_agent(req.query, req.current_zone)
-    return AgentQueryResponse(spoken=res.get("spoken", ""), actions=res.get("actions", ["RESET_VIEW"]))
+    logger.info(f"[Backend Multi-Agent Brain] Query received: {req.text}")
+    res = await query_backend_agent(req.text, req.case_id)
+    return AgentQueryResponse(
+        response=res.get("response", ""),
+        tool_calls=res.get("tool_calls", []),
+        case_id=req.case_id or "case-live"
+    )
 
 @router.post("/command", response_model=CommandResponse)
 async def handle_voice_command(
     case_id: str = Form(...),
+    current_zone: Optional[str] = Form(None),
     audio: UploadFile = File(...)
 ):
     """
@@ -43,7 +49,7 @@ async def handle_voice_command(
     import tempfile
     import os
     
-    logger.info(f"Received voice command for case {case_id}")
+    logger.info(f"Received voice command for case {case_id} (zone={current_zone})")
     audio_bytes = await audio.read()
     
     with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as tmp:
@@ -55,7 +61,7 @@ async def handle_voice_command(
         logger.info(f"Transcribed command: {transcript}")
         
         if transcript:
-            await process_voice_command(case_id, transcript)
+            await process_voice_command(case_id, transcript, current_zone)
     finally:
         if os.path.exists(tmp_path):
             os.remove(tmp_path)

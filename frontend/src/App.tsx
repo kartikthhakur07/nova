@@ -29,6 +29,10 @@ import MemoryBrowser from './pages/MemoryBrowser'
 import Factory3DTwin from './pages/Factory3DTwin'
 import NovaCoPilot from './pages/FridayCoPilot'
 import SensorTelemetry from './pages/SensorTelemetry'
+import TabLivePlant from './pages/TabLivePlant'
+import TabActiveCase from './pages/TabActiveCase'
+import TabCounterfactual from './pages/TabCounterfactual'
+import TabMemoryReports from './pages/TabMemoryReports'
 
 function CaseLayout() {
   const { id: caseId = '' } = useParams<{ id: string }>()
@@ -57,10 +61,10 @@ function CaseLayout() {
 }
 
 const router = createBrowserRouter([
-  // ── Primary Live System Simulation Route ──
+  // ── Primary Landing Page Route ──
   {
     path: '/',
-    element: <RealSystemSimulation />,
+    element: <HomePage />,
   },
   {
     path: '/demo',
@@ -83,6 +87,10 @@ const router = createBrowserRouter([
       { path: 'lessons',      element: <LessonsLearned /> },
       { path: 'memory',       element: <MemoryBrowser /> },
       { path: 'benchmark',    element: <Benchmark /> },
+      { path: 'live-plant',   element: <TabLivePlant /> },
+      { path: 'active-case',  element: <TabActiveCase /> },
+      { path: 'counterfactual', element: <TabCounterfactual /> },
+      { path: 'reports',      element: <TabMemoryReports /> },
     ],
   },
   // ── Legacy case routes ──

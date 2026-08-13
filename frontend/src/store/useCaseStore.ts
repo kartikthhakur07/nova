@@ -68,6 +68,11 @@ interface CaseState {
   lessonWritten: any | null
   pendingAuth: { toolName: string; actionPreview: string } | null
   hasPendingAuth: boolean
+  
+  // Phase 5: Additional state
+  liveSensors: Record<string, any>
+  intelligenceTicker: any[]
+
 
   // ── actions ───────────────────────────────────────────────────────── //
   setCases: (cases: Case[]) => void
@@ -80,6 +85,10 @@ interface CaseState {
   setLatencyMark: (key: string, ts: number) => void
   setLessonWritten: (lesson: any | null) => void
   setPendingAuth: (auth: { toolName: string; actionPreview: string } | null) => void
+  
+  updateSensor: (sensorData: any) => void
+  addTickerItem: (item: any) => void
+
   
   // ── ui state (agent piloted) ───────────────────────────────────────── //
   uiState: {
@@ -111,6 +120,9 @@ export const useCaseStore = create<CaseState & any>((set) => ({
   lessonWritten: null,
   pendingAuth: null,
   hasPendingAuth: false,
+  liveSensors: {},
+  intelligenceTicker: [],
+
 
   setCases: (cases) => set({ cases }),
 
@@ -160,8 +172,18 @@ export const useCaseStore = create<CaseState & any>((set) => ({
   
   setPendingAuth: (auth) => set({ pendingAuth: auth, hasPendingAuth: !!auth }),
 
+  updateSensor: (sensorData) => set((prev: any) => ({
+    liveSensors: { ...prev.liveSensors, [sensorData.equipment_id]: sensorData }
+  })),
+
+  addTickerItem: (item) => set((prev: any) => ({
+    intelligenceTicker: [item, ...prev.intelligenceTicker].slice(0, 50)
+  })),
+
+
   uiState: {
     focusedZone: null,
+    focusedPermitId: null,
     activePanel: null,
     panelContext: null,
     announcement: null,
@@ -169,6 +191,7 @@ export const useCaseStore = create<CaseState & any>((set) => ({
     navTarget: null,
   },
   setUiFocusZone: (zoneId) => set((prev: any) => ({ uiState: { ...prev.uiState, focusedZone: zoneId } })),
+  setUiFocusPermit: (permitId) => set((prev: any) => ({ uiState: { ...prev.uiState, focusedPermitId: permitId } })),
   setUiPanel: (panel, context) => set((prev: any) => ({ uiState: { ...prev.uiState, activePanel: panel, panelContext: context } })),
   setUiAnnouncement: (text) => set((prev: any) => ({ uiState: { ...prev.uiState, announcement: text } })),
   setUiProposedEdit: (edit) => set((prev: any) => ({ uiState: { ...prev.uiState, proposedEdit: edit } })),

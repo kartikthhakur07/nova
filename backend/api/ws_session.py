@@ -172,15 +172,32 @@ async def start_ws_bridge(bus: "EventBus") -> None:
         await manager.broadcast_all(event)
 
     async def on_raw_telemetry(event: dict[str, Any]) -> None:
-        # Fallback baseline risk assessment for simulation telemetry if agents not active
+        await manager.broadcast_all(
+            {"type": "raw.telemetry", "payload": event, "ts": _ts()}
+        )
+        # Trigger risk assessment for telemetry events to update live risk state and zoom
         hint = event.get("severity_hint", "normal")
         val = event.get("value")
-        if hint in ("elevated", "critical") or (isinstance(val, (int, float)) and val >= 210):
-            zone_id = event.get("zone_id", "unknown_zone")
+        zone_id = event.get("zone_id", "unknown_zone")
+        
+        is_high_signal = (hint in ("elevated", "critical")) or (isinstance(val, (int, float)) and val >= 210)
+
+        # Check existing case tier in DB to detect if we need to transition/normalize
+        need_assessment = is_high_signal
+        if not is_high_signal and zone_id:
+            case_id = f"case-{zone_id.lower()}"
+            from backend.api.routes_cases import _db_path
+            try:
+                async with get_db(_db_path()) as db:
+                    cur = await db.execute("SELECT tier FROM cases WHERE case_id=?", (case_id,))
+                    row = await cur.fetchone()
+                    if row and row["tier"] != "low":
+                        need_assessment = True
+            except Exception:
+                pass
+
+        if need_assessment and zone_id:
             now_iso = _ts()
-            
-            # Generate a reproducible case ID for this zone
-            # For the demo, we map the zone to a specific case_id (e.g. Bay3 -> case-bay3)
             case_id = f"case-{zone_id.lower()}"
             
             from backend.models.case import OperationalContext, ShiftState
@@ -232,10 +249,28 @@ async def start_ws_bridge(bus: "EventBus") -> None:
             risk_payload["case_id"] = case_id
             await bus.publish("risk.assessed", risk_payload)
 
+    async def on_action_proposed(event: dict[str, Any]) -> None:
+        await manager.broadcast_all(
+            {"type": "action.proposed", "payload": event, "ts": _ts()}
+        )
+        
+    async def on_action_resolved(event: dict[str, Any]) -> None:
+        await manager.broadcast_all(
+            {"type": "action.resolved", "payload": event, "ts": _ts()}
+        )
+
+    async def on_report_generated(event: dict[str, Any]) -> None:
+        await manager.broadcast_all(
+            {"type": "report.generated", "payload": event, "ts": _ts()}
+        )
+
     await bus.subscribe("raw.telemetry", on_raw_telemetry)
     await bus.subscribe("risk.assessed", on_risk_updated)
     await bus.subscribe("case.state_changed", on_case_state_changed)
     await bus.subscribe("tool.executed", on_audit_entry)
     await bus.subscribe("ui.directive", on_ui_directive)
+    await bus.subscribe("action.proposed", on_action_proposed)
+    await bus.subscribe("action.resolved", on_action_resolved)
+    await bus.subscribe("report.generated", on_report_generated)
 
-    logger.info("WS bridge: subscribed to raw.telemetry, risk.assessed, case.state_changed, tool.executed, ui.directive")
+    logger.info("WS bridge: subscribed to raw.telemetry, risk.assessed, case.state_changed, tool.executed, ui.directive, action.*, report.*")
