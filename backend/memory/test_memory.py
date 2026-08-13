@@ -38,11 +38,8 @@ logger = logging.getLogger(__name__)
 
 @pytest.fixture(scope="module")
 def qdrant_available():
-    client = QdrantMemoryClient()
-    if not client.health_check():
-        logger.info("Qdrant server at localhost:6333 unreachable — using in-memory Qdrant for tests.")
-        client = QdrantMemoryClient(location=":memory:")
-    return client
+    # Always use in-memory Qdrant for unit tests to prevent colliding with or polluting cloud databases
+    return QdrantMemoryClient(location=":memory:")
 
 
 @pytest.fixture(scope="module")
@@ -83,7 +80,8 @@ def test_ensure_collections_idempotent(qdrant_available):
     collections = {c.name for c in qdrant_available.qclient.get_collections().collections}
 
     for name in ALL_COLLECTION_NAMES:
-        assert name in collections, f"Collection '{name}' missing"
+        prefixed_name = qdrant_available._resolve_collection_name(name)
+        assert prefixed_name in collections, f"Collection '{prefixed_name}' missing"
 
     # Call second time to verify idempotency
     qdrant_available.ensure_collections()
