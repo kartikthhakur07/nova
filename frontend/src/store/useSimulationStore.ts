@@ -16,6 +16,13 @@ export interface SensorReading {
   timestamp: number
 }
 
+export interface BriefingPayload {
+  salutation: string
+  summary: string
+  highlights: string[]
+  spoken_text: string
+}
+
 export interface DemoEvent {
   id: string
   timestamp: number
@@ -29,6 +36,13 @@ interface SimulationStore {
   isRunning: boolean
   startSimulation: () => void
   stopSimulation: () => void
+
+  briefingActive: boolean
+  briefingData: BriefingPayload | null
+  isFetchingBriefing: boolean
+  setBriefingActive: (active: boolean) => void
+  setBriefingData: (data: BriefingPayload | null) => void
+  setIsFetchingBriefing: (loading: boolean) => void
 
   currentScene: Scene
   focusedZone: string | null
@@ -65,6 +79,7 @@ interface SimulationStore {
   authorizationPending: boolean
   proposedAction: string | null
   setAuthorizationPending: (pending: boolean, action?: string) => void
+  clearBayRisk: (targetZone?: string) => void
   authorizeAction: () => void
   rejectAction: () => void
 
@@ -117,6 +132,12 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     sensors: INITIAL_SENSORS.map(s => ({ ...s, timestamp: Date.now() })),
   }),
   stopSimulation: () => set({ isRunning: false, novaState: 'idle' }),
+  briefingActive: true,
+  briefingData: null,
+  isFetchingBriefing: false,
+  setBriefingActive: (active) => set({ briefingActive: active }),
+  setBriefingData: (data) => set({ briefingData: data }),
+  setIsFetchingBriefing: (loading) => set({ isFetchingBriefing: loading }),
 
   currentScene: 'plant-resting',
   focusedZone: null,

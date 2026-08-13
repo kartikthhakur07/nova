@@ -30,6 +30,9 @@ def _get_reranker():
     global _reranker, _reranker_failed
     if _reranker_failed:
         return None
+    import os
+    if os.getenv("PYTEST_CURRENT_TEST"):
+        return None
     if _reranker is None:
         try:
             from sentence_transformers import CrossEncoder

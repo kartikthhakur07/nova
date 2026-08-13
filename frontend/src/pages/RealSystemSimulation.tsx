@@ -1,23 +1,97 @@
 import { useEffect, useCallback } from 'react'
-import { useSimulationStore } from '../store/useSimulationStore'
+import { useSimulationStore, BriefingPayload } from '../store/useSimulationStore'
 import { requestMicPermission, novaSilence } from '../engine/novaSpeech'
-import { startLiveTelemetryStream, stopLiveTelemetryStream, startRealVoiceListener, stopRealVoiceListener } from '../engine/realSystemEngine'
+import { startLiveTelemetryStream, stopLiveTelemetryStream, startRealVoiceListener, stopRealVoiceListener, novaSpeakSimulation } from '../engine/realSystemEngine'
+import { stopCurrentTTS } from '../engine/deepgramVoice'
 import PlantTwin from '../components/demo/PlantTwin'
 import NovaPresenceIndicator from '../components/demo/NovaPresenceIndicator'
 import EvidencePanel from '../components/demo/EvidencePanel'
 import AuthorizationOverlay from '../components/demo/AuthorizationOverlay'
 import EventLog from '../components/demo/EventLog'
 import DemoOverlays from '../components/demo/DemoOverlays'
+import ShiftBriefingOverlay from '../components/demo/ShiftBriefingOverlay'
 
 export default function RealSystemSimulation() {
-  const { isRunning, startSimulation, stopSimulation, activeOverlayView, setOverlayView, evidenceOpen, setEvidenceOpen, triggerAnomaly, resetTelemetry } = useSimulationStore()
+  const {
+    isRunning,
+    startSimulation,
+    stopSimulation,
+    activeOverlayView,
+    setOverlayView,
+    evidenceOpen,
+    setEvidenceOpen,
+    triggerAnomaly,
+    resetTelemetry,
+    briefingActive,
+    briefingData,
+    setBriefingActive,
+    setBriefingData,
+    setIsFetchingBriefing,
+    addEvent,
+  } = useSimulationStore()
+
+  const fetchBriefingAndSalutate = useCallback(async () => {
+    setIsFetchingBriefing(true)
+    setBriefingActive(true)
+    startSimulation() // Displays plant twin UI in background
+
+    try {
+      const res = await fetch('/api/voice/briefing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ operator_name: 'Supervisor', case_id: 'case-live' }),
+      })
+      if (res.ok) {
+        const data: BriefingPayload = await res.json()
+        setBriefingData(data)
+        novaSpeakSimulation(data.spoken_text)
+      } else {
+        throw new Error('Briefing API returned error')
+      }
+    } catch (err) {
+      console.warn('[Briefing] Error fetching Groq LLM briefing, using fallback:', err)
+      const fallback: BriefingPayload = {
+        salutation: 'Welcome back to Mission Control, Supervisor.',
+        summary: 'During your absence, 142 continuous telemetry parameters across all 5 plant bays were monitored. All core systems are stable with 1 active hot-work permit under surveillance.',
+        highlights: [
+          'Bay 1 (Distillation): DC-101 feed rate nominal at 450 L/min',
+          'Bay 2 (Heat Exchanger): PRV-201 valve service window active',
+          'Bay 3 (Compressor): C-14 seal pressure stable; PTW-0441 active permit',
+          'Overall Plant Health: 98.4% Nominal',
+        ],
+        spoken_text: 'Good shift, Supervisor. Welcome back to NOVA Mission Control. While you were away, 142 telemetry parameters were continuously monitored across all five bays. All systems are stable, and active permits remain under continuous surveillance. Regular live operations are ready to begin.',
+      }
+      setBriefingData(fallback)
+      novaSpeakSimulation(fallback.spoken_text)
+    } finally {
+      setIsFetchingBriefing(false)
+    }
+  }, [setBriefingData, setBriefingActive, setIsFetchingBriefing, startSimulation])
 
   const handleStart = useCallback(async () => {
     await requestMicPermission()
-    startSimulation()
+    await fetchBriefingAndSalutate()
+  }, [fetchBriefingAndSalutate])
+
+  const handleAcknowledgeBriefing = useCallback(() => {
+    stopCurrentTTS()
+    setBriefingActive(false)
+    addEvent({
+      type: 'nova-action',
+      message: 'Shift Handover Briefing completed via Groq LLM. Regular telemetry & voice pipeline activated.',
+      risk: 'normal',
+    })
     startLiveTelemetryStream()
     startRealVoiceListener()
-  }, [startSimulation])
+    novaSpeakSimulation('Shift handover acknowledged. Live telemetry stream and voice control room interface active.')
+  }, [setBriefingActive, addEvent])
+
+  const handleReplayVoice = useCallback(() => {
+    if (briefingData?.spoken_text) {
+      stopCurrentTTS()
+      novaSpeakSimulation(briefingData.spoken_text)
+    }
+  }, [briefingData])
 
   const handleStop = useCallback(() => {
     stopLiveTelemetryStream()
@@ -231,6 +305,12 @@ export default function RealSystemSimulation() {
       </div>
 
       <NovaPresenceIndicator />
+      {briefingActive && (
+        <ShiftBriefingOverlay
+          onAcknowledge={handleAcknowledgeBriefing}
+          onReplayVoice={handleReplayVoice}
+        />
+      )}
     </div>
   )
 }

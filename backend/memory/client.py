@@ -50,6 +50,7 @@ class QdrantMemoryClient:
         self.url = url or os.getenv("QDRANT_URL") or DEFAULT_QDRANT_URL
         self.api_key = api_key if api_key is not None else os.getenv("QDRANT_API_KEY")
         self.location = location
+        self.prefix = os.getenv("QDRANT_COLLECTION_PREFIX") or "vigil_"
 
         if location:
             self.qclient = QdrantClient(location=location)
@@ -59,6 +60,12 @@ class QdrantMemoryClient:
                 api_key=self.api_key,
                 timeout=10,
             )
+
+    def _resolve_collection_name(self, name: str) -> str:
+        """Prepends self.prefix if not already present."""
+        if name.startswith(self.prefix):
+            return name
+        return f"{self.prefix}{name}"
 
     # ------------------------------------------------------------------
     # Health
@@ -104,31 +111,32 @@ class QdrantMemoryClient:
         from qdrant_client.models import PayloadSchemaType
 
         for name in ALL_COLLECTION_NAMES:
-            if name not in existing:
+            prefixed_name = self._resolve_collection_name(name)
+            if prefixed_name not in existing:
                 cfg = COLLECTION_CONFIGS[name]
                 dist = distance_map.get(cfg["distance"], Distance.COSINE)
                 try:
                     self.qclient.create_collection(
-                        collection_name=name,
+                        collection_name=prefixed_name,
                         vectors_config=VectorParams(
                             size=cfg["vector_size"],
                             distance=dist,
                         ),
                     )
-                    logger.info("Created Qdrant collection '%s'.", name)
+                    logger.info("Created Qdrant collection '%s'.", prefixed_name)
                 except UnexpectedResponse as exc:
                     if exc.status_code == 409:
-                        logger.debug("Collection '%s' was created concurrently — OK.", name)
+                        logger.debug("Collection '%s' was created concurrently — OK.", prefixed_name)
                     else:
-                        logger.exception("Failed to create collection '%s'.", name)
+                        logger.exception("Failed to create collection '%s'.", prefixed_name)
                 except Exception:
-                    logger.exception("Failed to create collection '%s'.", name)
+                    logger.exception("Failed to create collection '%s'.", prefixed_name)
 
             # Ensure payload indexes exist for filtered fields
             for field in ("equipment_id", "zone_id", "equipment_class"):
                 try:
                     self.qclient.create_payload_index(
-                        collection_name=name,
+                        collection_name=prefixed_name,
                         field_name=field,
                         field_schema=PayloadSchemaType.KEYWORD,
                     )
@@ -145,16 +153,17 @@ class QdrantMemoryClient:
         points: list[PointStruct],
     ) -> None:
         """Upsert a batch of points into *collection_name*."""
+        prefixed_name = self._resolve_collection_name(collection_name)
         try:
             self.qclient.upsert(
-                collection_name=collection_name,
+                collection_name=prefixed_name,
                 points=points,
             )
         except Exception:
             logger.exception(
                 "Failed to upsert %d points into '%s'.",
                 len(points),
-                collection_name,
+                prefixed_name,
             )
             raise
 
@@ -169,10 +178,11 @@ class QdrantMemoryClient:
 
         Returns a list of ``ScoredPoint`` objects, or ``[]`` on error.
         """
+        prefixed_name = self._resolve_collection_name(collection_name)
         try:
             if hasattr(self.qclient, "query_points"):
                 res = self.qclient.query_points(
-                    collection_name=collection_name,
+                    collection_name=prefixed_name,
                     query=query_vector,
                     limit=limit,
                     query_filter=query_filter,
@@ -180,7 +190,7 @@ class QdrantMemoryClient:
                 return res.points
             elif hasattr(self.qclient, "search"):
                 return getattr(self.qclient, "search")(
-                    collection_name=collection_name,
+                    collection_name=prefixed_name,
                     query_vector=query_vector,
                     limit=limit,
                     query_filter=query_filter,
@@ -188,7 +198,7 @@ class QdrantMemoryClient:
             return []
         except Exception:
             logger.exception(
-                "Search failed on collection '%s'.", collection_name
+                "Search failed on collection '%s'.", prefixed_name
             )
             return []
 
@@ -203,16 +213,17 @@ class QdrantMemoryClient:
 
         Returns a list of ``Record`` objects, or ``[]`` on error.
         """
+        prefixed_name = self._resolve_collection_name(collection_name)
         try:
             records, _ = self.qclient.scroll(
-                collection_name=collection_name,
+                collection_name=prefixed_name,
                 scroll_filter=scroll_filter,
                 limit=limit,
             )
             return records
         except Exception:
             logger.exception(
-                "Scroll failed on collection '%s'.", collection_name
+                "Scroll failed on collection '%s'.", prefixed_name
             )
             return []
 
